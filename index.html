@@ -67,13 +67,7 @@
       align-items: center;
       justify-content: center;
       padding: 16px 48px;
-      transition: background 0.4s ease;
-    }
-    nav.scrolled {
-      background: rgba(10,10,10,0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(201,169,110,0.12);
+      background: transparent;
     }
     .nav-logo-img {
       height: 64px;
@@ -1516,7 +1510,6 @@
   </script>
   <script>
     const app = document.getElementById('app');
-    const navbar = document.getElementById('navbar');
     let currentView = 'home';
 
     // ─── LENIS SMOOTH SCROLL ───
@@ -1707,13 +1700,6 @@
     // Compteurs statiques — à connecter à une API plus tard
     const PLACES = { bagues: 23, bracelets: 17 };
 
-    // ─── SCROLL ───
-    window.addEventListener('scroll', () => {
-      if (currentView === 'home') {
-        navbar.classList.toggle('scrolled', window.scrollY > 60);
-      }
-    });
-
     // ─── NAVIGATION ───
     function navigate(view) {
       if (view === currentView) return;
@@ -1728,7 +1714,6 @@
         render(view);
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
-        navbar.classList.toggle('scrolled', view !== 'home');
       }, 350);
     }
 
