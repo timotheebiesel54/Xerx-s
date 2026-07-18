@@ -685,6 +685,108 @@
       opacity: 0.5;
     }
 
+    /* ─── CARROUSEL 3D PRODUITS (scroll-driven) ─── */
+    .xs-scenes-wrap {
+      width: 100%;
+      align-self: stretch;
+      margin-top: 40px;
+    }
+    .xs-scene {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      perspective: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .xs-scene-title {
+      position: relative;
+      z-index: 10;
+      margin: 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(32px, 5vw, 56px);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      cursor: pointer;
+    }
+    .xs-scene-title .char {
+      display: inline-block;
+      transform-style: preserve-3d;
+      transform-origin: 50% 0%;
+    }
+    .xs-carousel {
+      width: 400px;
+      height: 500px;
+      top: 50%;
+      left: 50%;
+      margin: -250px 0 0 -200px;
+      position: absolute;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transform: translateZ(-550px) rotateY(0deg);
+    }
+    .xs-scene:nth-child(even) .xs-carousel {
+      transform: translateZ(-550px) rotateY(45deg);
+    }
+    .xs-carousel-cell {
+      position: absolute;
+      width: 350px;
+      height: 420px;
+      left: 0;
+      top: 0;
+      transform-style: preserve-3d;
+    }
+    .xs-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    .xs-card-face {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      backface-visibility: hidden;
+      background-color: #0a0a0a;
+      background-image: var(--img, none), linear-gradient(155deg, #17140f 0%, #0a0a0a 65%, #12100b 100%);
+      background-size: cover;
+      background-position: center;
+      border: 1px solid rgba(201,169,110,0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .xs-card-face--back {
+      transform: rotateY(180deg);
+    }
+    .xs-card-label {
+      text-align: center;
+      pointer-events: none;
+    }
+    .xs-card-name {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--gold-light);
+      opacity: 0.55;
+    }
+    .xs-card-view {
+      display: block;
+      margin-top: 4px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      opacity: 0.3;
+    }
+
     /* ─── LISTE PRIVÉE ─── */
     .liste-privee {
       width: 100%;
@@ -1705,10 +1807,10 @@
       if (view === currentView) return;
       app.classList.add('fade-out');
       setTimeout(() => {
-        if (currentView === 'home' && view !== 'home') {
-          ScrollTrigger.getAll().forEach(st => st.kill());
-          if (xsMaster) { xsMaster.kill(); xsMaster = null; }
-        }
+        ScrollTrigger.getAll().forEach(st => st.kill());
+        if (xsMaster) { xsMaster.kill(); xsMaster = null; }
+        xsCarouselTimelines.forEach(tl => tl.kill());
+        xsCarouselTimelines = [];
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         render(view);
@@ -2202,6 +2304,81 @@
       );
     }
 
+    // ─── CARROUSEL 3D PRODUITS (scroll-driven, sans transition preview) ───
+    let xsCarouselTimelines = [];
+
+    function xsSplitTitleChars(el) {
+      const text = el.textContent;
+      el.innerHTML = '';
+      const chars = [];
+      for (const ch of text) {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch === ' ' ? ' ' : ch;
+        el.appendChild(span);
+        chars.push(span);
+      }
+      return chars;
+    }
+
+    function xsGetCarouselCellTransforms(count, radius) {
+      const angleStep = 360 / count;
+      return Array.from({ length: count }, (_, i) => {
+        const angle = i * angleStep;
+        return `rotateY(${angle}deg) translateZ(${radius}px)`;
+      });
+    }
+
+    function xsSetupCarouselCells(carousel) {
+      const scene = carousel.closest('.xs-scene');
+      const radius = parseFloat(scene.dataset.radius) || 500;
+      const cells = carousel.querySelectorAll('.xs-carousel-cell');
+      const transforms = xsGetCarouselCellTransforms(cells.length, radius);
+      cells.forEach((cell, i) => { cell.style.transform = transforms[i]; });
+    }
+
+    function xsCreateCarouselTimeline(carousel) {
+      const scene = carousel.closest('.xs-scene');
+      const cards = carousel.querySelectorAll('.xs-card');
+      const titleSpan = scene.querySelector('.xs-scene-title span');
+      const chars = titleSpan ? xsSplitTitleChars(titleSpan) : [];
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'sine.inOut' },
+        scrollTrigger: {
+          trigger: scene,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5,
+        },
+      });
+
+      tl.fromTo(carousel, { rotationY: 0 }, { rotationY: -180 }, 0)
+        .fromTo(carousel, { rotationZ: 3, rotationX: 3 }, { rotationZ: -3, rotationX: -3 }, 0)
+        .fromTo(cards, { filter: 'brightness(130%)' }, { filter: 'brightness(90%)', ease: 'power3' }, 0)
+        .fromTo(cards, { rotationZ: 4 }, { rotationZ: -4, ease: 'none' }, 0);
+
+      if (chars.length) {
+        gsap.fromTo(chars, { autoAlpha: 0 }, {
+          autoAlpha: 1,
+          duration: 0.02,
+          ease: 'none',
+          stagger: { each: 0.04, from: 'start' },
+          scrollTrigger: { trigger: scene, start: 'top center', toggleActions: 'play none none reverse' },
+        });
+      }
+
+      return tl;
+    }
+
+    function xsInitProductCarousels() {
+      xsCarouselTimelines = [];
+      document.querySelectorAll('.xs-carousel').forEach((carousel) => {
+        xsSetupCarouselCells(carousel);
+        xsCarouselTimelines.push(xsCreateCarouselTimeline(carousel));
+      });
+    }
+
     // ─── COLLECTION ───
     function renderCollection(type) {
       const isBagues = type === 'bagues';
@@ -2472,6 +2649,294 @@
         </div>
       `;
 
+      const scenes = isBagues ? `
+      <div class="xs-scenes-wrap">
+        <!-- VISUELS APHRODITE : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Aphrodite</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUELS GAÏA : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Gaïa</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUELS ÉOS : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Éos</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ` : `
+      <div class="xs-scenes-wrap">
+        <!-- VISUELS CÉPHALE : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-cephale')"><span>Céphale</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Céphale</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUELS ACHILLE : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-achille')"><span>Achille</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Achille</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUELS HÉRACLÈS : remplacer les 4 valeurs de --img par les data URI base64 -->
+        <div class="xs-scene" data-radius="500">
+          <h2 class="xs-scene-title" onclick="navigate('fiche-heracles')"><span>Héraclès</span></h2>
+          <div class="xs-carousel">
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 1</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 2</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 3</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="xs-carousel-cell">
+              <div class="xs-card" style="--img: none">
+                <div class="xs-card-face xs-card-face--front">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+                <div class="xs-card-face xs-card-face--back">
+                  <span class="xs-card-label"><span class="xs-card-name">Héraclès</span><span class="xs-card-view">Vue 4</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2486,6 +2951,8 @@
 
           ${modeles}
 
+          ${scenes}
+
           <button class="back-btn" onclick="navigate('home')">
             <div class="back-line"></div>
             Retour
@@ -2494,6 +2961,7 @@
       `;
 
       animateModelesIntro();
+      xsInitProductCarousels();
     }
 
     // ─── INTRO ANIMÉE DES 3 MODÈLES (scatter → ligne → cercle → mise en place) ───
