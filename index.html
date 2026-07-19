@@ -209,7 +209,7 @@
     .one {
       position: fixed;
       z-index: 50;
-      filter: brightness(60%);
+      filter: brightness(58%);
       pointer-events: none;
     }
     .one-logo {
@@ -243,8 +243,8 @@
       position: relative;
       z-index: 1;
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(13px, 1.6vw, 18px);
-      letter-spacing: 0.3em;
+      font-size: clamp(20px, 3.2vw, 34px);
+      letter-spacing: 0.35em;
       text-transform: uppercase;
       color: var(--gold-light);
       text-shadow: 0 2px 10px rgba(0,0,0,0.7);
@@ -260,7 +260,7 @@
     }
     .one-spacer--opening { height: 100vh; }
     .one-spacer--split { height: 150vh; }
-    .one-spacer--a1, .one-spacer--a4 { flex-direction: column; }
+    .one-spacer--a1 { flex-direction: column; }
 
     .one-row-track {
       display: flex;
@@ -269,8 +269,8 @@
       gap: 2vw;
       width: 100%;
     }
-    .one-row-img { width: 13vw; height: 20vh; }
-    .one-row-step { width: 15vw; height: 22vh; }
+    .one-row-img { width: 12vw; height: 18vh; }
+    .one-row-step { width: 22vw; height: 32vh; }
 
     .one-a1-step { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24vw; height: 32vh; }
     .one-a1-title {
@@ -285,24 +285,24 @@
       text-shadow: 0 2px 24px rgba(0,0,0,0.85);
     }
 
-    .one-a2-lines { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 34px; }
+    .one-a2-lines { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
     .one-a2-line {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(18px, 2.6vw, 28px);
+      font-size: clamp(26px, 3.8vw, 42px);
       font-weight: 300;
       font-style: italic;
       letter-spacing: 0.06em;
-      color: var(--white);
-      opacity: 0.85;
+      color: var(--gold);
+      opacity: 0.92;
       text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 18px;
+      gap: 0.5em;
       flex-wrap: wrap;
     }
-    .one-a2-step { display: inline-block; width: 5.5vw; height: 5.5vh; min-width: 46px; min-height: 46px; vertical-align: middle; }
-    .one-a2-img { display: inline-block; width: 5.5vw; height: 5.5vh; min-width: 46px; min-height: 46px; vertical-align: middle; }
+    .one-a2-step { display: inline-block; width: 1.5em; height: 1.5em; vertical-align: middle; }
+    .one-a2-img { display: inline-block; width: 1.5em; height: 1.5em; vertical-align: middle; }
 
     .one-a3-text {
       max-width: 460px;
@@ -317,12 +317,17 @@
       margin-right: auto;
       margin-left: 6vw;
     }
-    .one-a3-step { position: absolute; top: 50%; right: 8vw; transform: translateY(-50%); width: 22vw; height: 46vh; }
+    .one-a3-step { position: absolute; top: 50%; right: 6vw; transform: translateY(-50%); width: 30vw; height: 60vh; }
 
-    .one-a4-step { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 34vw; height: 56vh; }
+    /* ─── CITATION HÉRODOTE : section statique après la fin du parcours, pas d'image ─── */
+    .one-citation {
+      padding: 140px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
     .one-a4-quote {
-      position: relative;
-      z-index: 3;
       max-width: 560px;
       margin: 0 auto;
       font-family: 'Cormorant Garamond', serif;
@@ -333,29 +338,15 @@
       letter-spacing: 0.05em;
       color: var(--gold-light);
       text-align: center;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.85);
     }
     .one-a4-source {
-      position: relative;
-      z-index: 3;
       margin-top: 20px;
       font-size: 8px;
       letter-spacing: 0.4em;
       text-transform: uppercase;
       color: var(--gold);
       text-align: center;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.85);
     }
-
-    .one-grid-track {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5vw;
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .one-grid-img, .one-grid-step { aspect-ratio: 3/4; }
 
     .about-divider {
       width: 40px;
@@ -1238,10 +1229,10 @@
       nav { padding: 18px 20px; }
 
       /* PARCOURS UN SEUL ÉLÉMENT : même structure qu'ordinateur, tailles ajustées */
-      .split-el-label { font-size: 11px; letter-spacing: 0.22em; }
+      .split-el-label { font-size: 17px; letter-spacing: 0.25em; }
       .one-a1-title { font-size: 28px; letter-spacing: 0.1em; }
-      .one-a2-lines { gap: 24px; }
-      .one-a2-line { font-size: 15px; gap: 12px; }
+      .one-a2-lines { gap: 28px; }
+      .one-a2-line { font-size: 21px; gap: 0.5em; }
       .one-a3-text { font-size: 14px; margin-left: 3vw; max-width: 70vw; }
       .one-a4-quote { font-size: 15px; }
       .one-a4-source { font-size: 7px; letter-spacing: 0.3em; }
@@ -1918,15 +1909,16 @@
 
         <!--
           PARCOURS ACCUEIL — UN SEUL ÉLÉMENT (.one) — ORDRE DU DOM = ORDRE DU PARCOURS SCROLLÉ :
-          1. Ouverture (état initial de .one, logo Xerxès superposé)
+          1. Ouverture (état initial de .one, invisible jusqu'au scroll, logo Xerxès superposé)
           2. Rangée (data-step 1)
           3. Séparation Homme / Femme (interlude, sans data-step, .homme et .femme préexistants et cachés)
           4. Réunification (même interlude en sens inverse)
           5. A1 — À propos de Xerxès, image centrée sur texte (data-step 2)
           6. A2 — trois lignes de texte, image insérée dans la ligne (data-step 3)
-          7. A3 — texte à gauche, image à droite (data-step 4)
-          8. A4 — citation Hérodote, image centrée large sur texte (data-step 5)
-          9. Grille finale (data-step 6)
+          7. A3 — texte à gauche, image à droite (data-step 5, DERNIER data-step : le parcours
+             s'arrête ici, .one reste figé à cette géométrie pour le reste du scroll)
+          Après </section> (.one-journey) : citation Hérodote statique (.one-citation, sans image),
+          puis .newsletter-section — aucune image mobile dans ces deux blocs.
           Ne pas réordonner ces sections sans mettre à jour ce commentaire : l'ordre du DOM pilote le parcours.
           Pas de plugin GSAP Flip disponible (licence Club GreenSock absente du projet) : .one se déplace
           par tweens GSAP directs (top/left/width/height/opacity en vh/vw), voir initOneJourney().
@@ -1986,28 +1978,12 @@
             <div class="one-a3-step" data-step></div>
           </div>
 
-          <div class="one-spacer one-spacer--a4">
-            <div class="one-a4-step" data-step></div>
-            <blockquote class="one-a4-quote">« Maintenant puisse advenir ce que tu désires, ô Roi ! »</blockquote>
-            <p class="one-a4-source">Démarate à Xerxès, Hérodote, <em style="font-style:italic; text-transform:none; letter-spacing:0.02em;">Histoires</em></p>
-          </div>
+        </section>
 
-          <div class="one-spacer one-spacer--grid">
-            <div class="one-grid-track">
-              <!-- VISUEL DÉCORATIF (grille) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-grid-img"></div>
-              <!-- VISUEL DÉCORATIF (grille) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-grid-img"></div>
-              <div class="one-grid-step" data-step></div>
-              <!-- VISUEL DÉCORATIF (grille) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-grid-img"></div>
-              <!-- VISUEL DÉCORATIF (grille) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-grid-img"></div>
-              <!-- VISUEL DÉCORATIF (grille) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-grid-img"></div>
-            </div>
-          </div>
-
+        <!-- CITATION : section statique, sans image, après la fin du parcours -->
+        <section class="one-citation">
+          <blockquote class="one-a4-quote">« Maintenant puisse advenir ce que tu désires, ô Roi ! »</blockquote>
+          <p class="one-a4-source">Démarate à Xerxès, Hérodote, <em style="font-style:italic; text-transform:none; letter-spacing:0.02em;">Histoires</em></p>
         </section>
 
         <!-- NEWSLETTER -->
@@ -2033,17 +2009,23 @@
       xsInitProgressBar();
       initOneJourney();
 
-      gsap.from(
-        '.one-a1-title, .one-a2-line, .one-a3-text, .one-a4-quote, .one-a4-source',
-        {
+      // Une entrée par section, calée sur SA propre position (pas sur le haut de .one-journey) :
+      // sinon tout se joue trop tôt et l'effet est déjà terminé quand la section apparaît réellement.
+      [
+        ['.one-spacer--a1', '.one-a1-title'],
+        ['.one-spacer--a2', '.one-a2-line'],
+        ['.one-spacer--a3', '.one-a3-text'],
+        ['.one-citation', '.one-a4-quote, .one-a4-source'],
+      ].forEach(([trigger, targets]) => {
+        gsap.from(targets, {
           y: 30,
           opacity: 0,
           stagger: 0.1,
           duration: 0.9,
           ease: 'power3.out',
-          scrollTrigger: { trigger: '.one-journey', start: 'top 75%', toggleActions: 'play none none reverse' }
-        }
-      );
+          scrollTrigger: { trigger, start: 'top 65%', toggleActions: 'play none none reverse' }
+        });
+      });
     }
 
     // ─── PARCOURS UN SEUL ÉLÉMENT (.one) : pas de plugin Flip, tweens GSAP directs ───
@@ -2069,23 +2051,30 @@
         el.style.setProperty('--img', `url(${img})`);
       });
 
+      const rowImgs = gsap.utils.toArray('.one-row-img');
+
       oneCtx = gsap.context(() => {
+        // .one part invisible : le hero (.xs-stage) doit rester seul en haut de page, sans
+        // superposition. Le premier tween de la timeline (position 0) le fait apparaître,
+        // et comme le scrub cale la progression à 0 tant que le scroll n'a pas atteint
+        // .one-journey, .one reste caché pendant toute la traversée du hero.
         gsap.set(oneEl, {
           xPercent: -50, yPercent: -50,
           top: '38vh', left: '50vw', width: '26vw', height: '34vh',
-          opacity: 1,
+          opacity: 0, filter: 'brightness(58%)',
         });
         gsap.set(logoEl, { opacity: 1 });
         gsap.set([hommeEl, femmeEl], {
           xPercent: -50, yPercent: -50,
-          top: '50vh', left: '50vw', width: '15vw', height: '22vh',
+          top: '50vh', left: '50vw', width: '50vw', height: '85vh',
           opacity: 0, x: 0, pointerEvents: 'none',
         });
 
         // Timeline sur une échelle absolue 0-100, chaque position correspond à peu près à la
         // fraction de scroll totale du parcours (calculée depuis la hauteur vh cumulée de chaque
-        // section) : ça évite que les étapes tardives (A3/A4/grille) dérivent par rapport à ce
-        // qui est réellement visible à l'écran à ce moment du scroll.
+        // section, 650vh au total) : ça évite que les étapes tardives ne dérivent par rapport à
+        // ce qui est réellement visible à l'écran à ce moment du scroll. Le dernier data-step est
+        // celui de A3 : la timeline s'arrête là, .one reste figé au-delà (fin du parcours voulue).
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: '.one-journey',
@@ -2095,7 +2084,7 @@
             // homme/femme ne doivent capter les clics que pendant la fenêtre où ils sont visibles ;
             // en dehors, ce sont des éléments fixes invisibles qui ne doivent pas bloquer le contenu en dessous.
             onUpdate(self) {
-              const inSplitWindow = self.progress >= 0.17 && self.progress <= 0.42;
+              const inSplitWindow = self.progress >= 0.22 && self.progress <= 0.44;
               const pe = inSplitWindow ? 'auto' : 'none';
               hommeEl.style.pointerEvents = pe;
               femmeEl.style.pointerEvents = pe;
@@ -2103,35 +2092,42 @@
           },
         });
 
-        // 1) Ouverture → Rangée (data-step 1, ~18) : le logo s'efface, .one descend et rétrécit
-        tl.to(logoEl, { opacity: 0, duration: 5 }, 3)
-          .to(oneEl, { top: '50vh', left: '50vw', width: '15vw', height: '22vh', duration: 9 }, 8)
+        // 0) .one apparaît une fois le hero passé (fix de la superposition)
+        tl.to(oneEl, { opacity: 1, duration: 2 }, 0)
+          // luminosité : léger creux puis remontée nette sur cette toute première transition,
+          // puis identique pour le reste du parcours (aucun autre tween de filter après ceci)
+          .to(oneEl, { filter: 'brightness(48%)', duration: 2 }, 2)
+          .to(oneEl, { filter: 'brightness(95%)', duration: 10 }, 4)
+          .to(logoEl, { opacity: 0, duration: 6 }, 4)
 
-          // 2) Rangée → Séparation Homme / Femme (~32) : .one s'efface, homme/femme apparaissent décalés puis glissent
-          .to(oneEl, { opacity: 0, duration: 3 }, 18)
-          .fromTo([hommeEl, femmeEl], { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 4 }, 18)
-          .to(hommeEl, { x: '-30vw', duration: 8 }, 22)
-          .to(femmeEl, { x: '30vw', duration: 8 }, 22)
+          // 1) Ouverture → Rangée (data-step 1, ~23), avec parallaxe symétrique des 4 images latérales
+          .to(oneEl, { top: '50vh', left: '50vw', width: '22vw', height: '32vh', duration: 14 }, 6)
+          .fromTo(rowImgs[0], { y: '6vh' }, { y: '-2vh', duration: 14 }, 6)
+          .fromTo(rowImgs[1], { y: '3vh' }, { y: '-1vh', duration: 14 }, 6)
+          .fromTo(rowImgs[2], { y: '3vh' }, { y: '-1vh', duration: 14 }, 6)
+          .fromTo(rowImgs[3], { y: '6vh' }, { y: '-2vh', duration: 14 }, 6)
 
-          // 3) Réunification (~40) : homme/femme glissent l'un vers l'autre, se superposent, .one réapparaît
-          .to([hommeEl, femmeEl], { x: 0, duration: 6 }, 34)
-          .to([hommeEl, femmeEl], { opacity: 0, duration: 3 }, 39)
-          .to(oneEl, { opacity: 1, duration: 3 }, 39)
+          // 2) Rangée → Séparation Homme / Femme (~33) : .one s'efface, homme/femme apparaissent
+          //    superposés à sa place (même largeur/hauteur, pas des clones) puis glissent pour
+          //    occuper chacun une moitié d'écran, sans marge latérale
+          .to(oneEl, { opacity: 0, duration: 3 }, 20)
+          .fromTo([hommeEl, femmeEl], { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 4 }, 20)
+          .to(hommeEl, { x: '-25vw', duration: 8 }, 24)
+          .to(femmeEl, { x: '25vw', duration: 8 }, 24)
 
-          // 4) → A1 (data-step 2, ~47)
-          .to(oneEl, { top: '50vh', left: '50vw', width: '24vw', height: '32vh', duration: 5 }, 42)
+          // 3) Réunification (~42) : homme/femme glissent l'un vers l'autre, se superposent, .one réapparaît
+          .to([hommeEl, femmeEl], { x: 0, duration: 8 }, 36)
+          .to([hommeEl, femmeEl], { opacity: 0, duration: 3 }, 41)
+          .to(oneEl, { opacity: 1, duration: 3 }, 41)
 
-          // 5) → A2 (data-step 3, ~59)
-          .to(oneEl, { top: '41.6vh', left: '55.2vw', width: '5.5vw', height: '5.5vh', duration: 9 }, 50)
+          // 4) → A1 (data-step 2, ~62)
+          .to(oneEl, { top: '50vh', left: '50vw', width: '24vw', height: '32vh', duration: 14 }, 46)
 
-          // 6) → A3 (data-step 4, ~71)
-          .to(oneEl, { top: '50vh', left: '81vw', width: '22vw', height: '46vh', duration: 9 }, 62)
+          // 5) → A2 (data-step 3, ~77)
+          .to(oneEl, { top: '40.8vh', left: '57.7vw', width: '4.4vw', height: '7vh', duration: 10 }, 66)
 
-          // 7) → A4 (data-step 5, ~82)
-          .to(oneEl, { top: '50vh', left: '50vw', width: '34vw', height: '56vh', duration: 8 }, 74)
-
-          // 8) → Grille finale (data-step 6, ~94)
-          .to(oneEl, { top: '27.8vh', left: '71.3vw', width: '19.8vw', height: '42.3vh', duration: 8 }, 86);
+          // 6) → A3 (data-step 5, ~92) : dernier data-step, la timeline s'arrête ici
+          .to(oneEl, { top: '50vh', left: '79vw', width: '30vw', height: '60vh', duration: 10 }, 82);
       });
     }
 
