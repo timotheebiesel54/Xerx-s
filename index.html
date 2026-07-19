@@ -192,7 +192,7 @@
     /* ─── PARCOURS UN SEUL ÉLÉMENT (accueil) ───
        Ordre du DOM = ordre du parcours scrollé. Voir le commentaire détaillé
        au-dessus de <section class="one-journey"> dans renderHome(). */
-    .one-journey { position: relative; }
+    .one-journey-b { position: relative; }
 
     .img-slot {
       background: radial-gradient(circle at 50% 40%, #17150f, #0a0a0a);
@@ -205,41 +205,38 @@
       background-position: center;
     }
 
-    /* .one : l'élément unique, fixe, déplacé/redimensionné par le scroll (tween GSAP direct, pas de Flip) */
+    /* .one--a / .one--b : deux éléments indépendants, fixes, déplacés/redimensionnés par le scroll
+       (tween GSAP direct, pas de Flip). Rien de partagé entre les deux hormis l'image de fond. */
     .one {
       position: fixed;
       z-index: 50;
       filter: brightness(58%);
       pointer-events: none;
     }
-    .one-logo {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 42%;
-      z-index: 2;
-      filter: drop-shadow(0 2px 14px rgba(0,0,0,0.65));
-    }
 
-    /* Homme / Femme : deux éléments distincts, cachés jusqu'à l'étape de séparation, jamais des clones de .one */
-    .split-el {
-      position: fixed;
-      z-index: 49;
+    /* Homme / Femme : section statique, flux normal, aucune animation liée au scroll */
+    .duo-panels {
+      display: flex;
+      width: 100%;
+      height: 88vh;
+    }
+    .duo-panel {
+      flex: 1;
+      position: relative;
       cursor: pointer;
-      pointer-events: none;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding-bottom: 20px;
+      padding-bottom: 40px;
     }
-    .split-el::after {
+    .duo-panel::after {
       content: '';
       position: absolute;
       inset: 0;
       background: linear-gradient(to top, rgba(10,10,10,0.85), transparent 55%);
       pointer-events: none;
     }
-    .split-el-label {
+    .duo-panel-label {
       position: relative;
       z-index: 1;
       font-family: 'Cormorant Garamond', serif;
@@ -258,9 +255,10 @@
       align-items: center;
       justify-content: center;
     }
-    .one-spacer--opening { height: 100vh; }
-    .one-spacer--split { height: 150vh; }
     .one-spacer--a1 { flex-direction: column; }
+    /* Le parcours 1 (arrivée + gel + fondu de sortie) a besoin de sa propre distance de scroll ;
+       à 100vh pile, son ScrollTrigger ('top top' / 'bottom bottom') aurait une plage quasi nulle. */
+    .one-spacer--row { min-height: 300vh; }
 
     .one-row-track {
       display: flex;
@@ -270,7 +268,7 @@
       width: 100%;
     }
     .one-row-img { width: 12vw; height: 18vh; }
-    .one-row-step { width: 22vw; height: 32vh; }
+    .one-row-step { width: 12vw; height: 18vh; }
 
     .one-a1-step { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24vw; height: 32vh; }
     .one-a1-title {
@@ -1229,7 +1227,7 @@
       nav { padding: 18px 20px; }
 
       /* PARCOURS UN SEUL ÉLÉMENT : même structure qu'ordinateur, tailles ajustées */
-      .split-el-label { font-size: 17px; letter-spacing: 0.25em; }
+      .duo-panel-label { font-size: 17px; letter-spacing: 0.25em; }
       .one-a1-title { font-size: 28px; letter-spacing: 0.1em; }
       .one-a2-lines { gap: 28px; }
       .one-a2-line { font-size: 21px; gap: 0.5em; }
@@ -1514,11 +1512,16 @@
       clearTimeout(xsResizeTimer);
       xsResizeTimer = setTimeout(() => {
         if (document.querySelector('.xs-stage')) xsUpdateLayout();
-        if (document.querySelector('.xs-stage') || document.querySelector('.one-journey')) {
+        if (document.querySelector('.xs-stage') || document.querySelector('.one-journey-b') || document.querySelector('.one-spacer--row')) {
           ScrollTrigger.refresh();
         }
       }, 250);
     });
+
+    // Filet de sécurité pour le parcours 2 (point 7) : si polices/images finissent de charger après
+    // la mesure initiale du ScrollTrigger, la fin de la timeline (calée sur A3) pourrait dériver.
+    // invalidateOnRefresh sur ses triggers + un refresh explicite au chargement complet corrigent ça.
+    window.addEventListener('load', () => ScrollTrigger.refresh());
 
     // Compteurs statiques — à connecter à une API plus tard
     const PLACES = { bagues: 23, bracelets: 17 };
@@ -1530,7 +1533,8 @@
       setTimeout(() => {
         ScrollTrigger.getAll().forEach(st => st.kill());
         if (xsMaster) { xsMaster.kill(); xsMaster = null; }
-        if (oneCtx) { oneCtx.revert(); oneCtx = null; }
+        if (oneCtxA) { oneCtxA.revert(); oneCtxA = null; }
+        if (oneCtxB) { oneCtxB.revert(); oneCtxB = null; }
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
         currentView = view;
@@ -1908,55 +1912,59 @@
         </section>
 
         <!--
-          PARCOURS ACCUEIL — UN SEUL ÉLÉMENT (.one) — ORDRE DU DOM = ORDRE DU PARCOURS SCROLLÉ :
-          1. Ouverture (état initial de .one, invisible jusqu'au scroll, logo Xerxès superposé)
-          2. Rangée (data-step 1)
-          3. Séparation Homme / Femme (interlude, sans data-step, .homme et .femme préexistants et cachés)
-          4. Réunification (même interlude en sens inverse)
-          5. A1 — À propos de Xerxès, image centrée sur texte (data-step 2)
-          6. A2 — trois lignes de texte, image insérée dans la ligne (data-step 3)
-          7. A3 — texte à gauche, image à droite (data-step 5, DERNIER data-step : le parcours
-             s'arrête ici, .one reste figé à cette géométrie pour le reste du scroll)
-          Après </section> (.one-journey) : citation Hérodote statique (.one-citation, sans image),
+          PARCOURS ACCUEIL — DEUX PARCOURS INDÉPENDANTS — ORDRE DU DOM = ORDRE DU PARCOURS SCROLLÉ :
+          PARCOURS 1 (.one--a, trigger = .one-spacer--row elle-même) :
+          1. Rangée (data-step unique) — .one--a démarre directement visible (pas d'étape d'ouverture,
+             pas de logo), arrive à la MÊME taille que ses 4 voisines, se fige, puis s'efface avant
+             la section suivante : elle ne doit pas apparaître par-dessus Homme/Femme.
+          SECTION STATIQUE (.duo-panels) : Homme/Femme, flux normal, aucun ScrollTrigger.
+          PARCOURS 2 (.one--b, trigger = .one-journey-b) :
+          2. A1 — À propos de Xerxès, image centrée sur texte (data-step)
+          3. A2 — trois lignes de texte, image insérée dans la ligne (data-step, effet de blocage
+             puis rattrapage à l'arrivée, voir initOneJourneyB())
+          4. A3 — texte à gauche, image à droite (DERNIER data-step : le parcours s'arrête ici,
+             .one--b reste figé et visible à cette géométrie pour le reste du scroll)
+          Après </section> (.one-journey-b) : citation Hérodote statique (.one-citation, sans image),
           puis .newsletter-section — aucune image mobile dans ces deux blocs.
           Ne pas réordonner ces sections sans mettre à jour ce commentaire : l'ordre du DOM pilote le parcours.
-          Pas de plugin GSAP Flip disponible (licence Club GreenSock absente du projet) : .one se déplace
-          par tweens GSAP directs (top/left/width/height/opacity en vh/vw), voir initOneJourney().
+          Pas de plugin GSAP Flip disponible (licence Club GreenSock absente du projet) : .one--a/.one--b
+          se déplacent par tweens GSAP directs (top/left/width/height/opacity en vh/vw), voir
+          initOneJourneyA() / initOneJourneyB().
         -->
-        <section class="one-journey">
+        <section class="one-spacer one-spacer--row">
 
-          <!-- VISUEL PRINCIPAL (.one) : remplacer la valeur de --img par la data URI base64 -->
-          <div class="one img-slot" id="one-el">
-            <img class="one-logo" id="one-logo" alt="Xerxès" />
+          <!-- VISUEL PRINCIPAL (.one--a) : remplacer la valeur de --img par la data URI base64 -->
+          <div class="one img-slot" id="one-el-a"></div>
+
+          <div class="one-row-track">
+            <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
+            <div class="img-slot one-row-img"></div>
+            <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
+            <div class="img-slot one-row-img"></div>
+            <div class="one-row-step" data-step></div>
+            <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
+            <div class="img-slot one-row-img"></div>
+            <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
+            <div class="img-slot one-row-img"></div>
           </div>
+        </section>
 
+        <!-- HOMME / FEMME : section statique, aucune animation de scroll -->
+        <section class="duo-panels">
           <!-- VISUEL HOMME : remplacer la valeur de --img par la data URI base64 -->
-          <div class="split-el homme img-slot" id="split-homme" onclick="navigate('bracelets')">
-            <span class="split-el-label">Homme</span>
+          <div class="duo-panel img-slot" onclick="navigate('bracelets')">
+            <span class="duo-panel-label">Homme</span>
           </div>
-
           <!-- VISUEL FEMME : remplacer la valeur de --img par la data URI base64 -->
-          <div class="split-el femme img-slot" id="split-femme" onclick="navigate('bagues')">
-            <span class="split-el-label">Femme</span>
+          <div class="duo-panel img-slot" onclick="navigate('bagues')">
+            <span class="duo-panel-label">Femme</span>
           </div>
+        </section>
 
-          <div class="one-spacer one-spacer--opening"></div>
+        <section class="one-journey-b">
 
-          <div class="one-spacer one-spacer--row">
-            <div class="one-row-track">
-              <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-row-img"></div>
-              <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-row-img"></div>
-              <div class="one-row-step" data-step></div>
-              <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-row-img"></div>
-              <!-- VISUEL DÉCORATIF (rangée) : remplacer la valeur de --img par la data URI base64 -->
-              <div class="img-slot one-row-img"></div>
-            </div>
-          </div>
-
-          <div class="one-spacer one-spacer--split"></div>
+          <!-- VISUEL PRINCIPAL (.one--b, même image que .one--a) : remplacer la valeur de --img par la data URI base64 -->
+          <div class="one img-slot" id="one-el-b"></div>
 
           <div class="one-spacer one-spacer--a1">
             <div class="one-a1-step" data-step></div>
@@ -2003,15 +2011,19 @@
 
     function initHomeAnimations() {
       ScrollTrigger.getAll().forEach(st => st.kill());
-      if (oneCtx) { oneCtx.revert(); oneCtx = null; }
+      if (oneCtxA) { oneCtxA.revert(); oneCtxA = null; }
+      if (oneCtxB) { oneCtxB.revert(); oneCtxB = null; }
 
       xsUpdateLayout();
       xsInitProgressBar();
-      initOneJourney();
+      xsAssignOneImages();
+      initOneJourneyA();
+      initOneJourneyB();
 
-      // Une entrée par section, calée sur SA propre position (pas sur le haut de .one-journey) :
-      // sinon tout se joue trop tôt et l'effet est déjà terminé quand la section apparaît réellement.
+      // Une entrée par section, calée sur SA propre position : sinon tout se joue trop tôt et
+      // l'effet est déjà terminé quand la section apparaît réellement à l'écran.
       [
+        ['.duo-panels', '.duo-panel'],
         ['.one-spacer--a1', '.one-a1-title'],
         ['.one-spacer--a2', '.one-a2-line'],
         ['.one-spacer--a3', '.one-a3-text'],
@@ -2028,106 +2040,109 @@
       });
     }
 
-    // ─── PARCOURS UN SEUL ÉLÉMENT (.one) : pas de plugin Flip, tweens GSAP directs ───
-    let oneCtx = null;
-
-    function initOneJourney() {
-      const journey = document.querySelector('.one-journey');
-      if (!journey) return;
-
-      const oneEl = document.getElementById('one-el');
-      const logoEl = document.getElementById('one-logo');
-      const hommeEl = document.getElementById('split-homme');
-      const femmeEl = document.getElementById('split-femme');
-      if (!oneEl || !hommeEl || !femmeEl) return;
-      logoEl.src = XERXES_LOGO_IMG;
-
-      // .one porte toujours la même photo (celle qui traverse tout le parcours) ;
-      // tous les autres emplacements --img sont des images de travail, tirées au hasard.
-      oneEl.style.setProperty('--img', `url(${XS_ONE_MAIN_IMG})`);
-      journey.querySelectorAll('.img-slot').forEach((el) => {
-        if (el === oneEl) return;
+    // .one--a porte toujours la même photo que .one--b (celle qui traverse les deux parcours) ;
+    // tous les autres emplacements --img (rangée, vignettes A2, Homme, Femme) sont des images de
+    // travail, tirées au hasard.
+    function xsAssignOneImages() {
+      const oneA = document.getElementById('one-el-a');
+      const oneB = document.getElementById('one-el-b');
+      [oneA, oneB].forEach((el) => el && el.style.setProperty('--img', `url(${XS_ONE_MAIN_IMG})`));
+      app.querySelectorAll('.img-slot').forEach((el) => {
+        if (el === oneA || el === oneB) return;
         const img = XS_ONE_DECOR_IMGS[Math.floor(Math.random() * XS_ONE_DECOR_IMGS.length)];
         el.style.setProperty('--img', `url(${img})`);
       });
+    }
+
+    // ─── PARCOURS 1 (.one--a) : rangée uniquement, pas de plugin Flip, tweens GSAP directs ───
+    let oneCtxA = null;
+
+    function initOneJourneyA() {
+      const trigger = document.querySelector('.one-spacer--row');
+      const oneEl = document.getElementById('one-el-a');
+      if (!trigger || !oneEl) return;
 
       const rowImgs = gsap.utils.toArray('.one-row-img');
 
-      oneCtx = gsap.context(() => {
-        // .one part invisible : le hero (.xs-stage) doit rester seul en haut de page, sans
-        // superposition. Le premier tween de la timeline (position 0) le fait apparaître,
-        // et comme le scrub cale la progression à 0 tant que le scroll n'a pas atteint
-        // .one-journey, .one reste caché pendant toute la traversée du hero.
+      oneCtxA = gsap.context(() => {
+        // .one--a part invisible : le hero (.xs-stage) doit rester seul en haut de page. Le premier
+        // tween de la timeline (position 0) la fait apparaître ; le scrub cale la progression à 0
+        // tant que le scroll n'a pas atteint .one-spacer--row, donc elle reste cachée dans le hero.
         gsap.set(oneEl, {
           xPercent: -50, yPercent: -50,
           top: '38vh', left: '50vw', width: '26vw', height: '34vh',
           opacity: 0, filter: 'brightness(58%)',
         });
-        gsap.set(logoEl, { opacity: 1 });
-        gsap.set([hommeEl, femmeEl], {
-          xPercent: -50, yPercent: -50,
-          top: '50vh', left: '50vw', width: '50vw', height: '85vh',
-          opacity: 0, x: 0, pointerEvents: 'none',
-        });
 
-        // Timeline sur une échelle absolue 0-100, chaque position correspond à peu près à la
-        // fraction de scroll totale du parcours (calculée depuis la hauteur vh cumulée de chaque
-        // section, 650vh au total) : ça évite que les étapes tardives ne dérivent par rapport à
-        // ce qui est réellement visible à l'écran à ce moment du scroll. Le dernier data-step est
-        // celui de A3 : la timeline s'arrête là, .one reste figé au-delà (fin du parcours voulue).
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: '.one-journey',
+            trigger: '.one-spacer--row',
             start: 'top top',
             end: 'bottom bottom',
             scrub: 0.6,
-            // homme/femme ne doivent capter les clics que pendant la fenêtre où ils sont visibles ;
-            // en dehors, ce sont des éléments fixes invisibles qui ne doivent pas bloquer le contenu en dessous.
-            onUpdate(self) {
-              const inSplitWindow = self.progress >= 0.22 && self.progress <= 0.44;
-              const pe = inSplitWindow ? 'auto' : 'none';
-              hommeEl.style.pointerEvents = pe;
-              femmeEl.style.pointerEvents = pe;
-            },
+            invalidateOnRefresh: true,
           },
         });
 
-        // 0) .one apparaît une fois le hero passé (fix de la superposition)
-        tl.to(oneEl, { opacity: 1, duration: 2 }, 0)
-          // luminosité : léger creux puis remontée nette sur cette toute première transition,
-          // puis identique pour le reste du parcours (aucun autre tween de filter après ceci)
-          .to(oneEl, { filter: 'brightness(48%)', duration: 2 }, 2)
-          .to(oneEl, { filter: 'brightness(95%)', duration: 10 }, 4)
-          .to(logoEl, { opacity: 0, duration: 6 }, 4)
+        tl.to(oneEl, { opacity: 1, duration: 8 }, 0)
+          // luminosité : léger creux puis remontée nette, comme à l'arrivée de .one--b
+          .to(oneEl, { filter: 'brightness(48%)', duration: 4 }, 0)
+          .to(oneEl, { filter: 'brightness(95%)', duration: 12 }, 4)
 
-          // 1) Ouverture → Rangée (data-step 1, ~23), avec parallaxe symétrique des 4 images latérales
-          .to(oneEl, { top: '50vh', left: '50vw', width: '22vw', height: '32vh', duration: 14 }, 6)
-          .fromTo(rowImgs[0], { y: '6vh' }, { y: '-2vh', duration: 14 }, 6)
-          .fromTo(rowImgs[1], { y: '3vh' }, { y: '-1vh', duration: 14 }, 6)
-          .fromTo(rowImgs[2], { y: '3vh' }, { y: '-1vh', duration: 14 }, 6)
-          .fromTo(rowImgs[3], { y: '6vh' }, { y: '-2vh', duration: 14 }, 6)
+          // arrivée dans la rangée : même taille que les 4 voisines (mesurée), avec leur parallaxe
+          .to(oneEl, { top: '50vh', left: '50vw', width: '12vw', height: '18vh', duration: 40 }, 0)
+          .fromTo(rowImgs[0], { y: '6vh' }, { y: '-2vh', duration: 40 }, 0)
+          .fromTo(rowImgs[1], { y: '3vh' }, { y: '-1vh', duration: 40 }, 0)
+          .fromTo(rowImgs[2], { y: '3vh' }, { y: '-1vh', duration: 40 }, 0)
+          .fromTo(rowImgs[3], { y: '6vh' }, { y: '-2vh', duration: 40 }, 0)
 
-          // 2) Rangée → Séparation Homme / Femme (~33) : .one s'efface, homme/femme apparaissent
-          //    superposés à sa place (même largeur/hauteur, pas des clones) puis glissent pour
-          //    occuper chacun une moitié d'écran, sans marge latérale
-          .to(oneEl, { opacity: 0, duration: 3 }, 20)
-          .fromTo([hommeEl, femmeEl], { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 4 }, 20)
-          .to(hommeEl, { x: '-25vw', duration: 8 }, 24)
-          .to(femmeEl, { x: '25vw', duration: 8 }, 24)
+          // figée dans la rangée (aucun autre tween de position après ceci) : le fondu de sortie
+          // démarre tout de suite après l'arrivée (pas de long palier) pour limiter le temps
+          // pendant lequel elle resterait visuellement décalée des 4 images voisines, qui elles
+          // continuent de défiler normalement pendant que .one--a reste fixe à l'écran.
+          .to(oneEl, { opacity: 0, duration: 12 }, 40);
+      });
+    }
 
-          // 3) Réunification (~42) : homme/femme glissent l'un vers l'autre, se superposent, .one réapparaît
-          .to([hommeEl, femmeEl], { x: 0, duration: 8 }, 36)
-          .to([hommeEl, femmeEl], { opacity: 0, duration: 3 }, 41)
-          .to(oneEl, { opacity: 1, duration: 3 }, 41)
+    // ─── PARCOURS 2 (.one--b) : A1 → A2 (blocage puis rattrapage) → A3, dernier data-step ───
+    let oneCtxB = null;
 
-          // 4) → A1 (data-step 2, ~62)
-          .to(oneEl, { top: '50vh', left: '50vw', width: '24vw', height: '32vh', duration: 14 }, 46)
+    function initOneJourneyB() {
+      const journey = document.querySelector('.one-journey-b');
+      const oneEl = document.getElementById('one-el-b');
+      if (!journey || !oneEl) return;
 
-          // 5) → A2 (data-step 3, ~77)
-          .to(oneEl, { top: '40.8vh', left: '57.7vw', width: '4.4vw', height: '7vh', duration: 10 }, 66)
+      oneCtxB = gsap.context(() => {
+        // .one--b part invisible : elle ne doit pas être visible avant le début du parcours 2.
+        // Elle apparaît directement à la géométrie de A1 (mesurée), sans saut de taille.
+        gsap.set(oneEl, {
+          xPercent: -50, yPercent: -50,
+          top: '50vh', left: '50vw', width: '24vw', height: '32vh',
+          opacity: 0, filter: 'brightness(95%)',
+        });
 
-          // 6) → A3 (data-step 5, ~92) : dernier data-step, la timeline s'arrête ici
-          .to(oneEl, { top: '50vh', left: '79vw', width: '30vw', height: '60vh', duration: 10 }, 82);
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.one-journey-b',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // 1) Apparition propre au début du parcours 2 (déjà à la taille de A1, aucun redimensionnement pendant le fondu)
+        tl.to(oneEl, { opacity: 1, duration: 10 }, 0)
+
+          // 2) → A2 (~35 à 60) : léger trajet, court palier dans le trou du texte, puis rattrapage
+          //    accéléré (ease power3.in : lent au départ, puis net à la fin, "elle court pour
+          //    rattraper le lecteur"), plutôt qu'un scrub global plus inerte qui ralentirait tout.
+          .to(oneEl, { top: '42vh', left: '54vw', width: '8vw', height: '9vh', duration: 15 }, 35)
+          .to({}, { duration: 8 }, 50)
+          .to(oneEl, { top: '40.8vh', left: '57.7vw', width: '4.4vw', height: '7vh', duration: 10, ease: 'power3.in' }, 58)
+
+          // 3) → A3 (~90) : dernier data-step, la timeline s'arrête ici, .one--b reste figée et visible
+          .to(oneEl, { top: '50vh', left: '79vw', width: '30vw', height: '60vh', duration: 20 }, 70);
       });
     }
 
