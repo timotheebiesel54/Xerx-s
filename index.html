@@ -1108,6 +1108,136 @@
       opacity: 0.45;
     }
 
+    /* ─── PAGE LA MAISON ─── */
+    .maison-view {
+      min-height: 100vh;
+      padding: 130px 48px 120px;
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .maison-eyebrow {
+      font-size: 7.5px;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.55;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .maison-hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+    .maison-divider {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.55;
+      margin: 0 auto 80px;
+    }
+    .maison-divider--small { margin-bottom: 32px; }
+    .maison-chapter {
+      margin-bottom: 88px;
+      text-align: left;
+    }
+    .maison-chapter-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 22px;
+    }
+    .maison-chapter-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(15px, 1.9vw, 19px);
+      font-weight: 300;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      color: var(--gold-light);
+      opacity: 0.7;
+    }
+    .maison-closing {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .maison-closing-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(14px, 1.6vw, 17px);
+      font-style: italic;
+      color: var(--white);
+      opacity: 0.6;
+      margin-bottom: 24px;
+    }
+    .maison-closing-link {
+      font-size: 8px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+    .maison-closing-link:hover { opacity: 1; }
+
+    /* ─── MANIFESTE DISCRET (La Maison, accueil) ─── */
+    .maison-manifeste {
+      position: relative;
+      z-index: 2;
+      padding: 140px 24px;
+      max-width: 620px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .maison-manifeste-eyebrow {
+      font-size: 7.5px;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.5;
+      margin-bottom: 44px;
+      display: block;
+    }
+    .maison-manifeste-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin-bottom: 48px;
+    }
+    .maison-manifeste-line {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(16px, 2vw, 21px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.03em;
+      line-height: 1.7;
+      color: var(--white);
+      opacity: 0.75;
+    }
+    .maison-manifeste-divider {
+      width: 64px;
+      height: 1px;
+      margin: 0 auto 32px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.6;
+    }
+    .maison-manifeste-link {
+      font-size: 8px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+    .maison-manifeste-link:hover { opacity: 1; }
+
     /* ─── NEWSLETTER HOME ─── */
     .newsletter-section {
       padding: 100px 48px;
@@ -1231,6 +1361,7 @@
     <div class="footer-col">
       <span class="footer-col-title">Navigation</span>
       <span onclick="navigate('home')">Accueil</span>
+      <span onclick="navigate('maison')">La Maison</span>
       <span onclick="navigate('bagues')">Bagues</span>
       <span onclick="navigate('bracelets')">Bracelets</span>
       <span onclick="navigate('contact')">Contact</span>
@@ -1521,6 +1652,7 @@
       else if (view === 'cgv') renderCGV();
       else if (view === 'confidentialite') renderConfidentialite();
       else if (view === 'retour') renderRetour();
+      else if (view === 'maison') renderMaison();
     }
 
     function renderContact() {
@@ -1796,6 +1928,48 @@
       `;
     }
 
+    function renderMaison() {
+      app.innerHTML = `
+        <div class="back-arrow" onclick="navigate('home')">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="back-arrow-label">Accueil</span>
+        </div>
+        <div class="maison-view animate-in">
+          <span class="maison-eyebrow">La Maison</span>
+          <h1 class="maison-hero-title">Xerxès</h1>
+          <div class="maison-divider"></div>
+
+          <section class="maison-chapter">
+            <h2 class="maison-chapter-title">Le roi</h2>
+            <p class="maison-chapter-body">Xerxès régna sur le plus vaste empire que l'Antiquité ait connu; des rives de l'Indus aux côtes de la Grèce. Son nom seul convoque la démesure, l'armée innombrable, la flotte entière, le pont jeté sur la mer pour que rien ne lui résiste. On ne suivait pas Xerxès; on le servait, ou on le craignait. Ce nom porte encore, aujourd'hui, ce que peu de noms portent; la mémoire d'une puissance absolue.</p>
+          </section>
+
+          <section class="maison-chapter">
+            <h2 class="maison-chapter-title">L'origine</h2>
+            <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
+          </section>
+
+          <section class="maison-chapter">
+            <h2 class="maison-chapter-title">Le duo</h2>
+            <p class="maison-chapter-body">Chaque pièce Xerxès existe en deux exemplaires, jamais un seul; une bague, un bracelet, un même numéro d'édition gravé sur les deux. L'une se porte ici; l'autre, ailleurs, portée par une autre personne, liée à la première par un même moment ou une même épreuve traversée ensemble. La pièce n'est pas un bijou; c'est une preuve, celle qu'on n'a pas avancé seul.</p>
+          </section>
+
+          <section class="maison-chapter">
+            <h2 class="maison-chapter-title">Le cercle fermé</h2>
+            <p class="maison-chapter-body">L'édition limitée n'est pas ici une rareté commerciale; c'est une appartenance. Ceux qui portent Xerxès se reconnaissent, sans un mot, à un détail que seuls les initiés savent lire. On n'achète pas une place dans ce cercle; on y est admis, par la pièce elle-même et par celui ou celle qui la porte avec vous.</p>
+          </section>
+
+          <div class="maison-closing">
+            <div class="maison-divider maison-divider--small"></div>
+            <p class="maison-closing-text">L'accès privé demeure ouvert à ceux qui souhaitent nous rejoindre.</p>
+            <span class="maison-closing-link" onclick="navigate('home')">Rejoindre la liste privée</span>
+          </div>
+        </div>
+      `;
+    }
+
     function handleContact(e) {
       e.preventDefault();
       e.target.innerHTML = '<p style="font-family:\'Cormorant Garamond\',serif; font-size:18px; font-style:italic; color:var(--gold-light); opacity:0.7; text-align:center; padding:20px 0;">Message envoyé. Nous vous répondrons sous 48h.</p>';
@@ -1915,6 +2089,19 @@
           </div>
         </section>
 
+        <!-- MANIFESTE DISCRET (La Maison) -->
+        <section class="maison-manifeste">
+          <span class="maison-manifeste-eyebrow">La Maison</span>
+          <div class="maison-manifeste-lines">
+            <p class="maison-manifeste-line">Deux pièces jumelles portent le même numéro d'édition.</p>
+            <p class="maison-manifeste-line">L'une se porte ici; l'autre, ailleurs, par une autre personne.</p>
+            <p class="maison-manifeste-line">Ce que l'on rejoint n'est pas une marque; c'est un cercle fermé.</p>
+            <p class="maison-manifeste-line">On n'y entre pas; on y est admis.</p>
+          </div>
+          <div class="maison-manifeste-divider"></div>
+          <span class="maison-manifeste-link" onclick="navigate('maison')">Lire l'histoire</span>
+        </section>
+
         <!-- NEWSLETTER -->
         <div class="newsletter-section">
           <span class="newsletter-label">Accès privé</span>
@@ -1937,6 +2124,28 @@
       xsUpdateLayout();
       xsInitProgressBar();
       sgInit();
+      initMaisonManifesteAnimation();
+    }
+
+    // ─── MANIFESTE DISCRET (La Maison, accueil) : phrases révélées une à une au scroll ───
+    function initMaisonManifesteAnimation() {
+      const el = document.querySelector('.maison-manifeste');
+      if (!el) return;
+      const targets = el.querySelectorAll(
+        '.maison-manifeste-eyebrow, .maison-manifeste-line, .maison-manifeste-divider, .maison-manifeste-link'
+      );
+      gsap.from(targets, {
+        opacity: 0,
+        y: 24,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.maison-manifeste',
+          start: 'top 75%',
+          toggleActions: 'play none none reverse',
+        },
+      });
     }
 
     // ─── GRILLE STICKY (accueil) : reveal en quinconce → zoom scale 2.05 → contenu → sortie Homme/Femme ───
