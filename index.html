@@ -286,17 +286,6 @@
       z-index: 4;
       pointer-events: none;
     }
-    .sg-exit-snake {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: clamp(120px, 11vw, 190px);
-      opacity: 0;
-      z-index: 10;
-      pointer-events: none;
-      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.6));
-    }
-    .sg-exit-snake svg { display: block; width: 100%; height: auto; }
     .sg-exit-panel {
       position: absolute;
       top: 50%;
@@ -1911,13 +1900,6 @@
 
             <div class="sg-exit-veil" id="sg-veil"></div>
             <div class="sg-exit-line" id="sg-line"></div>
-            <div class="sg-exit-snake" id="sg-snake">
-              <svg viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8,30 C28,8 44,52 64,30 C84,8 100,52 120,30 C138,12 154,30 170,30" fill="none" stroke="#c9a96e" stroke-width="1.4" stroke-linecap="round"/>
-                <path d="M170,30 L187,23 L187,37 Z" fill="#c9a96e"/>
-                <circle cx="179" cy="28.5" r="1.6" fill="#0a0a0a"/>
-              </svg>
-            </div>
 
             <div class="sg-exit-panel sg-exit-panel--homme" id="sg-panel-homme" onclick="navigate('bracelets')">
               <img class="sg-exit-panel-img" src="${XS_ONE_DECOR_IMGS[2]}" alt="Collection Homme" />
@@ -2016,11 +1998,10 @@
       const items = gsap.utils.toArray(block.querySelectorAll('.sg-gallery__item'));
       const veil = block.querySelector('#sg-veil');
       const line = block.querySelector('#sg-line');
-      const snake = block.querySelector('#sg-snake');
       const panelHomme = block.querySelector('#sg-panel-homme');
       const panelFemme = block.querySelector('#sg-panel-femme');
       if (!wrapper || !content || !title || !description || !grid || !items.length ||
-          !veil || !line || !snake || !panelHomme || !panelFemme) return;
+          !veil || !line || !panelHomme || !panelFemme) return;
 
       const columns = sgGroupColumns(items, 3);
 
@@ -2031,7 +2012,6 @@
 
       gsap.set(veil, { opacity: 0 });
       gsap.set(line, { xPercent: -50, yPercent: -50, scaleX: 0, opacity: 0 });
-      gsap.set(snake, { xPercent: -50, yPercent: -50, scale: 0.6, opacity: 0 });
       gsap.set([panelHomme, panelFemme], {
         width: 0, height: '2px', top: '50%', yPercent: -50, opacity: 0, pointerEvents: 'none',
       });
@@ -2088,11 +2068,10 @@
         // 4) La grille tient un instant, assombrie ; le titre reste net au premier plan
         .to({}, { duration: 0.6 })
         .to(veil, { opacity: 0.62, duration: 0.8 }, '-=0.1')
-        // 5) Un fin trait doré se trace horizontalement (rappel du serpent)
+        // 5) Un fin trait doré se trace horizontalement
         .to(line, { scaleX: 1, opacity: 1, duration: 1, ease: 'power2.inOut' }, '-=0.2')
-        .to(snake, { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' }, '-=0.35')
         // 6) Le trait "ouvre" les panneaux Homme/Femme, qui se déploient depuis le centre
-        .to([panelHomme, panelFemme], { width: '50vw', opacity: 1, duration: 0.7, ease: 'power2.inOut' }, '-=0.15')
+        .to([panelHomme, panelFemme], { width: '50vw', opacity: 1, duration: 0.7, ease: 'power2.inOut' }, '-=0.3')
         .to([panelHomme, panelFemme], { height: '100vh', top: '0%', yPercent: 0, duration: 1.3, ease: 'power4.inOut' }, '-=0.15')
         .addLabel('panelsOpen')
         .to({}, { duration: 1.2 });
@@ -2167,8 +2146,16 @@
       return tl;
     }
 
+    function xsFillProductCardImages() {
+      const pool = [XS_ONE_MAIN_IMG, ...XS_ONE_DECOR_IMGS];
+      document.querySelectorAll('.xs-card').forEach((card, i) => {
+        card.style.setProperty('--img', `url(${pool[i % pool.length]})`);
+      });
+    }
+
     function xsInitProductCarousels() {
       xsCarouselTimelines = [];
+      xsFillProductCardImages();
       document.querySelectorAll('.xs-carousel').forEach((carousel) => {
         xsSetupCarouselCells(carousel);
         xsCarouselTimelines.push(xsCreateCarouselTimeline(carousel));
@@ -2183,7 +2170,6 @@
 
       const scenes = isBagues ? `
       <div class="xs-scenes-wrap">
-        <!-- VISUELS APHRODITE : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
           <div class="xs-carousel">
@@ -2230,7 +2216,6 @@
           </div>
         </div>
 
-        <!-- VISUELS GAÏA : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
           <div class="xs-carousel">
@@ -2277,7 +2262,6 @@
           </div>
         </div>
 
-        <!-- VISUELS ÉOS : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
           <div class="xs-carousel">
@@ -2326,7 +2310,6 @@
       </div>
       ` : `
       <div class="xs-scenes-wrap">
-        <!-- VISUELS CÉPHALE : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-cephale')"><span>Céphale</span></h2>
           <div class="xs-carousel">
@@ -2373,7 +2356,6 @@
           </div>
         </div>
 
-        <!-- VISUELS ACHILLE : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-achille')"><span>Achille</span></h2>
           <div class="xs-carousel">
@@ -2420,7 +2402,6 @@
           </div>
         </div>
 
-        <!-- VISUELS HÉRACLÈS : remplacer les 4 valeurs de --img par les data URI base64 -->
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-heracles')"><span>Héraclès</span></h2>
           <div class="xs-carousel">
