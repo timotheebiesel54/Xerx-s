@@ -32,8 +32,8 @@
     :root {
       --black: #0a0a0a;
       --white: #f5f2ec;
-      --gold: #c9a96e;
-      --gold-light: #e8d5b0;
+      --gold: #e8d5b0;
+      --gold-light: #f1e5ca;
       --grey: #6b6b6b;
     }
 
@@ -58,7 +58,9 @@
       opacity: 0.4;
     }
 
-    /* ─── NAVBAR ─── */
+    /* ─── NAVBAR ───
+       nav est transparente et pointer-events:none pour ne jamais intercepter les clics sous elle
+       (back-arrow, etc.) ; seuls ses enfants interactifs repassent en pointer-events:auto. */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -68,15 +70,117 @@
       justify-content: center;
       padding: 16px 48px;
       background: transparent;
+      border: none;
+      pointer-events: none;
     }
     .nav-logo-img {
-      height: 64px;
+      height: 56px;
       width: auto;
       cursor: pointer;
       transition: opacity 0.3s ease;
       display: block;
+      pointer-events: auto;
     }
     .nav-logo-img:hover { opacity: 0.75; }
+
+    /* Liens ancrés à droite (position absolute) : le logo reste centré, aucun chevauchement
+       avec le back-arrow (fixé en haut à gauche sur les pages secondaires). */
+    .nav-links {
+      position: absolute;
+      right: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      list-style: none;
+      pointer-events: auto;
+    }
+    .nav-links li {
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.75;
+      cursor: pointer;
+      transition: opacity 0.25s ease, color 0.25s ease;
+    }
+    .nav-links li:hover { opacity: 1; color: var(--gold-light); }
+
+    .nav-burger {
+      display: none;
+      position: absolute;
+      right: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      pointer-events: auto;
+      padding: 0;
+    }
+    .nav-burger span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: var(--gold);
+    }
+
+    .nav-mobile-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 998;
+      background: rgba(10, 10, 10, 0.97);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .nav-mobile-overlay.open { opacity: 1; pointer-events: auto; }
+    .nav-mobile-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    .nav-mobile-links li {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.85;
+      cursor: pointer;
+      transition: opacity 0.25s ease, color 0.25s ease;
+    }
+    .nav-mobile-links li:hover { opacity: 1; color: var(--gold-light); }
+    .nav-mobile-close {
+      position: absolute;
+      top: 28px;
+      right: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+    .nav-mobile-close:hover { opacity: 1; }
+    .nav-mobile-close svg { width: 20px; height: 20px; display: block; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+    }
 
     .top-line {
       position: fixed;
@@ -616,25 +720,6 @@
       margin-top: 16px;
       opacity: 0.8;
     }
-
-    .back-btn {
-      margin-top: 64px;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 9px;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--grey);
-      background: none;
-      border: none;
-      cursor: pointer;
-      transition: color 0.3s ease;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 300;
-    }
-    .back-btn:hover { color: var(--gold); }
-    .back-line { width: 24px; height: 1px; background: currentColor; }
 
     /* ─── FICHE PRODUIT ─── */
     .fiche-view {
@@ -1186,58 +1271,6 @@
     }
     .maison-closing-link:hover { opacity: 1; }
 
-    /* ─── MANIFESTE DISCRET (La Maison, accueil) ─── */
-    .maison-manifeste {
-      position: relative;
-      z-index: 2;
-      padding: 140px 24px;
-      max-width: 620px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .maison-manifeste-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.5;
-      margin-bottom: 44px;
-      display: block;
-    }
-    .maison-manifeste-lines {
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      margin-bottom: 48px;
-    }
-    .maison-manifeste-line {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(16px, 2vw, 21px);
-      font-weight: 300;
-      font-style: italic;
-      letter-spacing: 0.03em;
-      line-height: 1.7;
-      color: var(--white);
-      opacity: 0.75;
-    }
-    .maison-manifeste-divider {
-      width: 64px;
-      height: 1px;
-      margin: 0 auto 32px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0.6;
-    }
-    .maison-manifeste-link {
-      font-size: 8px;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--gold-light);
-      opacity: 0.6;
-      cursor: pointer;
-      transition: opacity 0.25s ease;
-    }
-    .maison-manifeste-link:hover { opacity: 1; }
-
     /* ─── NEWSLETTER HOME ─── */
     .newsletter-section {
       padding: 100px 48px;
@@ -1353,7 +1386,32 @@
 
   <nav id="navbar">
     <img id="xs-logo" class="nav-logo-img" onclick="navigate('home')" alt="Xerxès" />
+    <ul class="nav-links">
+      <li onclick="navigate('home')">Accueil</li>
+      <li onclick="navigate('bagues')">Bagues</li>
+      <li onclick="navigate('bracelets')">Bracelets</li>
+      <li onclick="navigate('maison')">La Maison</li>
+      <li onclick="navigate('contact')">Contact</li>
+    </ul>
+    <button class="nav-burger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="nav-mobile-overlay" id="nav-mobile-overlay" onclick="closeMobileMenu()">
+    <button class="nav-mobile-close" onclick="closeMobileMenu()" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 5L19 19M19 5L5 19" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <ul class="nav-mobile-links">
+      <li onclick="navigate('home'); closeMobileMenu();">Accueil</li>
+      <li onclick="navigate('bagues'); closeMobileMenu();">Bagues</li>
+      <li onclick="navigate('bracelets'); closeMobileMenu();">Bracelets</li>
+      <li onclick="navigate('maison'); closeMobileMenu();">La Maison</li>
+      <li onclick="navigate('contact'); closeMobileMenu();">Contact</li>
+    </ul>
+  </div>
 
   <div id="app"></div>
 
@@ -1361,9 +1419,9 @@
     <div class="footer-col">
       <span class="footer-col-title">Navigation</span>
       <span onclick="navigate('home')">Accueil</span>
-      <span onclick="navigate('maison')">La Maison</span>
       <span onclick="navigate('bagues')">Bagues</span>
       <span onclick="navigate('bracelets')">Bracelets</span>
+      <span onclick="navigate('maison')">La Maison</span>
       <span onclick="navigate('contact')">Contact</span>
     </div>
     <div class="footer-col">
@@ -1378,7 +1436,7 @@
       <span style="margin-top:4px; font-size:8px; opacity:0.35;">Genève, Suisse</span>
     </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© 2025 Xerxès — Tous droits réservés</span>
+      <span class="footer-copy">© 2025 Xerxès; tous droits réservés</span>
       <span class="footer-copy">Genève, Suisse</span>
     </div>
   </footer>
@@ -1442,6 +1500,20 @@
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
+
+    // ─── MENU MOBILE (burger) ───
+    function toggleMobileMenu() {
+      const overlay = document.getElementById('nav-mobile-overlay');
+      if (!overlay) return;
+      const isOpen = overlay.classList.toggle('open');
+      if (isOpen) { lenis.stop(); } else { lenis.start(); }
+    }
+    function closeMobileMenu() {
+      const overlay = document.getElementById('nav-mobile-overlay');
+      if (!overlay || !overlay.classList.contains('open')) return;
+      overlay.classList.remove('open');
+      lenis.start();
+    }
 
     // ─── HERO : SÉQUENCE SVG MASQUÉE PILOTÉE PAR LE SCROLL (Vertical Blinds) ───
     const XS_BLIND_COUNT = 12;
@@ -1659,7 +1731,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -1682,7 +1754,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -1691,7 +1763,7 @@
 
           <div class="mentions-section">
             <span class="mentions-section-title">Éditeur</span>
-            <p class="mentions-body">Xerxès — Marque déposée. Genève, Suisse.<br>Email : contact@xerxes.com</p>
+            <p class="mentions-body">Xerxès; marque déposée. Genève, Suisse.<br>Email : contact@xerxes.com</p>
           </div>
 
           <div class="mentions-section">
@@ -1716,7 +1788,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -1803,7 +1875,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -1875,7 +1947,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -1932,7 +2004,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -2089,19 +2161,6 @@
           </div>
         </section>
 
-        <!-- MANIFESTE DISCRET (La Maison) -->
-        <section class="maison-manifeste">
-          <span class="maison-manifeste-eyebrow">La Maison</span>
-          <div class="maison-manifeste-lines">
-            <p class="maison-manifeste-line">Deux pièces jumelles portent le même numéro d'édition.</p>
-            <p class="maison-manifeste-line">L'une se porte ici; l'autre, ailleurs, par une autre personne.</p>
-            <p class="maison-manifeste-line">Ce que l'on rejoint n'est pas une marque; c'est un cercle fermé.</p>
-            <p class="maison-manifeste-line">On n'y entre pas; on y est admis.</p>
-          </div>
-          <div class="maison-manifeste-divider"></div>
-          <span class="maison-manifeste-link" onclick="navigate('maison')">Lire l'histoire</span>
-        </section>
-
         <!-- NEWSLETTER -->
         <div class="newsletter-section">
           <span class="newsletter-label">Accès privé</span>
@@ -2124,28 +2183,6 @@
       xsUpdateLayout();
       xsInitProgressBar();
       sgInit();
-      initMaisonManifesteAnimation();
-    }
-
-    // ─── MANIFESTE DISCRET (La Maison, accueil) : phrases révélées une à une au scroll ───
-    function initMaisonManifesteAnimation() {
-      const el = document.querySelector('.maison-manifeste');
-      if (!el) return;
-      const targets = el.querySelectorAll(
-        '.maison-manifeste-eyebrow, .maison-manifeste-line, .maison-manifeste-divider, .maison-manifeste-link'
-      );
-      gsap.from(targets, {
-        opacity: 0,
-        y: 24,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.maison-manifeste',
-          start: 'top 75%',
-          toggleActions: 'play none none reverse',
-        },
-      });
     }
 
     // ─── GRILLE STICKY (accueil) : reveal en quinconce → zoom scale 2.05 → contenu → sortie Homme/Femme ───
@@ -2665,7 +2702,7 @@
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">Accueil</span>
         </div>
@@ -2675,11 +2712,6 @@
           <div class="collection-divider"></div>
 
           ${scenes}
-
-          <button class="back-btn" onclick="navigate('home')">
-            <div class="back-line"></div>
-            Retour
-          </button>
         </div>
       `;
 
@@ -2706,7 +2738,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Poids', valeur: '3,2 g' },
         ],
         tailles: ['48','50','52','54','56','58'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 9,
         svgType: 'ring',
       },
@@ -2723,7 +2755,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Poids', valeur: '6,8 g' },
         ],
         tailles: ['48','50','52','54','56','58'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 16,
         svgType: 'ring',
       },
@@ -2740,7 +2772,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Poids', valeur: '5,1 g' },
         ],
         tailles: ['48','50','52','54','56','58'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 12,
         svgType: 'ring-beveled',
       },
@@ -2758,7 +2790,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Longueur', valeur: '19 cm ajustable' },
         ],
         tailles: ['S','M','L','XL'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 0,
         svgType: 'bracelet-thin',
       },
@@ -2775,7 +2807,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Longueur', valeur: '18,5 cm ajustable' },
         ],
         tailles: ['S','M','L','XL'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 0,
         svgType: 'bracelet-cord',
       },
@@ -2792,7 +2824,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
           { label: 'Longueur', valeur: '20 cm ajustable' },
         ],
         tailles: ['S','M','L','XL'],
-        edition: '— / 50',
+        edition: '50',
         svgStroke: 0,
         svgType: 'bracelet-chain',
       },
@@ -2840,7 +2872,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('${m.genre}')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="back-arrow-label">${m.collection === 'Femme' ? 'Bagues' : 'Bracelets'}</span>
         </div>
@@ -2888,7 +2920,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
 
               <span class="fiche-section-label">Édition numérotée</span>
               <div class="fiche-edition">
-                <p class="fiche-edition-num">Pièce n° ${m.edition}</p>
+                <p class="fiche-edition-num">Édition limitée à ${m.edition} exemplaires</p>
               </div>
 
               <span class="fiche-section-label">${isBracelet ? 'Tour de poignet' : 'Taille (diamètre intérieur)'}</span>
@@ -2910,7 +2942,7 @@ const APHRODITE_OR_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAADo
                 <span class="fiche-section-label">Prix</span>
                 <p style="font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; letter-spacing:0.1em; color:var(--white); margin-bottom:20px;">300 CHF</p>
               </div>
-              <button class="fiche-cta" onclick="window.open('https://buy.stripe.com','_blank')">Acheter — 300 CHF</button>
+              <button class="fiche-cta" onclick="window.open('https://buy.stripe.com','_blank')">Acheter, 300 CHF</button>
 
             </div>
 
