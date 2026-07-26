@@ -1254,7 +1254,7 @@
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
     .xs-suggestion-heading {
       background: var(--black);
-      padding: 110px 24px 64px;
+      padding: 110px 24px 32px;
       text-align: center;
     }
     .xs-suggestion-title {
@@ -1279,11 +1279,18 @@
       max-width: 640px;
       margin: 0 auto;
     }
+    @media screen and (min-width: 1024px) {
+      .xs-suggestion-quote {
+        white-space: nowrap;
+        max-width: none;
+        font-size: clamp(15px, 1.35vw, 21px);
+      }
+    }
 
     /* ─── HOME : Hommes / Femmes / Sur mesure — 3 cartes espacées, N&B -> couleur ─── */
     .xs-cats-section {
       background: var(--black);
-      padding: 120px 48px 140px;
+      padding: 80px 48px 140px;
       text-align: center;
     }
     .xs-cats-grid {
@@ -1352,8 +1359,8 @@
     #wgpu-root .page{pointer-events:none;width:100%;min-height:100vh;position:absolute;top:0;left:0}
     #wgpu-root .page-main .slot{pointer-events:auto;will-change:transform;width:23vw;display:block;position:fixed;top:0;left:0}
     #wgpu-root .page-main .slot figure{width:100%;height:100%;display:block}
-    #wgpu-root .page-main .slot-caption{letter-spacing:.02em;color:var(--gold);text-transform:uppercase;opacity:.8;pointer-events:none;padding-top:.5rem;font-size:.875rem;position:absolute;top:100%;left:0;right:0}
-    #wgpu-root .page-main .slot-0,#wgpu-root .page-main .slot-1,#wgpu-root .page-main .slot-2,#wgpu-root .page-main .slot-3,#wgpu-root .page-main .slot-4{aspect-ratio:.636}
+    #wgpu-root .page-main .slot-caption{letter-spacing:.02em;color:var(--gold);text-transform:uppercase;opacity:.8;pointer-events:none;padding-top:.2rem;font-size:.875rem;position:absolute;top:100%;left:0;right:0}
+    #wgpu-root .page-main .slot-0,#wgpu-root .page-main .slot-1,#wgpu-root .page-main .slot-2,#wgpu-root .page-main .slot-3,#wgpu-root .page-main .slot-4{aspect-ratio:.52}
     #wgpu-root .page-inner .stack{width:100%;padding-top:calc((100vh - var(--cell-h)) / 2);padding-bottom:calc((100vh - var(--cell-h)) / 2);flex-direction:column;align-items:center;gap:48px;display:flex;position:relative}
     #wgpu-root .page-inner .slot{flex-shrink:0;width:23vw;display:block}
     #wgpu-root .page-inner .slot figure{width:100%;height:100%;display:block}
