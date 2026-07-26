@@ -1254,7 +1254,7 @@
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
     .xs-suggestion-heading {
       background: var(--black);
-      padding: 110px 24px 56px;
+      padding: 110px 24px 64px;
       text-align: center;
     }
     .xs-suggestion-title {
@@ -1265,10 +1265,8 @@
       text-transform: uppercase;
       color: var(--gold-light);
     }
-    .xs-suggestion-subtext {
-      background: var(--black);
-      padding: 110px 24px 72px;
-      text-align: center;
+    .xs-suggestion-heading .xs-suggestion-quote {
+      margin-top: 28px;
     }
     .xs-suggestion-quote {
       font-family: 'Cormorant Garamond', serif;
@@ -2588,6 +2586,7 @@ return window.__wgpuMountPromise;
 
         <section class="xs-suggestion-heading">
           <h2 class="xs-suggestion-title">La suggestion Xerxès</h2>
+          <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
         </section>
 
         <!--
@@ -2604,10 +2603,6 @@ return window.__wgpuMountPromise;
             </div>
             <main id="wgpu-app"></main>
           </div>
-        </section>
-
-        <section class="xs-suggestion-subtext">
-          <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
         </section>
 
         <section class="xs-cats-section">
