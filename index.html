@@ -2749,19 +2749,21 @@ return window.__wgpuMountPromise;
     // viewport. (position:sticky casserait la mise en page : ces éléments réserveraient leur
     // propre hauteur dans le flux de #wgpu-content.) On compense donc par un simple transform,
     // recalé à chaque scroll natif de #wgpu-root.
-    (function () {
+    // Délégation en phase de capture sur document : #wgpu-root est recréé à chaque renderHome()
+    // (app.innerHTML réassigné), un addEventListener posé une fois sur l'ancienne instance ne
+    // suivrait pas ; 'scroll' ne bubble pas mais se capture, donc document+capture:true l'intercepte
+    // quel que soit l'élément #wgpu-root en vie au moment de l'événement.
+    document.addEventListener('scroll', (e) => {
       const root = document.getElementById('wgpu-root');
-      if (!root) return;
-      root.addEventListener('scroll', () => {
-        const y = `translateY(${root.scrollTop}px)`;
-        const canvas = document.getElementById('gpu-canvas');
-        if (canvas) canvas.style.transform = y;
-        const backBtn = root.querySelector('.wgpu-back-btn');
-        if (backBtn) backBtn.style.transform = y;
-        const fact = root.querySelector('.inner-fact');
-        if (fact) fact.style.transform = y;
-      }, { passive: true });
-    })();
+      if (!root || e.target !== root) return;
+      const y = `translateY(${root.scrollTop}px)`;
+      const canvas = document.getElementById('gpu-canvas');
+      if (canvas) canvas.style.transform = y;
+      const backBtn = root.querySelector('.wgpu-back-btn');
+      if (backBtn) backBtn.style.transform = y;
+      const fact = root.querySelector('.inner-fact');
+      if (fact) fact.style.transform = y;
+    }, true);
 
     // ─── CARROUSEL 3D PRODUITS (scroll-driven, sans transition preview) ───
     let xsCarouselTimelines = [];
