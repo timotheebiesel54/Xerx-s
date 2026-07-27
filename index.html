@@ -1740,6 +1740,14 @@
        temps de la traverser (pattern hold/pin) pour que canvas et labels restent solidaires. */
     .wgpu-scroll-hold { position: relative; height: 200vh; }
     .wgpu-scroll-hold #wgpu-root { position: sticky; top: 0; }
+    /* La démo vendue (bundle codrops-webgpu-page-transitions ci-dessus) fait apparaître les
+       vignettes de la grille en fondu échelonné à son premier montage (tween interne à son
+       propre GSAP embarqué, hors de notre contrôle). Cet effet n'est pas voulu ici : la
+       grille doit être visible et fixe dès le chargement. Le canvas WebGPU est donc masqué
+       par défaut et révélé d'un coup (voir xsRevealGalleryCanvas) une fois ce fondu terminé,
+       sans transition CSS pour ne remplacer un fondu parasite par un autre. */
+    #gpu-canvas { opacity: 0; }
+    #gpu-canvas.xs-gallery-ready { opacity: 1; }
     #wgpu-root::-webkit-scrollbar{width:0;height:0;display:none}
     #wgpu-content{position:relative}
     #wgpu-root #preloader{z-index:2000;background:var(--black);position:fixed;inset:0}
@@ -3377,9 +3385,21 @@ return window.__wgpuMountPromise;
         // si l'utilisateur a déjà quitté la home avant la résolution, on démonte aussitôt
         // pour ne pas laisser un canvas orphelin (gpu.js l'ajoute à document.body, hors de #app).
         window.__wgpuMount()
-          .then(state => { if (currentView !== 'home' && state) state.stop(); })
+          .then(state => {
+            if (currentView !== 'home' || !state) { if (state) state.stop(); return; }
+            xsRevealGalleryCanvas();
+          })
           .catch(err => console.error('WebGPU demo mount failed:', err));
       }
+    }
+
+    // Révèle le canvas de la galerie une fois le fondu d'entrée interne (hors de notre
+    // contrôle, cf. CSS #gpu-canvas ci-dessus) largement terminé, d'un coup et sans transition.
+    function xsRevealGalleryCanvas() {
+      setTimeout(() => {
+        if (currentView !== 'home') return;
+        document.getElementById('gpu-canvas')?.classList.add('xs-gallery-ready');
+      }, 1700);
     }
 
     // ─── WEBGPU DEMO : scroll tactile (touchmove) du carrousel horizontal ───
