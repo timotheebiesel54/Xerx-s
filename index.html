@@ -1344,6 +1344,13 @@
        Cormorant Garamond). Curseur custom et bandeau d'attribution retirés. ─── */
     #wgpu-root *{box-sizing:border-box;margin:0;padding:0}
     #wgpu-root{position:relative;width:100%;height:100vh;overflow-y:auto;overflow-x:hidden;isolation:isolate;transform:translateZ(0);background:var(--black);color:var(--gold);scrollbar-width:none;-ms-overflow-style:none;font-family:'Cormorant Garamond',serif}
+    /* Le canvas WebGPU est un plan fixe de 100vh scope a #wgpu-root : tant que la section
+       traverse le scroll de la page normalement, le canvas se fait clipper des que #wgpu-root
+       n'est plus aligne sur le haut du viewport, alors que les .slot-caption (DOM classique)
+       continuent de defiler -> grand vide entre l'image et son label. On epingle la section le
+       temps de la traverser (pattern hold/pin) pour que canvas et labels restent solidaires. */
+    .wgpu-scroll-hold { position: relative; height: 200vh; }
+    .wgpu-scroll-hold #wgpu-root { position: sticky; top: 0; }
     #wgpu-root::-webkit-scrollbar{width:0;height:0;display:none}
     #wgpu-content{position:relative}
     #wgpu-root #preloader{z-index:2000;background:var(--black);position:fixed;inset:0}
@@ -2603,14 +2610,16 @@ return window.__wgpuMountPromise;
           page redirigée vers #wgpu-content, position:fixed -> absolute (CSS scopée sous #wgpu-root).
           Aucune logique de transition/GPU interne réécrite.
         -->
-        <section id="wgpu-root" class="js">
-          <div id="wgpu-content">
-            <div id="preloader">
-              <span class="preloader-count">0%</span>
+        <div class="wgpu-scroll-hold">
+          <section id="wgpu-root" class="js">
+            <div id="wgpu-content">
+              <div id="preloader">
+                <span class="preloader-count">0%</span>
+              </div>
+              <main id="wgpu-app"></main>
             </div>
-            <main id="wgpu-app"></main>
-          </div>
-        </section>
+          </section>
+        </div>
 
         <section class="xs-cats-section">
           <p class="xs-suggestion-quote">Certains préfèrent porter Xerxès seul ; la collection s'explore pièce à pièce.</p>
