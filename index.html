@@ -1386,14 +1386,29 @@
     /* max-width en min(16rem, 30vw) : l'image (23vw, centree) laisse (100vw-23vw)/2 = 38.5vw de
        chaque cote ; sur un viewport etroit (mobile), 16rem fixe deborderait sous l'image (constate
        en test), 30vw garde une marge de securite et reste a 16rem des que l'ecran est assez large. */
-    #wgpu-root .wgpu-side{position:fixed;top:50%;transform:translateY(-50%);z-index:10;max-width:min(16rem, 30vw);opacity:0;pointer-events:none;transition:opacity .5s ease;will-change:transform}
+    #wgpu-root .wgpu-side{position:fixed;top:50%;transform:translateY(-50%);z-index:10;max-width:min(16rem, 30vw);opacity:0;pointer-events:none;transition:opacity .5s ease;will-change:transform;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
     #wgpu-root .wgpu-side.is-active{opacity:1;pointer-events:auto}
+    /* Ancre les blocs sur le bord de l'image (23vw, centree -> bords a 50vw±11.5vw) avec un
+       ecart fixe de 2rem, plutot que sur le bord du VIEWPORT (left/right:1.5rem precedent) :
+       sur un grand ecran desktop, un ancrage viewport laissait un vide enorme entre l'image et
+       le texte/bouton (constate sur les captures fournies). Ainsi l'ecart reste constant quelle
+       que soit la largeur d'ecran. */
     #wgpu-root .wgpu-side-0{left:1.5rem}
     #wgpu-root .wgpu-side-1{right:1.5rem}
     #wgpu-root .wgpu-side-2{left:1.5rem}
+    /* Ancrage au bord de l'image reserve au desktop (>=700px) : sur mobile, le gap fixe de 2rem
+       depuis le bord de l'image (23vw, centree) laisse trop peu de place jusqu'au bord de l'ecran
+       -> le titre/bouton de la 2e image debordaient hors viewport (constate en test). Le mobile
+       garde donc l'ancrage au bord du VIEWPORT deja valide (1.5rem + max-width min(16rem,30vw)). */
+    @media (min-width: 700px) {
+      #wgpu-root .wgpu-side-0{right:calc(61.5vw + 2rem);left:auto}
+      #wgpu-root .wgpu-side-1{left:calc(61.5vw + 2rem);right:auto}
+      #wgpu-root .wgpu-side-2{right:calc(61.5vw + 2rem);left:auto}
+    }
     #wgpu-root .inner-fact{letter-spacing:.02em;color:var(--gold-light);margin:0;font-size:1rem;font-weight:400;line-height:1.5}
-    #wgpu-root .wgpu-side-text{letter-spacing:.02em;color:var(--gold-light);margin:0 0 20px;font-size:1rem;font-weight:400;line-height:1.5}
-    #wgpu-root .wgpu-side-cta{display:inline-block;background:transparent;border:1px solid rgba(201,169,110,0.35);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;letter-spacing:0.45em;text-transform:uppercase;padding:14px 22px;cursor:pointer;text-decoration:none;transition:background .3s,border-color .3s}
+    #wgpu-root .wgpu-side-text{letter-spacing:.02em;color:var(--gold-light);margin:0;font-size:1rem;font-weight:400;line-height:1.5;max-width:100%;overflow-wrap:break-word}
+    #wgpu-root .wgpu-side-title{font-family:'Cormorant Garamond',serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);margin:0;font-size:1.1rem;font-weight:400;max-width:100%;overflow-wrap:break-word}
+    #wgpu-root .wgpu-side-cta{display:inline-block;max-width:100%;box-sizing:border-box;background:transparent;border:1px solid rgba(201,169,110,0.35);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;letter-spacing:0.45em;text-transform:uppercase;padding:14px 22px;cursor:pointer;text-decoration:none;transition:background .3s,border-color .3s;overflow-wrap:break-word}
     #wgpu-root .wgpu-side-cta:hover{background:rgba(201,169,110,.06);border-color:var(--gold)}
     /* Sur ecran etroit, l'image (23vw de large, donc ~23vw/.52 de haut) devient tres courte par
        rapport a un viewport mobile tres haut : avec le gap desktop (48px), 3-4 images tenaient
@@ -1402,6 +1417,12 @@
        entre images pour qu'une seule occupe vraiment l'ecran a la fois, comme sur desktop. */
     @media (max-width: 700px) {
       #wgpu-root .page-inner .stack{gap:70vh}
+      /* Le titre "TITRE DES BAGUES/BRACELET" (bloc "/" sans espace) et le bouton "DECOUVRIR"
+         (padding + letter-spacing genereux) depassaient le conteneur de 117px (min(16rem,30vw))
+         sur mobile - overflow-wrap seul n'aide pas un bouton qui ne wrap pas son texte par
+         defaut. Padding/letter-spacing resserres uniquement ici (le reste du site, .fiche-cta
+         etc., n'est pas concerne). */
+      #wgpu-root .wgpu-side-cta{padding:12px 12px;letter-spacing:0.2em}
     }
   </style>
 </head>
@@ -1944,7 +1965,7 @@ var<${n}> ${e} : ${a};`}},pj=class{constructor(e){this.backend=e}getCurrentDepth
         <button class="wgpu-back-btn" data-wgpu-back aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="back-arrow-label">Accueil</span></button>
         <h1 class="page-title">Inner</h1>
         <div class="wgpu-side wgpu-side-0" data-wgpu-side="0"><p class="inner-fact">${CL[e]}</p></div>
-        <div class="wgpu-side wgpu-side-1" data-wgpu-side="1"><a href="#" class="wgpu-side-cta" onclick="event.preventDefault()">Découvrir</a></div>
+        <div class="wgpu-side wgpu-side-1" data-wgpu-side="1"><p class="wgpu-side-title">Titre des bagues/bracelet</p><a href="#" class="wgpu-side-cta" onclick="event.preventDefault()">Découvrir</a></div>
         <div class="wgpu-side wgpu-side-2" data-wgpu-side="2"><p class="wgpu-side-text">Vous pouvez aussi choisir les associations de votre choix</p><a href="#" class="wgpu-side-cta" onclick="event.preventDefault()">Sur mesure</a></div>
         <div class="stack">${t}</div>
       </section>
