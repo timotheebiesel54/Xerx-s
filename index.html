@@ -1357,9 +1357,15 @@
     #wgpu-root .preloader-count{letter-spacing:.02em;color:var(--gold-light);font-variant-numeric:tabular-nums;font-size:.875rem;position:absolute;top:1.25rem;left:1.5rem}
     #wgpu-root #nav{z-index:200;letter-spacing:.02em;pointer-events:none;font-size:.875rem;display:flex;position:fixed;top:1.25rem;left:1.5rem}
     #wgpu-root .page-title{display:none}
-    #wgpu-root .inner-fact{z-index:10;letter-spacing:.02em;color:var(--gold-light);pointer-events:none;max-width:16rem;margin:0;font-size:1rem;font-weight:400;line-height:1.5;position:absolute;top:10rem;left:1.5rem}
-    #wgpu-root #gpu-canvas{z-index:100;pointer-events:none;width:100%;height:100vh;display:block;position:fixed;inset:0}
-    #wgpu-root .wgpu-back-btn{position:fixed;top:1.25rem;left:1.5rem;z-index:210;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--gold);border-radius:50%;color:var(--gold-light);cursor:pointer;pointer-events:auto;transition:border-color .2s ease}
+    #wgpu-root .inner-fact{z-index:10;letter-spacing:.02em;color:var(--gold-light);pointer-events:none;max-width:16rem;margin:0;font-size:1rem;font-weight:400;line-height:1.5;position:sticky;top:10rem;left:1.5rem}
+    /* position:fixed sur un descendant dont le containing block est #wgpu-root (transform:translateZ(0))
+       ne l'exempte que du scroll EXTERIEUR de la page (cf. .wgpu-scroll-hold) : #wgpu-root est lui-meme
+       le conteneur scrollable (overflow-y:auto) de la vue "inner", donc un enfant fixed/absolute continue
+       de defiler avec le scrollTop interne -> le canvas quitte le viewport pendant qu'on scrolle dans la
+       galerie focus, d'ou l'ecran noir. position:sticky l'epingle au sommet de CE scrollport interne,
+       independamment de l'epinglage exterieur qui gere la page. */
+    #wgpu-root #gpu-canvas{z-index:100;pointer-events:none;width:100%;height:100vh;display:block;position:sticky;top:0;left:0}
+    #wgpu-root .wgpu-back-btn{position:sticky;top:1.25rem;left:1.5rem;z-index:210;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--gold);border-radius:50%;color:var(--gold-light);cursor:pointer;pointer-events:auto;transition:border-color .2s ease}
     #wgpu-root .wgpu-back-btn:hover{border-color:var(--gold-light)}
     #wgpu-root .wgpu-back-btn svg{width:16px;height:16px}
     #wgpu-root #wgpu-app{width:100%;min-height:100vh;position:relative}
@@ -1919,7 +1925,7 @@ var<${n}> ${e} : ${a};`}},pj=class{constructor(e){this.backend=e}getCurrentDepth
     </section>
   `}function xL(e){let t=e.querySelectorAll(`.slot`),n=[];for(let e=0;e<t.length;e++){let r=t[e].getBoundingClientRect();n.push({x:r.left,y:r.top,w:r.width,h:r.height})}return n}var SL=[0,-14,10,-6,16],CL=[`Seealpsee lies at eleven hundred meters in the Appenzell Alps, a sliver of meltwater cupped beneath the limestone walls of the Säntis. For much of the day the cliffs keep it in shadow, and its surface settles into a still, glassy green.`,`K2 rises to 8,611 meters on the Pakistan-China border, the second-highest point on Earth and by far the more dangerous to climb. It went unclimbed in winter until 2021, decades after every other eight-thousander had already fallen.`,`A mountain's north face turns away from the sun, so its ice never fully lets go. The Eiger's is eighteen hundred meters of it, a wall so deadly that climbers renamed the Nordwand the Mordwand, the murder wall.`,`Aoraki, or Mount Cook, is New Zealand's highest peak at 3,724 meters, though a 1991 rockfall sheared roughly ten meters off its summit overnight. Edmund Hillary trained on its slopes before he ever set eyes on Everest.`,`Mount Everest grows roughly four millimeters taller each year as the Indian plate keeps pushing into Asia. Its summit was once seabed, and fossilized marine creatures are still found near the top.`];function wL(e){return function(){let t=[0,1,2,3,4].map(e=>`<div class="slot" style="transform: translateX(${SL[e]??0}vw);"><figure></figure></div>`).join(``);return`
       <section data-page="inner" data-image="${e}" class="page page-inner">
-        <button class="wgpu-back-btn" data-wgpu-back aria-label="Retour"><svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="wgpu-back-btn" data-wgpu-back aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <h1 class="page-title">Inner</h1>
         <p class="inner-fact">${CL[e]}</p>
         <div class="stack">${t}</div>
