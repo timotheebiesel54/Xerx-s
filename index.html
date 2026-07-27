@@ -1748,6 +1748,21 @@
        sans transition CSS pour ne remplacer un fondu parasite par un autre. */
     #gpu-canvas { opacity: 0; }
     #gpu-canvas.xs-gallery-ready { opacity: 1; }
+    /* La même démo anime aussi le titre "Selected" et les .slot-caption (labels sous chaque
+       image) au premier affichage de la grille : SplitText les redécoupe en lignes/mots
+       masqués (wrapper overflow:clip) et fait glisser le texte intérieur via
+       transform:translate(0%,Y%) translate3d(...) (JI.from(..., {yPercent:102,...})) — la
+       propriété standalone "translate" reste, elle, à "none" pour ce tween, d'où le besoin
+       de neutraliser "transform" ici, pas seulement "translate". Un !important en feuille de
+       style l'emporte sur le style inline que ce tween continue d'écrire à chaque frame : le
+       texte reste donc immobile, déjà en place, sans jamais toucher au reste de la page (vue
+       focus et fait "inner-fact" non concernés, seule la page "main" de la grille est ciblée). */
+    #wgpu-root [data-page="main"] .page-title *,
+    #wgpu-root [data-page="main"] .slot-caption * {
+      transform: none !important;
+      translate: none !important;
+      opacity: 1 !important;
+    }
     #wgpu-root::-webkit-scrollbar{width:0;height:0;display:none}
     #wgpu-content{position:relative}
     #wgpu-root #preloader{z-index:2000;background:var(--black);position:fixed;inset:0}
