@@ -1357,13 +1357,13 @@
     #wgpu-root .preloader-count{letter-spacing:.02em;color:var(--gold-light);font-variant-numeric:tabular-nums;font-size:.875rem;position:absolute;top:1.25rem;left:1.5rem}
     #wgpu-root #nav{z-index:200;letter-spacing:.02em;pointer-events:none;font-size:.875rem;display:flex;position:fixed;top:1.25rem;left:1.5rem}
     #wgpu-root .page-title{display:none}
-    #wgpu-root #gpu-canvas{z-index:100;pointer-events:none;width:100%;height:100vh;display:block;position:fixed;inset:0}
+    #wgpu-root #gpu-canvas{z-index:100;pointer-events:none;width:100%;height:100vh;display:block;position:fixed;inset:0;will-change:transform}
     /* Meme trace/style que .back-arrow (reste du site), pas un bouton rond : icone nue + label,
        fondu d'opacite au survol. position:fixed reste hors flux (contrairement a sticky, qui
        reserverait 100vh dans #wgpu-content et casserait la mise en page) ; le defilement interne
        de #wgpu-root (vue focus uniquement) est compense par transform via JS (listener 'scroll'
        sur #wgpu-root, plus bas dans le script). */
-    #wgpu-root .wgpu-back-btn{position:fixed;top:28px;left:32px;z-index:500;display:flex;align-items:center;gap:10px;background:transparent;border:none;padding:0;color:inherit;cursor:pointer;opacity:.55;pointer-events:auto;transition:opacity .25s ease}
+    #wgpu-root .wgpu-back-btn{position:fixed;top:28px;left:32px;z-index:500;display:flex;align-items:center;gap:10px;background:transparent;border:none;padding:0;color:inherit;cursor:pointer;opacity:.55;pointer-events:auto;transition:opacity .25s ease;will-change:transform}
     #wgpu-root .wgpu-back-btn:hover{opacity:1}
     #wgpu-root .wgpu-back-btn svg{width:18px;height:18px}
     #wgpu-root #wgpu-app{width:100%;min-height:100vh;position:relative}
@@ -1386,7 +1386,7 @@
     /* max-width en min(16rem, 30vw) : l'image (23vw, centree) laisse (100vw-23vw)/2 = 38.5vw de
        chaque cote ; sur un viewport etroit (mobile), 16rem fixe deborderait sous l'image (constate
        en test), 30vw garde une marge de securite et reste a 16rem des que l'ecran est assez large. */
-    #wgpu-root .wgpu-side{position:fixed;top:50%;transform:translateY(-50%);z-index:10;max-width:min(16rem, 30vw);opacity:0;pointer-events:none;transition:opacity .5s ease}
+    #wgpu-root .wgpu-side{position:fixed;top:50%;transform:translateY(-50%);z-index:10;max-width:min(16rem, 30vw);opacity:0;pointer-events:none;transition:opacity .5s ease;will-change:transform}
     #wgpu-root .wgpu-side.is-active{opacity:1;pointer-events:auto}
     #wgpu-root .wgpu-side-0{left:1.5rem}
     #wgpu-root .wgpu-side-1{right:1.5rem}
@@ -2770,6 +2770,23 @@ return window.__wgpuMountPromise;
     // recalé à chaque scroll natif de #wgpu-root. La même passe détermine quelle image de la
     // séquence focus (0/1/2) est actuellement au centre du viewport, pour afficher le bon
     // contenu latéral (.wgpu-side-N) et masquer les autres.
+    // Le scroll interne se faisait au ralenti (~1 im/s constatée) : getBoundingClientRect() sur
+    // chaque slot force un reflow synchrone, exécuté ici à CHAQUE événement 'scroll' (donc à
+    // chaque frame de l'animation Lenis) en plus du rendu WebGPU deja coûteux (fallback logiciel).
+    // Fix : centres de slots mis en cache (recalculés seulement quand le .stack change, via
+    // offsetTop/offsetHeight une seule fois) + throttle par requestAnimationFrame pour n'exécuter
+    // le tout qu'une fois par frame rendue, jamais plus.
+    let wgpuSlotCenterStack = null;
+    let wgpuSlotCenters = [];
+    function wgpuGetSlotCenters(root) {
+      const stack = root.querySelector('.stack');
+      if (!stack) { wgpuSlotCenterStack = null; wgpuSlotCenters = []; return wgpuSlotCenters; }
+      if (stack !== wgpuSlotCenterStack) {
+        wgpuSlotCenterStack = stack;
+        wgpuSlotCenters = [...stack.querySelectorAll('.slot')].map((s) => s.offsetTop + s.offsetHeight / 2);
+      }
+      return wgpuSlotCenters;
+    }
     function wgpuUpdateFocusSides() {
       const root = document.getElementById('wgpu-root');
       if (!root) return;
@@ -2780,31 +2797,38 @@ return window.__wgpuMountPromise;
       if (backBtn) backBtn.style.transform = y;
       const sides = root.querySelectorAll('.wgpu-side');
       if (!sides.length) return;
-      sides.forEach((el) => { el.style.transform = y; });
-      const slots = root.querySelectorAll('.stack .slot');
-      if (!slots.length) return;
-      const centerY = window.innerHeight / 2;
+      // .wgpu-side a sa propre transform de base (translateY(-50%) pour le centrage vertical,
+      // cf. CSS) : on la combine avec la compensation au lieu de l'ecraser.
+      sides.forEach((el) => { el.style.transform = `translateY(-50%) ${y}`; });
+      const centers = wgpuGetSlotCenters(root);
+      if (!centers.length) return;
+      const targetCenter = window.innerHeight / 2 + root.scrollTop;
       let bestIdx = 0, bestDist = Infinity;
-      slots.forEach((slot, idx) => {
-        const r = slot.getBoundingClientRect();
-        const dist = Math.abs((r.top + r.bottom) / 2 - centerY);
+      centers.forEach((c, idx) => {
+        const dist = Math.abs(c - targetCenter);
         if (dist < bestDist) { bestDist = dist; bestIdx = idx; }
       });
       sides.forEach((el) => {
         el.classList.toggle('is-active', Number(el.dataset.wgpuSide) === bestIdx);
       });
     }
+    let wgpuSidesRafScheduled = false;
+    function wgpuScheduleUpdateFocusSides() {
+      if (wgpuSidesRafScheduled) return;
+      wgpuSidesRafScheduled = true;
+      requestAnimationFrame(() => { wgpuSidesRafScheduled = false; wgpuUpdateFocusSides(); });
+    }
     // Délégation en phase de capture sur document : #wgpu-root est recréé à chaque renderHome()
     // (app.innerHTML réassigné), un addEventListener posé une fois sur l'ancienne instance ne
     // suivrait pas ; 'scroll' ne bubble pas mais se capture, donc document+capture:true l'intercepte
     // quel que soit l'élément #wgpu-root en vie au moment de l'événement.
     document.addEventListener('scroll', (e) => {
-      if (e.target && e.target.id === 'wgpu-root') wgpuUpdateFocusSides();
+      if (e.target && e.target.id === 'wgpu-root') wgpuScheduleUpdateFocusSides();
     }, true);
     // Déclenche l'affichage initial (image 0) dès l'entrée en vue focus, sans attendre un premier
     // scroll : on observe l'apparition de la section dans #app plutôt que de dépendre d'un hook
     // du contrôleur (navigate()/​_enterPage() ne sont pas modifiés).
-    new MutationObserver(() => wgpuUpdateFocusSides()).observe(document.getElementById('app'), { childList: true, subtree: true });
+    new MutationObserver(() => wgpuScheduleUpdateFocusSides()).observe(document.getElementById('app'), { childList: true, subtree: true });
 
     // ─── CARROUSEL 3D PRODUITS (scroll-driven, sans transition preview) ───
     let xsCarouselTimelines = [];
