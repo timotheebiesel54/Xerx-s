@@ -1727,14 +1727,41 @@
     }
 
     /* ─── GALERIE D'ACCUEIL (Seealpsee, K2, The North Face, Titre test, Mount Everest) ───
-       Grille statique en flux HTML normal : aucune animation, aucun scroll effect, aucun pin. */
-    .xs-static-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:48px 32px;padding:0 1.5rem 4rem}
-    .xs-gallery-item{width:23vw;min-width:220px;max-width:340px}
-    .xs-gallery-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block}
+       Bande horizontale en boucle infinie (overflow-x natif, aucun scroll de PAGE impliqué :
+       zéro ScrollTrigger, zéro pin, zéro sticky, zéro fade/reveal au scroll). Le drag souris est
+       fait à la main (pointerdown/move/up) ; le swipe tactile et le trackpad horizontal restent
+       nativement gérés par le navigateur (aucun listener 'wheel' ici, donc la molette verticale
+       continue de faire défiler la PAGE, jamais la bande). */
+    .xs-gallery-track-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;padding:0 0 4rem}
+    .xs-gallery-track-wrap::-webkit-scrollbar{display:none}
+    .xs-gallery-track-wrap.is-dragging{cursor:grabbing}
+    .xs-gallery-track{display:flex;gap:32px;width:max-content;padding:0 1.5rem;user-select:none}
+    .xs-gallery-item{width:23vw;min-width:220px;max-width:340px;flex:0 0 auto;cursor:pointer}
+    .xs-gallery-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
     .xs-gallery-item figcaption{letter-spacing:.02em;color:var(--gold);text-transform:uppercase;padding-top:.4rem;font-size:.875rem}
     @media screen and (max-width: 900px) {
-      .xs-static-gallery{flex-direction:column;align-items:center;gap:48px}
       .xs-gallery-item{width:70vw}
+    }
+
+    /* ─── VUE FOCUS DE LA GALERIE (clic sur une image) ───
+       Overlay statique en position fixed : la SEULE animation autorisée est un fondu d'opacité
+       + léger scale de l'overlay lui-même (300ms), déclenché uniquement par un clic, jamais par
+       le scroll. Aucun FLIP, aucun getBoundingClientRect, l'image n'interpole aucune géométrie
+       depuis la bande — l'overlay apparaît sur place. */
+    .xs-focus-overlay{position:fixed;inset:0;z-index:3000;background:rgba(10,10,10,.96);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.96);pointer-events:none;transition:opacity .3s ease-out,transform .3s ease-out}
+    .xs-focus-overlay.open{opacity:1;transform:scale(1);pointer-events:auto}
+    .xs-focus-content{max-width:640px;width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:2rem;text-align:center}
+    .xs-focus-img{width:100%;max-width:320px;aspect-ratio:.52;object-fit:cover;display:block}
+    .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin:0}
+    .xs-focus-desc{color:var(--gold-light);font-size:1rem;line-height:1.6;max-width:48ch;margin:0}
+    .xs-focus-related{display:flex;gap:16px;margin-top:8px}
+    .xs-focus-related-item{width:80px;cursor:pointer}
+    .xs-focus-related-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+    .xs-focus-close{position:fixed;top:88px;right:32px;z-index:3001;background:transparent;border:none;color:var(--gold);font-size:2rem;line-height:1;cursor:pointer;opacity:.7}
+    .xs-focus-close:hover{opacity:1}
+    @media screen and (max-width: 700px) {
+      .xs-focus-img{max-width:220px}
+      .xs-focus-related-item{width:60px}
     }
   </style>
 </head>
@@ -2073,6 +2100,7 @@
         if (xsMaster) { xsMaster.kill(); xsMaster = null; }
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
+        if (xsFocusOpen) xsGalleryCloseFocus();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         render(view);
@@ -2767,28 +2795,21 @@
           <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
         </section>
 
-        <section class="xs-static-gallery">
-          <figure class="xs-gallery-item">
-            <img src="/images/christian-regg-FNaFLvbLFuk-unsplash.webp" alt="Seealpsee" loading="lazy" />
-            <figcaption>Seealpsee</figcaption>
-          </figure>
-          <figure class="xs-gallery-item">
-            <img src="/images/fabrizio-conti-rMWmDMeaoBk-unsplash.webp" alt="K2" loading="lazy" />
-            <figcaption>K2</figcaption>
-          </figure>
-          <figure class="xs-gallery-item">
-            <img src="/images/johannes-andersson-UCd78vfC8vU-unsplash.webp" alt="The North Face" loading="lazy" />
-            <figcaption>The North Face</figcaption>
-          </figure>
-          <figure class="xs-gallery-item">
-            <img src="/images/mads-schmidt-rasmussen-xfngap_DToE-unsplash.webp" alt="Titre test" loading="lazy" />
-            <figcaption>Titre test</figcaption>
-          </figure>
-          <figure class="xs-gallery-item">
-            <img src="/images/weichao-deng-eyn0LjpNWV4-unsplash.webp" alt="Mount Everest" loading="lazy" />
-            <figcaption>Mount Everest</figcaption>
-          </figure>
+        <section class="xs-gallery">
+          <div class="xs-gallery-track-wrap" id="xs-gallery-scroller">
+            <div class="xs-gallery-track" id="xs-gallery-track"></div>
+          </div>
         </section>
+
+        <div class="xs-focus-overlay" id="xs-focus-overlay" aria-hidden="true">
+          <button class="xs-focus-close" onclick="xsGalleryCloseFocus()" aria-label="Fermer">&times;</button>
+          <div class="xs-focus-content">
+            <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
+            <h3 class="xs-focus-label" id="xs-focus-label"></h3>
+            <p class="xs-focus-desc" id="xs-focus-desc"></p>
+            <div class="xs-focus-related" id="xs-focus-related"></div>
+          </div>
+        </div>
 
         <section class="xs-cats-section">
           <p class="xs-suggestion-quote">Certains préfèrent porter Xerxès seul ; la collection s'explore pièce à pièce.</p>
@@ -2831,7 +2852,162 @@
 
       xsUpdateLayout();
       xsInitProgressBar();
+      xsGalleryInit();
     }
+
+    // ─── GALERIE D'ACCUEIL : bande horizontale en boucle infinie + vue focus au clic ───
+    // Aucun ScrollTrigger, aucun scrub, aucun pin, aucune propriété liée au scroll de la PAGE :
+    // la bande défile dans son propre conteneur overflow-x, la page continue de défiler
+    // normalement par-dessus/en dessous. Alimentée par un tableau JS pour pouvoir passer de 5 à
+    // N images sans toucher au HTML.
+    const XS_GALLERY_ITEMS = [
+      {
+        src: '/images/christian-regg-FNaFLvbLFuk-unsplash.webp',
+        label: 'Seealpsee',
+        description: 'Seealpsee lies at eleven hundred meters in the Appenzell Alps, a sliver of meltwater cupped beneath the limestone walls of the Säntis. For much of the day the cliffs keep it in shadow, and its surface settles into a still, glassy green.',
+        related: [1, 2, 3],
+      },
+      {
+        src: '/images/fabrizio-conti-rMWmDMeaoBk-unsplash.webp',
+        label: 'K2',
+        description: 'K2 rises to 8,611 meters on the Pakistan-China border, the second-highest point on Earth and by far the more dangerous to climb. It went unclimbed in winter until 2021, decades after every other eight-thousander had already fallen.',
+        related: [2, 3, 4],
+      },
+      {
+        src: '/images/johannes-andersson-UCd78vfC8vU-unsplash.webp',
+        label: 'The North Face',
+        description: "A mountain's north face turns away from the sun, so its ice never fully lets go. The Eiger's is eighteen hundred meters of it, a wall so deadly that climbers renamed the Nordwand the Mordwand, the murder wall.",
+        related: [3, 4, 0],
+      },
+      {
+        src: '/images/mads-schmidt-rasmussen-xfngap_DToE-unsplash.webp',
+        label: 'Titre test',
+        description: 'Description test — à connecter au contenu définitif de cette pièce.',
+        related: [4, 0, 1],
+      },
+      {
+        src: '/images/weichao-deng-eyn0LjpNWV4-unsplash.webp',
+        label: 'Mount Everest',
+        description: 'Mount Everest grows roughly four millimeters taller each year as the Indian plate keeps pushing into Asia. Its summit was once seabed, and fossilized marine creatures are still found near the top.',
+        related: [0, 1, 2],
+      },
+    ];
+
+    let xsGalleryGesture = null;
+    let xsFocusOpen = false;
+
+    function xsGalleryItemHTML(item, i) {
+      return `
+        <figure class="xs-gallery-item" onclick="xsGalleryOpenFocus(${i})">
+          <img src="${item.src}" alt="${item.label}" loading="lazy" draggable="false" />
+          <figcaption>${item.label}</figcaption>
+        </figure>
+      `;
+    }
+
+    function xsGalleryInit() {
+      const scroller = document.getElementById('xs-gallery-scroller');
+      const track = document.getElementById('xs-gallery-track');
+      if (!scroller || !track) return;
+
+      // Boucle infinie : la liste est dupliquée deux fois dans le DOM (mêmes index logiques
+      // 0..N-1 dans chaque copie), et on recale scrollLeft d'une largeur de copie dès qu'on la
+      // dépasse — repositionnement instantané et invisible car les deux copies sont identiques.
+      const onceHTML = XS_GALLERY_ITEMS.map(xsGalleryItemHTML).join('');
+      track.innerHTML = onceHTML + onceHTML;
+
+      const halfWidth = () => track.scrollWidth / 2;
+      scroller.scrollLeft = halfWidth();
+
+      scroller.addEventListener('scroll', () => {
+        const half = halfWidth();
+        if (scroller.scrollLeft > half) {
+          scroller.scrollLeft -= half;
+        } else if (scroller.scrollLeft <= 0) {
+          scroller.scrollLeft += half;
+        }
+      });
+
+      // Drag à la souris uniquement (le swipe tactile et le trackpad horizontal restent gérés
+      // nativement par le navigateur — aucun listener 'wheel' n'est posé ici, la molette
+      // verticale continue donc toujours de faire défiler la page, jamais la bande).
+      // Pas de setPointerCapture : ça redirigerait le 'click' final vers le conteneur au lieu
+      // de la figure sous le curseur, empêchant l'ouverture du focus sur un simple clic. On
+      // suit donc le pointeur via des listeners posés sur window pendant la durée du drag.
+      scroller.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        xsGalleryGesture = { startX: e.clientX, startScrollLeft: scroller.scrollLeft, moved: false, pointerId: e.pointerId };
+        scroller.classList.add('is-dragging');
+        window.addEventListener('pointermove', xsGalleryOnDragMove);
+        window.addEventListener('pointerup', xsGalleryOnDragEnd);
+        window.addEventListener('pointercancel', xsGalleryOnDragEnd);
+      });
+      function xsGalleryOnDragMove(e) {
+        if (!xsGalleryGesture || e.pointerId !== xsGalleryGesture.pointerId) return;
+        const dx = e.clientX - xsGalleryGesture.startX;
+        if (Math.abs(dx) > 4) xsGalleryGesture.moved = true;
+        scroller.scrollLeft = xsGalleryGesture.startScrollLeft - dx;
+      }
+      function xsGalleryOnDragEnd(e) {
+        if (!xsGalleryGesture || e.pointerId !== xsGalleryGesture.pointerId) return;
+        scroller.classList.remove('is-dragging');
+        window.removeEventListener('pointermove', xsGalleryOnDragMove);
+        window.removeEventListener('pointerup', xsGalleryOnDragEnd);
+        window.removeEventListener('pointercancel', xsGalleryOnDragEnd);
+      }
+      // Un drag qui a effectivement bougé ne doit pas déclencher le clic (ouverture du focus)
+      // sur la figure relâchée.
+      scroller.addEventListener('click', (e) => {
+        if (xsGalleryGesture && xsGalleryGesture.moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (xsGalleryGesture) xsGalleryGesture.moved = false;
+      }, true);
+    }
+
+    function xsGalleryRenderFocus(index) {
+      const item = XS_GALLERY_ITEMS[index];
+      if (!item) return;
+      document.getElementById('xs-focus-img').src = item.src;
+      document.getElementById('xs-focus-img').alt = item.label;
+      document.getElementById('xs-focus-label').textContent = item.label;
+      document.getElementById('xs-focus-desc').textContent = item.description;
+      document.getElementById('xs-focus-related').innerHTML = item.related.map((ri) => {
+        const r = XS_GALLERY_ITEMS[ri];
+        return `<figure class="xs-focus-related-item" onclick="xsGalleryRenderFocus(${ri})">
+          <img src="${r.src}" alt="${r.label}" draggable="false" />
+        </figure>`;
+      }).join('');
+    }
+
+    function xsGalleryOpenFocus(index) {
+      xsGalleryRenderFocus(index);
+      const overlay = document.getElementById('xs-focus-overlay');
+      if (!overlay) return;
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      if (typeof lenis !== 'undefined' && lenis) lenis.stop();
+      xsFocusOpen = true;
+    }
+
+    function xsGalleryCloseFocus() {
+      const overlay = document.getElementById('xs-focus-overlay');
+      if (!overlay) return;
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (typeof lenis !== 'undefined' && lenis) lenis.start();
+      xsFocusOpen = false;
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'xs-focus-overlay') xsGalleryCloseFocus();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && xsFocusOpen) xsGalleryCloseFocus();
+    });
 
 
     // ─── CARROUSEL 3D PRODUITS (scroll-driven, sans transition preview) ───
