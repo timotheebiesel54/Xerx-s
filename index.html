@@ -1743,26 +1743,24 @@
       .xs-gallery-item{width:70vw}
     }
 
-    /* ─── VUE FOCUS DE LA GALERIE (clic sur une image) ───
-       Overlay statique en position fixed : la SEULE animation autorisée est un fondu d'opacité
-       + léger scale de l'overlay lui-même (300ms), déclenché uniquement par un clic, jamais par
-       le scroll. Aucun FLIP, aucun getBoundingClientRect, l'image n'interpole aucune géométrie
-       depuis la bande — l'overlay apparaît sur place. */
-    .xs-focus-overlay{position:fixed;inset:0;z-index:3000;background:rgba(10,10,10,.96);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.96);pointer-events:none;transition:opacity .3s ease-out,transform .3s ease-out}
-    .xs-focus-overlay.open{opacity:1;transform:scale(1);pointer-events:auto}
-    .xs-focus-content{max-width:640px;width:90vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:2rem;text-align:center}
-    .xs-focus-img{width:100%;max-width:320px;aspect-ratio:.52;object-fit:cover;display:block}
-    .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin:0}
-    .xs-focus-desc{color:var(--gold-light);font-size:1rem;line-height:1.6;max-width:48ch;margin:0}
-    .xs-focus-related{display:flex;gap:16px;margin-top:8px}
-    .xs-focus-related-item{width:80px;cursor:pointer}
-    .xs-focus-related-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
-    .xs-focus-close{position:fixed;top:88px;right:32px;z-index:3001;background:transparent;border:none;color:var(--gold);font-size:2rem;line-height:1;cursor:pointer;opacity:.7}
-    .xs-focus-close:hover{opacity:1}
-    @media screen and (max-width: 700px) {
-      .xs-focus-img{max-width:220px}
-      .xs-focus-related-item{width:60px}
-    }
+    /* ─── VUE FOCUS DE LA GALERIE (clic sur une image) — FLIP manuel (skill
+       xerxes-duo-gallery-focus), adapté à la bande horizontale ───
+       Le voile (.xs-focus-veil) et le cadre (.xs-focus-box) sont deux éléments fixed distincts :
+       le cadre est positionné/dimensionné ENTIÈREMENT par GSAP (x/y/width/height tweenés depuis
+       le rect de l'image cliquée vers le rect de destination, puis inversement à la fermeture) —
+       aucune valeur géométrique fixe ici. Ni gsap.Flip (non sous licence ici) ni ScrollTrigger :
+       le déclenchement est uniquement le clic, jamais le scroll de page. */
+    .xs-focus-veil{position:fixed;inset:0;z-index:2900;background:var(--black);opacity:0;pointer-events:none}
+    .xs-focus-close{position:absolute;top:60px;right:32px;background:transparent;border:none;color:var(--gold);font-size:2rem;line-height:1;cursor:pointer}
+    .xs-focus-close:hover{opacity:.8}
+    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none;overflow:hidden}
+    .xs-focus-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+    .xs-focus-content{position:absolute;left:0;right:0;bottom:0;padding:20px 24px;text-align:center;background:linear-gradient(to top, rgba(10,10,10,.92), transparent 70%);opacity:0}
+    .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin:0}
+    .xs-focus-desc{color:var(--gold-light);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0}
+    .xs-focus-related{display:flex;gap:10px;justify-content:center;margin-top:14px}
+    .xs-focus-related-item{width:52px;cursor:pointer}
+    .xs-focus-related-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;opacity:.75;pointer-events:none;-webkit-user-drag:none}
   </style>
 </head>
 <body class="view-home">
@@ -2100,7 +2098,7 @@
         if (xsMaster) { xsMaster.kill(); xsMaster = null; }
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
-        if (xsFocusOpen) xsGalleryCloseFocus();
+        if (xsFocusActive !== null) xsGalleryForceCloseFocus();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         render(view);
@@ -2801,10 +2799,12 @@
           </div>
         </section>
 
-        <div class="xs-focus-overlay" id="xs-focus-overlay" aria-hidden="true">
+        <div class="xs-focus-veil" id="xs-focus-veil" aria-hidden="true">
           <button class="xs-focus-close" onclick="xsGalleryCloseFocus()" aria-label="Fermer">&times;</button>
-          <div class="xs-focus-content">
-            <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
+        </div>
+        <div class="xs-focus-box" id="xs-focus-box">
+          <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
+          <div class="xs-focus-content" id="xs-focus-content">
             <h3 class="xs-focus-label" id="xs-focus-label"></h3>
             <p class="xs-focus-desc" id="xs-focus-desc"></p>
             <div class="xs-focus-related" id="xs-focus-related"></div>
@@ -2894,11 +2894,13 @@
     ];
 
     let xsGalleryGesture = null;
-    let xsFocusOpen = false;
+    let xsFocusActive = null;
+    let xsFocusAnimating = false;
+    let xsFocusOriginEl = null;
 
     function xsGalleryItemHTML(item, i) {
       return `
-        <figure class="xs-gallery-item" onclick="xsGalleryOpenFocus(${i})">
+        <figure class="xs-gallery-item" onclick="xsGalleryOpenFocus(${i}, this)">
           <img src="${item.src}" alt="${item.label}" loading="lazy" draggable="false" />
           <figcaption>${item.label}</figcaption>
         </figure>
@@ -2966,6 +2968,9 @@
       }, true);
     }
 
+    // Contenu affiché dans le focus (image, label, description, images liées) — appelé à
+    // l'ouverture et quand on clique une image liée (le focus reste ouvert, seul le contenu
+    // change ; aucune nouvelle géométrie n'est recalculée).
     function xsGalleryRenderFocus(index) {
       const item = XS_GALLERY_ITEMS[index];
       if (!item) return;
@@ -2981,32 +2986,126 @@
       }).join('');
     }
 
-    function xsGalleryOpenFocus(index) {
+    function xsFocusPrefersReducedMotion() {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Fige le scroll de la page ET de la bande pendant le focus, pour que le rect d'origine
+    // (utilisé au retour) reste valide tant que l'overlay est ouvert.
+    function xsFocusFreezeScroll(freeze) {
+      document.body.style.overflow = freeze ? 'hidden' : '';
+      const scroller = document.getElementById('xs-gallery-scroller');
+      if (scroller) scroller.style.overflowX = freeze ? 'hidden' : '';
+      if (typeof lenis !== 'undefined' && lenis) { if (freeze) lenis.stop(); else lenis.start(); }
+    }
+
+    // FLIP manuel (pas de gsap.Flip, non sous licence ici) : le cadre .xs-focus-box part
+    // exactement du rect de l'image cliquée et anime x/y/width/height ensemble vers le rect de
+    // destination. Un flag isAnimating bloque tout nouveau clic pendant la transition.
+    function xsGalleryOpenFocus(index, clickedEl) {
+      if (xsFocusAnimating || xsFocusActive !== null || !clickedEl) return;
+      const item = XS_GALLERY_ITEMS[index];
+      if (!item) return;
+
+      xsFocusAnimating = true;
+      xsFocusActive = index;
+      xsFocusOriginEl = clickedEl;
       xsGalleryRenderFocus(index);
-      const overlay = document.getElementById('xs-focus-overlay');
-      if (!overlay) return;
-      overlay.classList.add('open');
-      overlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      if (typeof lenis !== 'undefined' && lenis) lenis.stop();
-      xsFocusOpen = true;
+      xsFocusFreezeScroll(true);
+
+      const veil = document.getElementById('xs-focus-veil');
+      const box = document.getElementById('xs-focus-box');
+      const content = document.getElementById('xs-focus-content');
+      const startRect = clickedEl.getBoundingClientRect();
+      const reduced = xsFocusPrefersReducedMotion();
+
+      gsap.set(box, {
+        x: startRect.left, y: startRect.top,
+        width: startRect.width, height: startRect.height,
+        opacity: 1, pointerEvents: 'none',
+      });
+      gsap.set(content, { opacity: 0 });
+
+      const maxW = window.innerWidth * 0.7;
+      const maxH = window.innerHeight * 0.82;
+      const destW = Math.min(maxW, maxH * 0.52, 420);
+      const destH = destW / 0.52;
+      const destX = (window.innerWidth - destW) / 2;
+      const destY = Math.max((window.innerHeight - destH) / 2, 24);
+
+      const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== clickedEl);
+      gsap.to(otherItems, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.3 });
+      gsap.to(veil, { opacity: 0.92, pointerEvents: 'auto', duration: reduced ? 0 : 0.4, ease: 'power2.out' });
+      gsap.to(box, {
+        x: destX, y: destY, width: destW, height: destH,
+        duration: reduced ? 0 : 0.6, ease: 'power3.inOut',
+        onComplete: () => {
+          box.style.pointerEvents = 'auto';
+          gsap.to(content, {
+            opacity: 1, duration: reduced ? 0 : 0.35,
+            onComplete: () => { xsFocusAnimating = false; },
+          });
+        },
+      });
     }
 
     function xsGalleryCloseFocus() {
-      const overlay = document.getElementById('xs-focus-overlay');
-      if (!overlay) return;
-      overlay.classList.remove('open');
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (typeof lenis !== 'undefined' && lenis) lenis.start();
-      xsFocusOpen = false;
+      if (xsFocusAnimating || xsFocusActive === null) return;
+      xsFocusAnimating = true;
+
+      const veil = document.getElementById('xs-focus-veil');
+      const box = document.getElementById('xs-focus-box');
+      const content = document.getElementById('xs-focus-content');
+      const returnRect = xsFocusOriginEl.getBoundingClientRect();
+      const reduced = xsFocusPrefersReducedMotion();
+
+      const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== xsFocusOriginEl);
+      box.style.pointerEvents = 'none';
+      gsap.to(content, { opacity: 0, duration: reduced ? 0 : 0.2 });
+      gsap.to(veil, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.4, delay: reduced ? 0 : 0.1 });
+      gsap.to(otherItems, { opacity: 1, pointerEvents: '', duration: reduced ? 0 : 0.3, delay: reduced ? 0 : 0.1 });
+      gsap.to(box, {
+        x: returnRect.left, y: returnRect.top, width: returnRect.width, height: returnRect.height,
+        duration: reduced ? 0 : 0.5, ease: 'power3.inOut', delay: reduced ? 0 : 0.1,
+        onComplete: () => {
+          gsap.set(box, { opacity: 0 });
+          xsFocusFreezeScroll(false);
+          xsFocusActive = null;
+          xsFocusOriginEl = null;
+          xsFocusAnimating = false;
+        },
+      });
+    }
+
+    // Ferme instantanément, sans animation : resize pendant le focus (rects plus valides) ou
+    // changement de vue (navigate()).
+    function xsGalleryForceCloseFocus() {
+      if (xsFocusActive === null && !xsFocusAnimating) return;
+      const veil = document.getElementById('xs-focus-veil');
+      const box = document.getElementById('xs-focus-box');
+      const content = document.getElementById('xs-focus-content');
+      const items = document.querySelectorAll('.xs-gallery-item');
+      [veil, box, content, ...items].forEach((el) => el && gsap.killTweensOf(el));
+      if (veil) gsap.set(veil, { opacity: 0, pointerEvents: 'none' });
+      if (box) gsap.set(box, { opacity: 0, pointerEvents: 'none' });
+      if (content) gsap.set(content, { opacity: 0 });
+      gsap.set(items, { opacity: 1, pointerEvents: '' });
+      xsFocusFreezeScroll(false);
+      xsFocusActive = null;
+      xsFocusOriginEl = null;
+      xsFocusAnimating = false;
     }
 
     document.addEventListener('click', (e) => {
-      if (e.target.id === 'xs-focus-overlay') xsGalleryCloseFocus();
+      if (e.target.id === 'xs-focus-veil') xsGalleryCloseFocus();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && xsFocusOpen) xsGalleryCloseFocus();
+      if (e.key === 'Escape' && xsFocusActive !== null) xsGalleryCloseFocus();
+    });
+    // Resize pendant le focus : les rects (origine et destination) ne sont plus valides,
+    // on ferme directement plutôt que de tenter de les recalculer.
+    window.addEventListener('resize', () => {
+      if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
     });
 
 
