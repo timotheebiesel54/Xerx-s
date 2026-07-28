@@ -1748,23 +1748,15 @@
     /* Flèche de fermeture = exactement .back-arrow/.back-arrow-label du reste du site (même
        SVG, même position fixed top:28px/left:32px, même opacité/transition au survol), seul le
        libellé change ("Retour") et l'onclick ferme le focus au lieu de naviguer vers l'accueil. */
-    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none}
+    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none;overflow:hidden}
     .xs-focus-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
-    /* L'image principale reste seule et nue : le contenu (titre, description, CTA, images
-       liées) est placé EN DESSOUS de l'image (top:100%), jamais superposé dessus. */
-    .xs-focus-content{position:absolute;left:0;right:0;top:100%;padding:20px 24px 24px;text-align:center;opacity:0;overflow-y:auto;scrollbar-width:thin}
+    /* Titre, description et CTA restent superposés à l'image, dans sa partie basse, jamais
+       en dessous ni à côté — dégradé sombre derrière le texte pour la lisibilité, même
+       principe que .compo-slot-socle (page Éditions). */
+    .xs-focus-content{position:absolute;left:0;right:0;bottom:0;padding:20px 24px 26px;text-align:center;opacity:0;background:linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,.4) 45%, rgba(10,10,10,.82) 100%)}
     .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin:0}
-    .xs-focus-desc{color:var(--gold-light);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0}
+    .xs-focus-desc{color:var(--gold-light);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .xs-focus-cta{display:inline-block;margin-top:14px;text-decoration:none}
-    /* Positions/tailles/écarts inchangés (display:flex, gap:10px, justify-content:center,
-       width:52px) — seul le scroll horizontal (même comportement que la bande de l'AJOUT 1 :
-       drag souris, swipe tactile natif, trackpad natif, jamais la molette verticale) est ajouté
-       par-dessus ; sans effet visuel tant que les 3 vignettes tiennent déjà dans le conteneur. */
-    .xs-focus-related{display:flex;gap:10px;justify-content:center;margin-top:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab}
-    .xs-focus-related::-webkit-scrollbar{display:none}
-    .xs-focus-related.is-dragging{cursor:grabbing}
-    .xs-focus-related-item{width:52px;flex:0 0 auto;cursor:pointer}
-    .xs-focus-related-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;opacity:.75;pointer-events:none;-webkit-user-drag:none}
   </style>
 </head>
 <body class="view-home">
@@ -2836,7 +2828,6 @@
             <h3 class="xs-focus-label" id="xs-focus-label"></h3>
             <p class="xs-focus-desc" id="xs-focus-desc"></p>
             <a href="#" class="fiche-cta xs-focus-cta" onclick="event.preventDefault()">Découvrir</a>
-            <div class="xs-focus-related" id="xs-focus-related"></div>
           </div>
         </div>
 
@@ -2894,36 +2885,30 @@
         src: '/images/christian-regg-FNaFLvbLFuk-unsplash.webp',
         label: 'Seealpsee',
         description: 'Seealpsee lies at eleven hundred meters in the Appenzell Alps, a sliver of meltwater cupped beneath the limestone walls of the Säntis. For much of the day the cliffs keep it in shadow, and its surface settles into a still, glassy green.',
-        related: [1, 2, 3],
       },
       {
         src: '/images/fabrizio-conti-rMWmDMeaoBk-unsplash.webp',
         label: 'K2',
         description: 'K2 rises to 8,611 meters on the Pakistan-China border, the second-highest point on Earth and by far the more dangerous to climb. It went unclimbed in winter until 2021, decades after every other eight-thousander had already fallen.',
-        related: [2, 3, 4],
       },
       {
         src: '/images/johannes-andersson-UCd78vfC8vU-unsplash.webp',
         label: 'The North Face',
         description: "A mountain's north face turns away from the sun, so its ice never fully lets go. The Eiger's is eighteen hundred meters of it, a wall so deadly that climbers renamed the Nordwand the Mordwand, the murder wall.",
-        related: [3, 4, 0],
       },
       {
         src: '/images/mads-schmidt-rasmussen-xfngap_DToE-unsplash.webp',
         label: 'Titre test',
         description: 'Description test — à connecter au contenu définitif de cette pièce.',
-        related: [4, 0, 1],
       },
       {
         src: '/images/weichao-deng-eyn0LjpNWV4-unsplash.webp',
         label: 'Mount Everest',
         description: 'Mount Everest grows roughly four millimeters taller each year as the Indian plate keeps pushing into Asia. Its summit was once seabed, and fossilized marine creatures are still found near the top.',
-        related: [0, 1, 2],
       },
     ];
 
     let xsGalleryGesture = null;
-    let xsFocusRelatedGesture = null;
     let xsFocusActive = null;
     let xsFocusAnimating = false;
     let xsFocusOriginEl = null;
@@ -2996,46 +2981,9 @@
         }
         if (xsGalleryGesture) xsGalleryGesture.moved = false;
       }, true);
-
-      // Rangée des 3 images liées de la vue focus : même comportement horizontal que la bande
-      // (drag souris via listeners sur window, swipe tactile et trackpad natifs, aucun listener
-      // 'wheel' — la molette verticale continue de faire défiler la page).
-      const related = document.getElementById('xs-focus-related');
-      if (related) {
-        related.addEventListener('pointerdown', (e) => {
-          if (e.pointerType !== 'mouse') return;
-          xsFocusRelatedGesture = { startX: e.clientX, startScrollLeft: related.scrollLeft, moved: false, pointerId: e.pointerId };
-          related.classList.add('is-dragging');
-          window.addEventListener('pointermove', xsFocusRelatedOnDragMove);
-          window.addEventListener('pointerup', xsFocusRelatedOnDragEnd);
-          window.addEventListener('pointercancel', xsFocusRelatedOnDragEnd);
-        });
-        function xsFocusRelatedOnDragMove(e) {
-          if (!xsFocusRelatedGesture || e.pointerId !== xsFocusRelatedGesture.pointerId) return;
-          const dx = e.clientX - xsFocusRelatedGesture.startX;
-          if (Math.abs(dx) > 4) xsFocusRelatedGesture.moved = true;
-          related.scrollLeft = xsFocusRelatedGesture.startScrollLeft - dx;
-        }
-        function xsFocusRelatedOnDragEnd(e) {
-          if (!xsFocusRelatedGesture || e.pointerId !== xsFocusRelatedGesture.pointerId) return;
-          related.classList.remove('is-dragging');
-          window.removeEventListener('pointermove', xsFocusRelatedOnDragMove);
-          window.removeEventListener('pointerup', xsFocusRelatedOnDragEnd);
-          window.removeEventListener('pointercancel', xsFocusRelatedOnDragEnd);
-        }
-        related.addEventListener('click', (e) => {
-          if (xsFocusRelatedGesture && xsFocusRelatedGesture.moved) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          if (xsFocusRelatedGesture) xsFocusRelatedGesture.moved = false;
-        }, true);
-      }
     }
 
-    // Contenu affiché dans le focus (image, label, description, images liées) — appelé à
-    // l'ouverture et quand on clique une image liée (le focus reste ouvert, seul le contenu
-    // change ; aucune nouvelle géométrie n'est recalculée).
+    // Contenu affiché dans le focus (image, label, description) — appelé à l'ouverture.
     function xsGalleryRenderFocus(index) {
       const item = XS_GALLERY_ITEMS[index];
       if (!item) return;
@@ -3043,13 +2991,6 @@
       document.getElementById('xs-focus-img').alt = item.label;
       document.getElementById('xs-focus-label').textContent = item.label;
       document.getElementById('xs-focus-desc').textContent = item.description;
-      // 3 images liées maximum, même si le tableau de données en contient davantage.
-      document.getElementById('xs-focus-related').innerHTML = item.related.slice(0, 3).map((ri) => {
-        const r = XS_GALLERY_ITEMS[ri];
-        return `<figure class="xs-focus-related-item" onclick="xsGalleryRenderFocus(${ri})">
-          <img src="${r.src}" alt="${r.label}" draggable="false" />
-        </figure>`;
-      }).join('');
     }
 
     function xsFocusPrefersReducedMotion() {
@@ -3092,19 +3033,13 @@
       });
       gsap.set(content, { opacity: 0 });
 
-      // Le contenu (titre, description, CTA, images liées) vit maintenant SOUS l'image (jamais
-      // superposé dessus, cf. .xs-focus-content top:100%), avec une hauteur variable selon la
-      // longueur du texte. Plutôt qu'un calcul de taille d'image qui se rétrécit sans fin pour
-      // essayer d'y faire tenir un texte de plus en plus compressé (le texte s'allonge quand
-      // l'image rétrécit), l'image garde une taille raisonnable et fixe, et le contenu reçoit
-      // l'espace restant sous elle avec son propre scroll interne s'il dépasse (texte plus long
-      // que la place disponible) — pas un scroll de PAGE, juste une zone de lecture.
-      const margin = 24;
-      const destW = Math.min(window.innerWidth * 0.85, 300, window.innerHeight * 0.45 * 0.52);
-      const destH = destW / 0.52;
+      // Le contenu (titre, description, CTA) est superposé à l'image, dans sa partie basse
+      // (cf. .xs-focus-content bottom:0) : l'image occupe donc l'essentiel du cadre plutôt
+      // qu'une vignette réduite avec du texte en dessous.
+      const destH = Math.min(window.innerHeight * 0.8, 680, (window.innerWidth * 0.85) / 0.52);
+      const destW = destH * 0.52;
       const destX = (window.innerWidth - destW) / 2;
-      const destY = Math.max(Math.min((window.innerHeight - destH) / 2, window.innerHeight * 0.1), margin);
-      content.style.maxHeight = Math.max(window.innerHeight - destY - destH - margin, 120) + 'px';
+      const destY = (window.innerHeight - destH) / 2;
 
       const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== clickedEl);
       gsap.to(otherItems, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.3 });
