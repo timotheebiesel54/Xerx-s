@@ -1751,13 +1751,17 @@
        aucune valeur géométrique fixe ici. Ni gsap.Flip (non sous licence ici) ni ScrollTrigger :
        le déclenchement est uniquement le clic, jamais le scroll de page. */
     .xs-focus-veil{position:fixed;inset:0;z-index:2900;background:var(--black);opacity:0;pointer-events:none}
-    .xs-focus-close{position:absolute;top:60px;right:32px;background:transparent;border:none;color:var(--gold);font-size:2rem;line-height:1;cursor:pointer}
-    .xs-focus-close:hover{opacity:.8}
-    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none;overflow:hidden}
+    /* Flèche de fermeture = exactement .back-arrow/.back-arrow-label du reste du site (même
+       SVG, même position fixed top:28px/left:32px, même opacité/transition au survol), seul le
+       libellé change ("Retour") et l'onclick ferme le focus au lieu de naviguer vers l'accueil. */
+    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none}
     .xs-focus-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
-    .xs-focus-content{position:absolute;left:0;right:0;bottom:0;padding:20px 24px;text-align:center;background:linear-gradient(to top, rgba(10,10,10,.92), transparent 70%);opacity:0}
+    /* L'image principale reste seule et nue : le contenu (titre, description, CTA, images
+       liées) est placé EN DESSOUS de l'image (top:100%), jamais superposé dessus. */
+    .xs-focus-content{position:absolute;left:0;right:0;top:100%;padding:20px 24px 24px;text-align:center;opacity:0;overflow-y:auto;scrollbar-width:thin}
     .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin:0}
     .xs-focus-desc{color:var(--gold-light);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0}
+    .xs-focus-cta{display:inline-block;margin-top:14px;text-decoration:none}
     /* Positions/tailles/écarts inchangés (display:flex, gap:10px, justify-content:center,
        width:52px) — seul le scroll horizontal (même comportement que la bande de l'AJOUT 1 :
        drag souris, swipe tactile natif, trackpad natif, jamais la molette verticale) est ajouté
@@ -2806,13 +2810,19 @@
         </section>
 
         <div class="xs-focus-veil" id="xs-focus-veil" aria-hidden="true">
-          <button class="xs-focus-close" onclick="xsGalleryCloseFocus()" aria-label="Fermer">&times;</button>
+          <div class="back-arrow" onclick="xsGalleryCloseFocus()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#e8d5b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="back-arrow-label">Retour</span>
+          </div>
         </div>
         <div class="xs-focus-box" id="xs-focus-box">
           <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
           <div class="xs-focus-content" id="xs-focus-content">
             <h3 class="xs-focus-label" id="xs-focus-label"></h3>
             <p class="xs-focus-desc" id="xs-focus-desc"></p>
+            <a href="#" class="fiche-cta xs-focus-cta" onclick="event.preventDefault()">Découvrir</a>
             <div class="xs-focus-related" id="xs-focus-related"></div>
           </div>
         </div>
@@ -3069,12 +3079,19 @@
       });
       gsap.set(content, { opacity: 0 });
 
-      const maxW = window.innerWidth * 0.7;
-      const maxH = window.innerHeight * 0.82;
-      const destW = Math.min(maxW, maxH * 0.52, 420);
+      // Le contenu (titre, description, CTA, images liées) vit maintenant SOUS l'image (jamais
+      // superposé dessus, cf. .xs-focus-content top:100%), avec une hauteur variable selon la
+      // longueur du texte. Plutôt qu'un calcul de taille d'image qui se rétrécit sans fin pour
+      // essayer d'y faire tenir un texte de plus en plus compressé (le texte s'allonge quand
+      // l'image rétrécit), l'image garde une taille raisonnable et fixe, et le contenu reçoit
+      // l'espace restant sous elle avec son propre scroll interne s'il dépasse (texte plus long
+      // que la place disponible) — pas un scroll de PAGE, juste une zone de lecture.
+      const margin = 24;
+      const destW = Math.min(window.innerWidth * 0.85, 300, window.innerHeight * 0.45 * 0.52);
       const destH = destW / 0.52;
       const destX = (window.innerWidth - destW) / 2;
-      const destY = Math.max((window.innerHeight - destH) / 2, 24);
+      const destY = Math.max(Math.min((window.innerHeight - destH) / 2, window.innerHeight * 0.1), margin);
+      content.style.maxHeight = Math.max(window.innerHeight - destY - destH - margin, 120) + 'px';
 
       const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== clickedEl);
       gsap.to(otherItems, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.3 });
