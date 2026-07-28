@@ -1758,8 +1758,14 @@
     .xs-focus-content{position:absolute;left:0;right:0;bottom:0;padding:20px 24px;text-align:center;background:linear-gradient(to top, rgba(10,10,10,.92), transparent 70%);opacity:0}
     .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin:0}
     .xs-focus-desc{color:var(--gold-light);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0}
-    .xs-focus-related{display:flex;gap:10px;justify-content:center;margin-top:14px}
-    .xs-focus-related-item{width:52px;cursor:pointer}
+    /* Positions/tailles/écarts inchangés (display:flex, gap:10px, justify-content:center,
+       width:52px) — seul le scroll horizontal (même comportement que la bande de l'AJOUT 1 :
+       drag souris, swipe tactile natif, trackpad natif, jamais la molette verticale) est ajouté
+       par-dessus ; sans effet visuel tant que les 3 vignettes tiennent déjà dans le conteneur. */
+    .xs-focus-related{display:flex;gap:10px;justify-content:center;margin-top:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab}
+    .xs-focus-related::-webkit-scrollbar{display:none}
+    .xs-focus-related.is-dragging{cursor:grabbing}
+    .xs-focus-related-item{width:52px;flex:0 0 auto;cursor:pointer}
     .xs-focus-related-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;opacity:.75;pointer-events:none;-webkit-user-drag:none}
   </style>
 </head>
@@ -2894,6 +2900,7 @@
     ];
 
     let xsGalleryGesture = null;
+    let xsFocusRelatedGesture = null;
     let xsFocusActive = null;
     let xsFocusAnimating = false;
     let xsFocusOriginEl = null;
@@ -2966,6 +2973,41 @@
         }
         if (xsGalleryGesture) xsGalleryGesture.moved = false;
       }, true);
+
+      // Rangée des 3 images liées de la vue focus : même comportement horizontal que la bande
+      // (drag souris via listeners sur window, swipe tactile et trackpad natifs, aucun listener
+      // 'wheel' — la molette verticale continue de faire défiler la page).
+      const related = document.getElementById('xs-focus-related');
+      if (related) {
+        related.addEventListener('pointerdown', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          xsFocusRelatedGesture = { startX: e.clientX, startScrollLeft: related.scrollLeft, moved: false, pointerId: e.pointerId };
+          related.classList.add('is-dragging');
+          window.addEventListener('pointermove', xsFocusRelatedOnDragMove);
+          window.addEventListener('pointerup', xsFocusRelatedOnDragEnd);
+          window.addEventListener('pointercancel', xsFocusRelatedOnDragEnd);
+        });
+        function xsFocusRelatedOnDragMove(e) {
+          if (!xsFocusRelatedGesture || e.pointerId !== xsFocusRelatedGesture.pointerId) return;
+          const dx = e.clientX - xsFocusRelatedGesture.startX;
+          if (Math.abs(dx) > 4) xsFocusRelatedGesture.moved = true;
+          related.scrollLeft = xsFocusRelatedGesture.startScrollLeft - dx;
+        }
+        function xsFocusRelatedOnDragEnd(e) {
+          if (!xsFocusRelatedGesture || e.pointerId !== xsFocusRelatedGesture.pointerId) return;
+          related.classList.remove('is-dragging');
+          window.removeEventListener('pointermove', xsFocusRelatedOnDragMove);
+          window.removeEventListener('pointerup', xsFocusRelatedOnDragEnd);
+          window.removeEventListener('pointercancel', xsFocusRelatedOnDragEnd);
+        }
+        related.addEventListener('click', (e) => {
+          if (xsFocusRelatedGesture && xsFocusRelatedGesture.moved) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          if (xsFocusRelatedGesture) xsFocusRelatedGesture.moved = false;
+        }, true);
+      }
     }
 
     // Contenu affiché dans le focus (image, label, description, images liées) — appelé à
@@ -2978,7 +3020,8 @@
       document.getElementById('xs-focus-img').alt = item.label;
       document.getElementById('xs-focus-label').textContent = item.label;
       document.getElementById('xs-focus-desc').textContent = item.description;
-      document.getElementById('xs-focus-related').innerHTML = item.related.map((ri) => {
+      // 3 images liées maximum, même si le tableau de données en contient davantage.
+      document.getElementById('xs-focus-related').innerHTML = item.related.slice(0, 3).map((ri) => {
         const r = XS_GALLERY_ITEMS[ri];
         return `<figure class="xs-focus-related-item" onclick="xsGalleryRenderFocus(${ri})">
           <img src="${r.src}" alt="${r.label}" draggable="false" />
@@ -3035,7 +3078,7 @@
 
       const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== clickedEl);
       gsap.to(otherItems, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.3 });
-      gsap.to(veil, { opacity: 0.92, pointerEvents: 'auto', duration: reduced ? 0 : 0.4, ease: 'power2.out' });
+      gsap.to(veil, { opacity: 1, pointerEvents: 'auto', duration: reduced ? 0 : 0.3, ease: 'power2.out' });
       gsap.to(box, {
         x: destX, y: destY, width: destW, height: destH,
         duration: reduced ? 0 : 0.6, ease: 'power3.inOut',
@@ -3062,17 +3105,23 @@
       const otherItems = Array.from(document.querySelectorAll('.xs-gallery-item')).filter((el) => el !== xsFocusOriginEl);
       box.style.pointerEvents = 'none';
       gsap.to(content, { opacity: 0, duration: reduced ? 0 : 0.2 });
-      gsap.to(veil, { opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.4, delay: reduced ? 0 : 0.1 });
-      gsap.to(otherItems, { opacity: 1, pointerEvents: '', duration: reduced ? 0 : 0.3, delay: reduced ? 0 : 0.1 });
+      gsap.to(otherItems, { opacity: 1, pointerEvents: '', duration: reduced ? 0 : 0.3 });
+      // Le voile ne s'estompe qu'UNE FOIS l'image revenue à son rect d'origine (onComplete du
+      // tween de retour), jamais en même temps que le repli du cadre.
       gsap.to(box, {
         x: returnRect.left, y: returnRect.top, width: returnRect.width, height: returnRect.height,
         duration: reduced ? 0 : 0.5, ease: 'power3.inOut', delay: reduced ? 0 : 0.1,
         onComplete: () => {
           gsap.set(box, { opacity: 0 });
-          xsFocusFreezeScroll(false);
-          xsFocusActive = null;
-          xsFocusOriginEl = null;
-          xsFocusAnimating = false;
+          gsap.to(veil, {
+            opacity: 0, pointerEvents: 'none', duration: reduced ? 0 : 0.3,
+            onComplete: () => {
+              xsFocusFreezeScroll(false);
+              xsFocusActive = null;
+              xsFocusOriginEl = null;
+              xsFocusAnimating = false;
+            },
+          });
         },
       });
     }
