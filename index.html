@@ -1180,20 +1180,76 @@
       margin: 0 auto 64px;
     }
 
-    /* Rangée d'emplacements — reste une rangée horizontale sur mobile (scroll), ne bascule
-       jamais en liste verticale empilée. */
+    /* Rangée d'emplacements — toujours une seule ligne sur desktop (2 à 4 blocs se
+       partagent la largeur à parts égales, aucun retour à la ligne) ; passe en grille
+       2 colonnes sous 900px (voir media query plus bas). */
     .compo-slots {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: clamp(20px, 3.5vw, 44px);
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: clamp(16px, 3vw, 44px);
       margin: 0 auto;
     }
     .compo-slot {
       cursor: pointer;
-      width: clamp(150px, 17vw, 210px);
-      flex-shrink: 0;
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 210px;
+    }
+    .compo-add-slot {
+      flex: 0 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .compo-add-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-top: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .compo-add-btn:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+    .compo-slot-remove {
+      position: absolute;
+      top: 5%;
+      right: 3%;
+      width: 11%;
+      height: 11%;
+      min-width: 20px;
+      min-height: 20px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--gold);
+      opacity: 0.5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s ease;
+      z-index: 2;
+    }
+    .compo-slot-remove svg { width: 100%; height: 100%; }
+    .compo-slot-remove:hover { opacity: 1; }
+    @media (pointer: coarse), (max-width: 899px) {
+      .compo-slot-remove { opacity: 1; }
     }
     .compo-slot-socle {
       border-radius: 4px;
@@ -1262,20 +1318,6 @@
       opacity: 0.65;
     }
 
-    .compo-expand-wrap {
-      margin-top: 44px;
-      text-align: center;
-    }
-    .compo-expand-link {
-      font-size: 8px;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--grey);
-      opacity: 0.5;
-      cursor: pointer;
-      transition: opacity 0.25s ease;
-    }
-    .compo-expand-link:hover { opacity: 0.9; color: var(--gold-light); }
 
     /* Récapitulatif */
     .compo-recap {
@@ -1513,19 +1555,16 @@
     }
     .compo-panel-back:hover { opacity: 0.9; }
 
-    @media (max-width: 700px) {
+    @media (max-width: 899px) {
       .compo-view { padding: 110px 20px 100px; }
       .compo-slots {
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        padding: 4px 8px 14px;
-        margin: 0 -20px;
-        padding-left: 20px;
-        padding-right: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
       }
-      .compo-slot { scroll-snap-align: center; width: 42vw; min-width: 150px; }
+      .compo-slot { max-width: none; }
+      .compo-add-slot { margin-top: 0; }
+      .compo-add-btn { margin-top: 0; }
       .compo-panel { padding: 40px 24px; width: 92vw; }
     }
 
@@ -2485,13 +2524,9 @@
         <div class="compo-view animate-in">
           <span class="compo-eyebrow">Le rituel de sélection</span>
           <h1 class="compo-title">Composer une édition</h1>
-          <p class="compo-intro">Le duo reste le socle du modèle Xerxès; chaque emplacement reçoit une pièce, une matière, un même numéro gravé pour tous.</p>
+          <p class="compo-intro">De deux à quatre personnes, pas une de plus; le numéro gravé, lui, reste identique pour tous.<br>Sélectionnez un modèle par emplacement en touchant les médaillons.</p>
 
           <div class="compo-slots" id="compo-slots"></div>
-
-          <div class="compo-expand-wrap" id="compo-expand-wrap">
-            <span class="compo-expand-link" id="compo-expand-link" onclick="compoExpand()">Élargir l'édition, jusqu'à quatre pièces</span>
-          </div>
 
           <div class="compo-recap" id="compo-recap"></div>
         </div>
@@ -2513,6 +2548,9 @@
       const icon = slot.type === 'bracelet' ? COMPO_ICON_BRACELET : COMPO_ICON_BAGUE;
       const portrait = COMPO_SLOT_IMAGES[i];
       const name = COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0');
+      const removeBtn = i >= 2
+        ? `<button class="compo-slot-remove" onclick="event.stopPropagation(); compoRemoveSlot(${i})" aria-label="Retirer cet emplacement"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5L19 19M19 5L5 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>`
+        : '';
 
       if (filled) {
         const filledStyle = portrait
@@ -2521,6 +2559,7 @@
         return `
           <div class="compo-slot is-filled" onclick="compoOpenSlot(${i})">
             <div class="compo-slot-socle" ${filledStyle}>
+              ${removeBtn}
               <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
               <span class="compo-slot-modele">${slot.modele}</span>
@@ -2533,6 +2572,7 @@
       return `
         <div class="compo-slot" onclick="compoOpenSlot(${i})">
           <div class="compo-slot-socle${portrait ? '' : ' compo-slot-socle--center'}">
+            ${removeBtn}
             <span class="compo-slot-name">${name}</span>
             ${portrait ? `<div class="compo-slot-portrait" style="background-image: url(${portrait})"></div>` : ''}
           </div>
@@ -2543,9 +2583,19 @@
     function compoRenderSlots() {
       const grid = document.getElementById('compo-slots');
       if (!grid) return;
-      grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i)).join('');
-      const link = document.getElementById('compo-expand-link');
-      if (link) link.style.display = compoState.slots.length >= 4 ? 'none' : '';
+      const slotsHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i)).join('');
+      const addHTML = compoState.slots.length < 4
+        ? `<div class="compo-add-slot"><button class="compo-add-btn" onclick="compoExpand()" aria-label="Ajouter un emplacement">+</button></div>`
+        : '';
+      grid.innerHTML = slotsHTML + addHTML;
+    }
+
+    function compoRemoveSlot(i) {
+      if (!compoState || i < 2 || i >= compoState.slots.length) return;
+      compoState.slots.splice(i, 1);
+      if (compoState.activeSlot === i) compoState.activeSlot = null;
+      compoRenderSlots();
+      compoRenderRecap();
     }
 
     function compoExpand() {
