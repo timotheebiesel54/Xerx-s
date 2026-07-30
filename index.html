@@ -1180,25 +1180,22 @@
       margin: 0 auto 64px;
     }
 
-    /* Rangée d'emplacements — toujours une seule ligne sur desktop (2 à 4 blocs se
-       partagent la largeur à parts égales, aucun retour à la ligne) ; passe en grille
-       2 colonnes sous 900px (voir media query plus bas). */
+    /* Grille d'emplacements — toujours deux colonnes, desktop comme mobile ; les blocs
+       ont tous la même taille quel que soit leur nombre (2, 3 ou 4), un troisième bloc
+       seul sur la deuxième ligne reste aligné sous "L'un" sans jamais s'étirer. */
     .compo-slots {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      gap: clamp(16px, 3vw, 44px);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(20px, 4vw, 32px);
+      max-width: 480px;
       margin: 0 auto;
+      justify-items: stretch;
     }
     .compo-slot {
       cursor: pointer;
-      flex: 1 1 0;
-      min-width: 0;
-      max-width: 210px;
+      width: 100%;
     }
     .compo-add-slot {
-      flex: 0 0 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1218,7 +1215,6 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      margin-top: 14px;
       cursor: pointer;
       transition: background 0.3s ease, color 0.3s ease;
     }
@@ -1226,12 +1222,17 @@
       background: var(--gold);
       color: var(--black);
     }
+    /* Ancrée sur le conteneur du médaillon lui même (.compo-slot-portrait à l'état
+       vide, .compo-slot-socle à l'état rempli où l'image couvre tout le bloc) — jamais
+       sur le bloc entier, pour ne pas se retrouver au dessus du titre. Les pourcentages
+       tiennent déjà compte de la taille de la croix : son centre tombe à 14% depuis le
+       haut et 10% depuis le bord droit du médaillon. */
     .compo-slot-remove {
       position: absolute;
-      top: 5%;
-      right: 3%;
+      top: 9%;
+      right: 5%;
       width: 11%;
-      height: 11%;
+      aspect-ratio: 1 / 1;
       min-width: 20px;
       min-height: 20px;
       background: transparent;
@@ -1287,6 +1288,7 @@
       color: var(--white);
     }
     .compo-slot-portrait {
+      position: relative;
       flex: 1;
       width: 100%;
       min-height: 0;
@@ -1557,14 +1559,6 @@
 
     @media (max-width: 899px) {
       .compo-view { padding: 110px 20px 100px; }
-      .compo-slots {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-      }
-      .compo-slot { max-width: none; }
-      .compo-add-slot { margin-top: 0; }
-      .compo-add-btn { margin-top: 0; }
       .compo-panel { padding: 40px 24px; width: 92vw; }
     }
 
@@ -2524,7 +2518,7 @@
         <div class="compo-view animate-in">
           <span class="compo-eyebrow">Le rituel de sélection</span>
           <h1 class="compo-title">Composer une édition</h1>
-          <p class="compo-intro">De deux à quatre personnes, pas une de plus; le numéro gravé, lui, reste identique pour tous.<br>Sélectionnez un modèle par emplacement en touchant les médaillons.</p>
+          <p class="compo-intro">De deux à quatre personnes, pas une de plus; le numéro gravé, lui, reste identique pour tous. Sélectionnez un modèle par emplacement en touchant les médaillons.</p>
 
           <div class="compo-slots" id="compo-slots"></div>
 
@@ -2572,9 +2566,8 @@
       return `
         <div class="compo-slot" onclick="compoOpenSlot(${i})">
           <div class="compo-slot-socle${portrait ? '' : ' compo-slot-socle--center'}">
-            ${removeBtn}
             <span class="compo-slot-name">${name}</span>
-            ${portrait ? `<div class="compo-slot-portrait" style="background-image: url(${portrait})"></div>` : ''}
+            ${portrait ? `<div class="compo-slot-portrait" style="background-image: url(${portrait})">${removeBtn}</div>` : removeBtn}
           </div>
         </div>
       `;
