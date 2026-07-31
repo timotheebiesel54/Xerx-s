@@ -310,3 +310,275 @@ par aucun template JS actuel (recherche `class="liste-privee`,
 précédente. Convertie normalement comme le reste, par cohérence avec la
 consigne qui porte sur les 125 occurrences du fichier, sans distinction
 d'usage.
+
+
+---
+
+# Pass 2 — Réintroduction du bronze (`--accent` / `--accent-clair` / `--encre-inverse`)
+
+Le choix « sans accent » de la première passe est abandonné. `:root` gagne
+trois tokens :
+
+```css
+--accent: #8a6e45;
+--accent-clair: #c9a96e;
+--encre-inverse: #f4f1ea;
+```
+
+Seules les 117 lignes dont l'ancienne valeur (avant la toute première passe)
+était `--gold`, `--gold-light`, `#e8d5b0`, `#f1e5ca` ou
+`rgba(201,169,110,...)` sont reprises ici. Les lignes issues de `--black`,
+`--white` et `--grey` (déjà `--fond`/`--fond-2`/`--encre`/`--encre-2`)
+restent telles quelles, sauf le cas particulier `.xs-card-face` (point 5,
+détaillé plus bas) qui touche aussi une valeur noire d'origine.
+
+## 1. Tableau des réaffectations (117 lignes)
+
+Règle appliquée : bordure/outline/stroke d'élément cliquable et
+filet/séparateur/ornement décoratif → `--accent` ; surtitre/petites
+capitales espacées/numéro d'édition/compteur/libellé court en capitales →
+`--accent` ; état de survol → `--accent` ; icône (flèches, bouton fermer)
+→ `--accent` ; fond/aplat/dégradé → `--fond-2` (inchangé) ; texte courant
+et paragraphe → `--encre` (inchangé). Le libellé des boutons reste
+`--encre`, seule leur bordure passe à `--accent`. Tout texte qui aurait dû
+passer en `--accent` mais descend sous ~18px reste (ou revient) en
+`--encre`, avec la mention "échec contraste" ci-dessous.
+
+| Ligne (fichier actuel) | Sélecteur | Propriété | Avant cette passe | Après | Traitement retenu | Remarque |
+|---|---|---|---|---|---|---|
+| 106 | `.nav-links li` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 10px, echec contraste |
+| 111 | `.nav-links li:hover` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 10px, echec contraste |
+| 134 | `.nav-burger span` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 163 | `.nav-mobile-links li` | `color` | `var(--encre)` | `var(--accent)` | --accent | 24px capitales espacees |
+| 168 | `.nav-mobile-links li:hover` | `color` | `var(--encre-2)` | `var(--accent)` | --accent | 24px, etat de survol |
+| 192 | `.top-line` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 264 | `.xs-txt h2` | `color` | `var(--encre-2)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot xs-layers::after |
+| 300 | `.xs-fill` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 312 | `.about-divider` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 332 | `.about-body--indent` | `border-left` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 350 | `.collection-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 363 | `.collection-divider` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 392 | `.xs-scene-title` | `color` | `var(--encre-2)` | `var(--accent)` | --accent | 32-56px capitales espacees, cliquable |
+| 437 | `.xs-card-face` | `border` | `var(--trait)` | `var(--accent-clair)` | îlot sombre — bordure, --accent-clair | ilot (point 5) |
+| 456 | `.xs-card-name` | `color` | `var(--encre-2)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot .xs-card-face (point 5) |
+| 476 | `.liste-privee` | `border` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 484 | `.liste-privee::before` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 492 | `.liste-tag` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7px, echec contraste |
+| 518 | `.compteur-dot` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 529 | `.compteur-text` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 10px, echec contraste |
+| 534 | `.compteur-number` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 15px, echec contraste |
+| 547 | `.liste-input-wrap` | `border-bottom` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 552 | `.liste-input-wrap:focus-within` | `border-color` | `var(--trait)` | `var(--accent)` | --accent | etat focus |
+| 570 | `.liste-btn` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton |
+| 571 | `.liste-btn` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — libellé de bouton, reste --encre | libelle bouton |
+| 583 | `.liste-btn:hover` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 584 | `.liste-btn:hover` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton survol |
+| 593 | `.liste-success` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 14px, echec contraste |
+| 654 | `.fiche-swatch-label` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 669 | `.fiche-swatch.selected` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure cliquable |
+| 684 | `.fiche-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 702 | `.fiche-coloris-actif` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 9px, echec contraste |
+| 711 | `.fiche-divider` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 732 | `.fiche-section-label` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7px, echec contraste |
+| 747 | `.fiche-materiaux li` | `border-bottom` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 751 | `.fiche-materiaux li span` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 11px, echec contraste |
+| 756 | `.fiche-edition` | `border` | `var(--trait)` | `var(--accent)` | --accent | filet/ornement |
+| 765 | `.fiche-edition::before` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 772 | `.fiche-edition-num` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 13px, echec contraste |
+| 786 | `.fiche-taille` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure cliquable |
+| 797 | `.fiche-taille:hover, .fiche-taille.selected` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure cliquable survol |
+| 798 | `.fiche-taille:hover, .fiche-taille.selected` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 9px, echec contraste |
+| 816 | `.fiche-duo` | `border-top` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 822 | `.fiche-duo-line` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 832 | `.fiche-duo-text strong` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8.5px, echec contraste |
+| 841 | `.fiche-cta` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton |
+| 842 | `.fiche-cta` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — libellé de bouton, reste --encre | libelle bouton |
+| 853 | `.fiche-cta:hover` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 854 | `.fiche-cta:hover` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton survol |
+| 885 | `.back-arrow-label` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7px, echec contraste |
+| 894 | `footer` | `border-top` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 903 | `.footer-col-title` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7px, echec contraste |
+| 921 | `.footer-col a:hover, .footer-col span:hover` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 9px, echec contraste |
+| 926 | `.footer-bottom` | `border-top` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 955 | `.contact-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 986 | `.contact-input` | `border-bottom` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 998 | `.contact-input:focus` | `border-bottom-color` | `var(--trait)` | `var(--accent)` | --accent | etat focus |
+| 1006 | `.contact-btn` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton |
+| 1007 | `.contact-btn` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — libellé de bouton, reste --encre | libelle bouton |
+| 1019 | `.contact-btn:hover` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 1020 | `.contact-btn:hover` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton survol |
+| 1029 | `.contact-email-alt a` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 1058 | `.mentions-section-title` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 1083 | `.maison-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 1099 | `.maison-divider` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 1114 | `.maison-chapter-title` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — titre de chapitre, hors catégories accent | titre de chapitre, pas un libelle court |
+| 1123 | `.maison-chapter-body` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — paragraphe/phrase longue | texte courant / paragraphe |
+| 1142 | `.maison-closing-link` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 1161 | `.compo-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 1180 | `.compo-intro` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — paragraphe/phrase longue | texte courant / paragraphe |
+| 1214 | `.compo-slot.is-filled .compo-slot-socle` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 1248 | `.compo-slot-icon` | `color` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 1264 | `.compo-slot-matiere` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 1281 | `.compo-expand-link:hover` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 8px, echec contraste |
+| 1301 | `.compo-recap-divider` | `background` | `var(--fond-2)` | `var(--fond-2)` | SURFACE — --fond-2 (déjà correct) | surface, inchange |
+| 1309 | `.compo-recap-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 1332 | `.compo-recap-list li` | `border-bottom` | `var(--trait)` | `var(--accent)` | --accent | filet |
+| 1335 | `.compo-recap-list li` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 11px, echec contraste |
+| 1356 | `.compo-recap-cta` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton/CTA |
+| 1357 | `.compo-recap-cta` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — libellé de bouton, reste --encre | libelle bouton/CTA |
+| 1368 | `.compo-recap-cta:hover` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 1369 | `.compo-recap-cta:hover` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure bouton survol |
+| 1393 | `.compo-panel` | `border` | `var(--trait)` | `var(--accent)` | --accent | filet cadre |
+| 1410 | `.compo-panel-close` | `color` | `var(--encre-2)` | `var(--accent)` | --accent | icone bouton fermer |
+| 1422 | `.compo-panel-eyebrow` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7.5px, echec contraste |
+| 1442 | `.compo-panel-step.is-active` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 7px, echec contraste |
+| 1448 | `.compo-panel-step:not(:last-child)::after` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 1469 | `.compo-card` | `border` | `var(--encre)` | `var(--accent)` | --accent | bordure cliquable |
+| 1480 | `.compo-card:hover, .compo-card:active` | `border-color` | `var(--encre)` | `var(--accent)` | --accent | bordure cliquable survol |
+| 1481 | `.compo-card:hover, .compo-card:active` | `background` | `var(--fond)` | `var(--fond-2)` | SURFACE — --fond-2 (correction d’un bug de la passe 1, était --fond) | correction bug passe 1 |
+| 1483 | `.compo-card-icon` | `color` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 1489 | `.compo-card-label` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 9px, echec contraste |
+| 1549 | `.newsletter-label` | `color` | `var(--encre)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot .newsletter-section |
+| 1573 | `.newsletter-form` | `border-bottom` | `var(--trait)` | `var(--accent-clair)` | îlot sombre — bordure, --accent-clair | ilot .newsletter-section |
+| 1592 | `.newsletter-submit` | `color` | `var(--encre)` | `var(--encre-inverse)` | îlot sombre — libellé de bouton, --encre-inverse (prime sur "libellé bouton = encre") | libelle bouton dans ilot |
+| 1606 | `.newsletter-success` | `color` | `var(--encre-2)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot .newsletter-section |
+| 1655 | `.xs-suggestion-title` | `color` | `var(--encre-2)` | `var(--accent)` | --accent | 36-56px capitales espacees |
+| 1667 | `.xs-suggestion-quote` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — paragraphe/phrase longue | texte courant / phrase longue |
+| 1719 | `.xs-cat-label` | `color` | `var(--encre-2)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | clamp min 15px, echec contraste |
+| 1738 | `.xs-gallery-item figcaption` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 14px, echec contraste |
+| 1760 | `.xs-focus-label` | `color` | `var(--encre-2)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot .xs-focus-content |
+| 1761 | `.xs-focus-desc` | `color` | `var(--encre-2)` | `var(--encre-inverse)` | îlot sombre — --encre-inverse | ilot .xs-focus-content |
+| 1787 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2132 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2155 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2189 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2227 | `<a> lien retour (CGV)` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 10px herite, echec contraste |
+| 2242 | `<a> lien confidentialite (CGV)` | `color` | `var(--encre)` | `var(--encre)` | TEXTE — échec contraste, conservé/ramené à --encre | 10px herite, echec contraste |
+| 2276 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2348 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2405 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2482 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 2731 | `handleContact() message` | `color` | `var(--encre-2)` | `var(--accent)` | --accent | 18px, message court |
+| 2824 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 3504 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+| 3650 | `renderFiche() ring-beveled accent` | `stroke` | `var(--trait)` | `var(--accent)` | --accent | ornement decoratif |
+| 3674 | `icone fleche/fermer` | `stroke` | `var(--encre)` | `var(--accent)` | --accent | icone |
+
+### Corrections de la passe 1
+
+9 lignes SURFACE dont l'ancienne valeur était `rgba(201,169,110,...)`
+avaient été mappées à `--fond` au lieu de `--fond-2` lors de la première
+passe (bug de règle non affichant pas la distinction de famille pour les
+couleurs écrites en dur) : `.about-divider`, `.liste-btn:hover`,
+`.fiche-divider`, `.fiche-cta:hover`, `.contact-btn:hover`,
+`.compo-slot.is-filled .compo-slot-socle`, `.compo-recap-cta:hover`,
+`.compo-panel-step:not(:last-child)::after`, `.compo-card:hover,
+.compo-card:active`. Corrigées à `--fond-2` dans cette passe (marquées
+« FOND2-FIX » dans le tableau).
+
+## 2. `.xs-card-face` (point 5)
+
+`.xs-card-face` sert de support à une photographie produit : son
+`background-image` empile `var(--img, none)` (la photo, quand elle est
+définie) par-dessus un dégradé de secours
+`linear-gradient(155deg, #17140f 0%, ... 65%, #12100b 100%)`. Ce dégradé
+est visible en clair sur les cartes de démonstration sans photo
+(`--img: none`, cartes statiques de `renderCollection()`) et reste la
+base sous la photo dans les autres cas. **Cas retenu : îlot sombre**, au
+sens du point 4 — ce n'est pas un simple aplat de page, c'est le support
+visuel d'une photographie de produit.
+
+En conséquence :
+- `background-color` et l'arrêt central du dégradé, convertis par erreur
+  en `var(--fond)` lors de la première passe, sont **revenus à leur
+  valeur d'origine `#0a0a0a`** (fond conservé, comme les 4 autres îlots).
+  Les arrêts `#17140f` et `#12100b` restent inchangés (hors du périmètre
+  des couleurs à traiter, comme déjà noté en passe 1) : le dégradé est de
+  nouveau uniformément sombre.
+- La bordure de la carte (ligne 437, `rgba(201,169,110,0.14)` → `var(--trait)`
+  en passe 1) passe à **`var(--accent-clair)`**, qui tient bien sur fond
+  sombre.
+- `.xs-card-name` (`--gold-light`, dans le périmètre de cette passe) passe
+  à **`var(--encre-inverse)`**.
+- `.xs-card-view` (`--white` à l'origine, donc hors périmètre strict de
+  cette passe) est néanmoins également passé à **`var(--encre-inverse)`** :
+  laisser `var(--encre)` (encre sombre) sur un fond resté sombre aurait
+  reproduit exactement le défaut de lisibilité identifié en passe 1 sur
+  `.xs-txt`. Traité comme conséquence directe et nécessaire du point 5,
+  qui demande de traiter tout l'ensemble « au sens du point 4 ».
+
+## 3. Contrastes recalculés
+
+### 3.1 `--accent` sur `--fond` — texte passé en accent
+
+| Paire | Contraste |
+|---|---|
+| `--accent` (#8a6e45) sur `--fond` (#f4f1ea) | **4.23:1** (conforme à l'estimation ~4.25:1 de la consigne) |
+| `--accent` (#8a6e45) sur `--fond-2` (#eae5da) | **3.80:1** — plus bas ; aucun des textes passés en `--accent` dans cette passe ne se trouve en pratique sur `--fond-2` (tous les surtitres/labels concernés sont posés sur `--fond`), donc sans impact réel, mais à surveiller si `--accent` est réutilisé ailleurs sur `--fond-2`. |
+
+Tous les textes routés vers `--accent` dans le tableau ci-dessus ont une
+taille ≥ 18px (`.nav-mobile-links li` 24px, `.xs-scene-title` 32–56px,
+`.xs-suggestion-title` 36–56px, message de confirmation de contact 18px
+pile) et obtiennent donc un contraste de 4.23:1, jugé acceptable par la
+consigne au-dessus de 18px. **Cas limite signalé** : le message de
+`handleContact()` fait exactement 18px, pile sur le seuil — accepté ici,
+mais à confirmer si le seuil doit être strictement "supérieur à" 18px.
+
+### 3.2 Texte resté (ou ramené) en `--encre` faute de taille suffisante
+
+24 lignes étaient déjà en `--encre` (venant de `--gold`, catégorie
+"surtitre/libellé" mais trop petites) et le restent sans changement de
+valeur ; 16 lignes supplémentaires, qui étaient en `--encre-2` (venant de
+`--gold-light`), sont ramenées à `--encre` par cette passe puisqu'un
+passage en `--accent` aurait échoué au contraste. Toutes ces occurrences
+sont en 7 à 15px, largement sous le seuil de 18px : `.nav-links li` (10px),
+`.collection-eyebrow` (8px), `.liste-tag` (7px), `.compteur-text` (10px),
+`.compteur-number` (15px), `.fiche-swatch-label` (8px),
+`.fiche-eyebrow`/`.contact-eyebrow`/`.maison-eyebrow`/`.compo-eyebrow`/
+`.compo-recap-eyebrow`/`.compo-panel-eyebrow` (7.5px), `.fiche-coloris-actif`
+(9px), `.fiche-section-label`/`.back-arrow-label`/`.footer-col-title`
+(7px), `.fiche-materiaux li span` (11px), `.fiche-edition-num` (13px,
+malgré son rôle de "numéro d'édition"), `.fiche-taille` en survol/sélection
+(9px), `.fiche-duo-text strong` (8.5px), `.footer-col a:hover`/`span:hover`
+(9px), `.contact-email-alt a` (8px, hérité de `.mentions-body`),
+`.maison-closing-link` (8px), `.compo-slot-matiere`/`.compo-expand-link:hover`
+(8px), `.compo-recap-list li` (11px), `.compo-panel-step.is-active` (7px),
+`.compo-card-label` (9px), `.xs-cat-label` (borne basse du `clamp()` à
+15px, donc jamais garanti ≥ 18px), `.xs-gallery-item figcaption` (14px),
+les deux liens inline des pages CGV/confidentialité (10px, hérité de
+`.mentions-body`). Le contraste `--encre` sur `--fond`/`--fond-2` reste
+excellent (13–15:1) dans tous ces cas.
+
+`.maison-chapter-title` reste également en `--encre`, mais pour une raison
+différente : c'est un titre de chapitre en romain italique, pas un
+surtitre ni un libellé court en capitales — il ne correspond à aucune des
+catégories qui basculent vers `--accent`.
+
+### 3.3 Les 5 îlots sombres — contraste recalculé pour `--encre-inverse`
+
+| Îlot | Contraste `--encre-inverse` | Avant cette passe (`--encre-2`) |
+|---|---|---|
+| `.xs-card-face` (fond `#0a0a0a` exact) | **17.55:1** | contraste non calculé (photo), risque signalé |
+| `.xs-focus-content` (fond estimé, borne haute) | **≈ 11.1:1** (borne basse ≈ 3:1 sur fond quasi noir pur) | ≈ 1.9 à 3.0:1 — échec |
+| `.newsletter-section` (fond mêlé ≈ rgb(115,114,111)) | **≈ 4.26:1** — tout juste sous 4.5:1, mais très largement amélioré | ≈ 1.37 à 3.49:1 — échec net |
+| `.xs-layers::after` (vignette sur photo hero) | non chiffrable précisément (dépend de la photo), mais structurellement identique aux cas ci-dessus | échec attendu (signalé en passe 1) |
+
+Amélioration nette pour `.xs-card-face` et `.xs-focus-content` (largement
+au-dessus de 4.5:1). `.newsletter-section` reste **juste sous le seuil de
+4.5:1** (≈4.26:1) : le mélange orange-brun devient un gris chaud clair
+assez lisible, mais pas totalement conforme AA en corps courant — signalé
+plutôt que corrigé, une correction demanderait de toucher au fond de
+l'îlot lui-même, hors du périmètre de cette tâche.
+
+La bordure `.newsletter-form` (`--accent-clair`) obtient en revanche un
+contraste faible sur ce même fond mêlé (**≈ 2.15:1**), sous le seuil
+non-texte de 3:1 recommandé par WCAG pour les limites de composants
+d'interface — signalé, non corrigé (même raison : toucher au fond de
+l'îlot sort du périmètre défini).
+
+`.xs-txt h1` et `.xs-txt span` (origine `--white`, hors périmètre de cette
+passe car ni `--gold` ni `--gold-light`) restent en `--encre` alors qu'ils
+sont affichés sur ce même îlot `.xs-layers::after` : l'incohérence relevée
+en passe 1 (texte sombre sur fond resté sombre) subsiste pour ces deux
+règles précises, seul `.xs-txt h2` (`--gold-light`) a pu être corrigé dans
+le périmètre autorisé ici.
