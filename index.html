@@ -101,16 +101,17 @@
     .nav-groupe-droite { justify-content: flex-start; margin-left: 34px; }
     .nav-groupe li {
       position: relative;
-      font-weight: 500;
-      font-size: 0.9rem;
+      font-weight: 400;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       /* variante contraste fort : color: var(--encre); survol var(--accent) */
       color: var(--encre);
       opacity: 0.75;
       cursor: pointer;
-      transition: opacity 0.25s ease, color 0.25s ease;
+      transition: opacity 0.25s ease, color 0.3s ease;
     }
+    .nav-bar--sur-photo .nav-groupe li { color: var(--encre-inverse); }
     .nav-groupe li::after {
       content: '';
       position: absolute;
@@ -1799,7 +1800,7 @@
       <li data-vue="bracelets" onclick="navigate('bracelets')">Bracelets</li>
     </ul>
     <a class="nav-logo" onclick="navigate('home')" aria-label="Xerxès, accueil">
-      <img src="images/site/logo-xerxes.webp" alt="Xerxès" width="340" height="297">
+      <img src="images/site/logo.webp" alt="Xerxès" width="1828" height="629">
     </a>
     <ul class="nav-groupe nav-groupe-droite">
       <li data-vue="composition" onclick="navigate('composition')">Éditions</li>

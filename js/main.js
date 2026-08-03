@@ -28,6 +28,7 @@
         render(view);
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
+        xsNavPhotoCheck();
       }, 350);
     }
 
@@ -88,5 +89,35 @@
       if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
     });
 
+    // ─── NAVBAR SUR PHOTO ───
+    // nav-bar--sur-photo tant que le defilement n'a pas depasse la hauteur du hero
+    // (presence de .xs-stage dans le DOM, pas la route) ; hysteresis de 40px pour
+    // eviter le clignotement a la frontiere.
+    let xsNavSurPhoto = null;
+    let xsNavTicking = false;
+    function xsNavPhotoCheck() {
+      const navEl = document.getElementById('navbar');
+      const heroEl = document.querySelector('.xs-stage');
+      if (!heroEl) {
+        if (xsNavSurPhoto !== false) { navEl.classList.remove('nav-bar--sur-photo'); xsNavSurPhoto = false; }
+        return;
+      }
+      const seuil = heroEl.offsetHeight;
+      const y = window.scrollY;
+      if (xsNavSurPhoto !== false && y > seuil + 40) {
+        navEl.classList.remove('nav-bar--sur-photo');
+        xsNavSurPhoto = false;
+      } else if (xsNavSurPhoto !== true && y < seuil - 40) {
+        navEl.classList.add('nav-bar--sur-photo');
+        xsNavSurPhoto = true;
+      }
+    }
+    window.addEventListener('scroll', () => {
+      if (xsNavTicking) return;
+      xsNavTicking = true;
+      requestAnimationFrame(() => { xsNavPhotoCheck(); xsNavTicking = false; });
+    }, { passive: true });
+
     updateActiveNav('home');
     render('home');
+    xsNavPhotoCheck();
