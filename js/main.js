@@ -28,7 +28,11 @@
         render(view);
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
-        xsNavPhotoCheck();
+        xsNavPhotoRecalc();
+        document.getElementById('navbar').classList.remove('nav-bar--cachee');
+        xsNavCachee = false;
+        xsNavLastY = window.scrollY;
+        xsNavScrollCheck();
       }, 350);
     }
 
@@ -51,7 +55,13 @@
       const overlay = document.getElementById('nav-mobile-overlay');
       if (!overlay) return;
       const isOpen = overlay.classList.toggle('open');
-      if (isOpen) { lenis.stop(); } else { lenis.start(); }
+      if (isOpen) {
+        lenis.stop();
+        document.getElementById('navbar').classList.remove('nav-bar--cachee');
+        xsNavCachee = false;
+      } else {
+        lenis.start();
+      }
     }
     function closeMobileMenu() {
       const overlay = document.getElementById('nav-mobile-overlay');
@@ -80,6 +90,7 @@
         if (document.querySelector('.xs-stage')) {
           ScrollTrigger.refresh();
         }
+        xsNavPhotoRecalc();
       }, 250);
     });
 
@@ -89,35 +100,77 @@
       if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
     });
 
-    // ─── NAVBAR SUR PHOTO ───
-    // nav-bar--sur-photo tant que le defilement n'a pas depasse la hauteur du hero
-    // (presence de .xs-stage dans le DOM, pas la route) ; hysteresis de 40px pour
-    // eviter le clignotement a la frontiere.
+    // ─── NAVBAR : etat sur photo + masquage au defilement ───
+    // nav-bar--sur-photo tant que le defilement n'a pas depasse le bas du hero moins la
+    // hauteur de la barre (presence de .xs-stage dans le DOM, pas la route), borne mise en
+    // cache et recalculee au redimensionnement/a la navigation ; hysteresis de 40px.
+    // nav-bar--cachee au defilement vers le bas, retiree vers le haut ou sous 80px de
+    // defilement ; hysteresis de 8px sur le delta (n'avance la reference que lorsqu'elle
+    // est franchie, pour ne pas rater un defilement lent fait de petits pas).
     let xsNavSurPhoto = null;
+    let xsNavPhotoBorne = null;
+    let xsNavCachee = false;
+    let xsNavLastY = window.scrollY;
     let xsNavTicking = false;
-    function xsNavPhotoCheck() {
-      const navEl = document.getElementById('navbar');
+
+    function xsNavPhotoRecalc() {
       const heroEl = document.querySelector('.xs-stage');
-      if (!heroEl) {
-        if (xsNavSurPhoto !== false) { navEl.classList.remove('nav-bar--sur-photo'); xsNavSurPhoto = false; }
-        return;
-      }
-      const seuil = heroEl.offsetHeight;
+      const navEl = document.getElementById('navbar');
+      if (!heroEl) { xsNavPhotoBorne = null; return; }
+      const rect = heroEl.getBoundingClientRect();
+      xsNavPhotoBorne = (rect.bottom + window.scrollY) - navEl.offsetHeight;
+    }
+
+    function xsNavScrollCheck() {
+      const navEl = document.getElementById('navbar');
       const y = window.scrollY;
-      if (xsNavSurPhoto !== false && y > seuil + 40) {
+
+      if (xsNavPhotoBorne === null) {
+        if (xsNavSurPhoto !== false) { navEl.classList.remove('nav-bar--sur-photo'); xsNavSurPhoto = false; }
+      } else if (xsNavSurPhoto !== false && y > xsNavPhotoBorne + 40) {
         navEl.classList.remove('nav-bar--sur-photo');
         xsNavSurPhoto = false;
-      } else if (xsNavSurPhoto !== true && y < seuil - 40) {
+      } else if (xsNavSurPhoto !== true && y < xsNavPhotoBorne - 40) {
         navEl.classList.add('nav-bar--sur-photo');
         xsNavSurPhoto = true;
       }
+
+      const delta = y - xsNavLastY;
+      if (y < 80) {
+        if (xsNavCachee) { navEl.classList.remove('nav-bar--cachee'); xsNavCachee = false; }
+        xsNavLastY = y;
+      } else if (delta > 8) {
+        if (!xsNavCachee) { navEl.classList.add('nav-bar--cachee'); xsNavCachee = true; }
+        xsNavLastY = y;
+      } else if (delta < -8) {
+        if (xsNavCachee) { navEl.classList.remove('nav-bar--cachee'); xsNavCachee = false; }
+        xsNavLastY = y;
+      }
     }
-    window.addEventListener('scroll', () => {
+
+    function xsNavOnScroll() {
       if (xsNavTicking) return;
       xsNavTicking = true;
-      requestAnimationFrame(() => { xsNavPhotoCheck(); xsNavTicking = false; });
-    }, { passive: true });
+      requestAnimationFrame(() => { xsNavScrollCheck(); xsNavTicking = false; });
+    }
+
+    if (typeof lenis !== 'undefined' && lenis) {
+      lenis.on('scroll', xsNavOnScroll);
+    } else {
+      window.addEventListener('scroll', xsNavOnScroll, { passive: true });
+    }
+
+    // ─── PASTILLE PANIER ───
+    // Point d'entree pour Stripe : ecrit le nombre d'articles et bascule l'attribut hidden.
+    function majPanier(n) {
+      const pastille = document.querySelector('.nav-pastille');
+      if (!pastille) return;
+      pastille.textContent = n;
+      pastille.hidden = n === 0;
+    }
 
     updateActiveNav('home');
     render('home');
-    xsNavPhotoCheck();
+    xsNavPhotoRecalc();
+    xsNavScrollCheck();
+    majPanier(0);

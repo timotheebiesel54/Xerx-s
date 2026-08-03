@@ -42,6 +42,8 @@
       --accent: #8a6e45;
       --accent-clair: #c9a96e;
       --encre-inverse: #f4f1ea;
+      --ivoire-barre: #f4f1ea;
+      --bronze-lien: #80643a;
     }
 
     html { scroll-behavior: smooth; }
@@ -66,28 +68,27 @@
     }
 
     /* ─── NAVBAR ───
-       nav est transparente et pointer-events:none pour ne jamais intercepter les clics sous elle
-       (back-arrow, etc.) ; seuls ses enfants interactifs repassent en pointer-events:auto. */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px 48px;
-      background: transparent;
-      border: none;
-      pointer-events: none;
-    }
-    /* Ordinateur (au dessus du point de rupture 900px partagé avec le menu mobile) :
-       grille 1fr auto 1fr, logo optiquement centré même si les deux groupes de liens
-       n'ont pas la même largeur. */
+       .nav-bar est en flux normal (position: sticky, jamais fixed) pour que la hauteur du
+       document ne bouge pas d'un etat a l'autre et ne perturbe pas les ScrollTrigger
+       existants ; pointer-events:none pour ne jamais intercepter les clics sous elle quand
+       elle recouvre du contenu en restant collee en haut, seuls ses enfants interactifs
+       repassent en pointer-events:auto. */
     .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
+      padding: 16px 48px;
+      background-color: var(--ivoire-barre);
+      border: none;
+      pointer-events: none;
+      transition: transform .45s cubic-bezier(.16,1,.3,1),
+                  background-color .3s ease,
+                  backdrop-filter .3s ease;
     }
+    .nav-bar--cachee { transform: translateY(-100%); }
     .nav-groupe {
       display: flex;
       align-items: center;
@@ -105,13 +106,12 @@
       font-size: 0.75rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      /* variante contraste fort : color: var(--encre); survol var(--accent) */
-      color: var(--encre);
+      color: var(--bronze-lien);
       opacity: 0.75;
       cursor: pointer;
+      white-space: nowrap;
       transition: opacity 0.25s ease, color 0.3s ease;
     }
-    .nav-bar--sur-photo .nav-groupe li { color: var(--encre-inverse); }
     .nav-groupe li::after {
       content: '';
       position: absolute;
@@ -119,12 +119,46 @@
       bottom: -6px;
       width: 0;
       height: 1px;
-      background: var(--accent);
+      background: var(--bronze-lien);
       transition: width 0.25s ease;
     }
     .nav-groupe li:hover { opacity: 1; }
     .nav-groupe li:hover::after,
     .nav-groupe li.active::after { width: 100%; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-left: auto;
+      pointer-events: auto;
+    }
+    .nav-action {
+      position: relative;
+      display: flex;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      line-height: 0;
+      color: var(--bronze-lien);
+      cursor: default;
+      opacity: 0.75;
+      transition: opacity 0.25s ease;
+    }
+    .nav-action:hover { opacity: 0.55; }
+    .nav-pastille {
+      position: absolute; top: -1px; right: -7px;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: var(--bronze-lien); color: var(--ivoire-barre);
+      font-size: 11px; line-height: 15px; text-align: center;
+    }
+
+    .nav-bar--sur-photo {
+      background-color: rgba(244, 241, 234, .85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
 
     .nav-logo { display: block; cursor: pointer; pointer-events: auto; }
     .nav-logo img {
@@ -225,7 +259,7 @@
     #app { transition: opacity 0.35s ease; }
     #app.fade-out { opacity: 0; }
 
-    #app { position: relative; z-index: 2; }
+    #app { position: relative; }
 
     /* ─── HERO : SÉQUENCE SVG MASQUÉE PILOTÉE PAR LE SCROLL ─── */
     .xs-stage {
@@ -1806,6 +1840,21 @@
       <li data-vue="composition" onclick="navigate('composition')">Éditions</li>
       <li data-vue="maison" onclick="navigate('maison')">La Maison</li>
       <li data-vue="contact" onclick="navigate('contact')">Contact</li>
+      <div class="nav-actions">
+        <button type="button" class="nav-action" aria-label="Compte" tabindex="-1">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.6"/>
+            <path d="M4.8 20.2c0-3.9 3.2-6.2 7.2-6.2s7.2 2.3 7.2 6.2"/>
+          </svg>
+        </button>
+        <button type="button" class="nav-action nav-action--sac" aria-label="Panier" tabindex="-1">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5.2 8h13.6l-1.1 12.2H6.3z"/>
+            <path d="M9 8V6.3a3 3 0 0 1 6 0V8"/>
+          </svg>
+          <span class="nav-pastille" hidden>0</span>
+        </button>
+      </div>
     </ul>
     <button class="nav-burger" onclick="toggleMobileMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
