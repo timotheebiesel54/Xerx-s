@@ -5,9 +5,14 @@
 
     const app = document.getElementById('app');
     let currentView = 'home';
-    document.getElementById('xs-logo').src = XERXES_LOGO_IMG;
 
     // ─── NAVIGATION ───
+    function updateActiveNav(view) {
+      document.querySelectorAll('.nav-groupe li[data-vue]').forEach(li => {
+        li.classList.toggle('active', li.dataset.vue === view);
+      });
+    }
+
     function navigate(view) {
       if (view === currentView) return;
       app.classList.add('fade-out');
@@ -19,6 +24,7 @@
         if (xsFocusActive !== null) xsGalleryForceCloseFocus();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
+        updateActiveNav(view);
         render(view);
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
@@ -82,4 +88,5 @@
       if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
     });
 
+    updateActiveNav('home');
     render('home');

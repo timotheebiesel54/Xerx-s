@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#241c15">
   <title>Xerxès</title>
   <style>
     @font-face {
@@ -76,39 +80,59 @@
       border: none;
       pointer-events: none;
     }
-    .nav-logo-img {
-      height: 56px;
-      width: auto;
-      cursor: pointer;
-      transition: opacity 0.3s ease;
-      display: block;
-      pointer-events: auto;
+    /* Ordinateur (au dessus du point de rupture 900px partagé avec le menu mobile) :
+       grille 1fr auto 1fr, logo optiquement centré même si les deux groupes de liens
+       n'ont pas la même largeur. */
+    .nav-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
     }
-    .nav-logo-img:hover { opacity: 0.75; }
-
-    /* Liens ancrés à droite (position absolute) : le logo reste centré, aucun chevauchement
-       avec le back-arrow (fixé en haut à gauche sur les pages secondaires). */
-    .nav-links {
-      position: absolute;
-      right: 48px;
-      top: 50%;
-      transform: translateY(-50%);
+    .nav-groupe {
       display: flex;
       align-items: center;
       gap: 34px;
       list-style: none;
+      margin: 0;
+      padding: 0;
       pointer-events: auto;
     }
-    .nav-links li {
-      font-size: 10px;
-      letter-spacing: 0.24em;
+    .nav-groupe-gauche { justify-content: flex-end; margin-right: 34px; }
+    .nav-groupe-droite { justify-content: flex-start; margin-left: 34px; }
+    .nav-groupe li {
+      position: relative;
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+      /* variante contraste fort : color: var(--encre); survol var(--accent) */
       color: var(--encre);
       opacity: 0.75;
       cursor: pointer;
       transition: opacity 0.25s ease, color 0.25s ease;
     }
-    .nav-links li:hover { opacity: 1; color: var(--encre); }
+    .nav-groupe li::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+    .nav-groupe li:hover { opacity: 1; }
+    .nav-groupe li:hover::after,
+    .nav-groupe li.active::after { width: 100%; }
+
+    .nav-logo { display: block; cursor: pointer; pointer-events: auto; }
+    .nav-logo img {
+      height: 34px;
+      width: auto;
+      display: block;
+      transition: opacity 0.3s ease;
+    }
+    .nav-logo:hover img { opacity: 0.75; }
 
     .nav-burger {
       display: none;
@@ -181,8 +205,10 @@
     .nav-mobile-close svg { width: 20px; height: 20px; display: block; }
 
     @media (max-width: 900px) {
-      .nav-links { display: none; }
+      .nav-bar { display: flex; justify-content: center; }
+      .nav-groupe { display: none; }
       .nav-burger { display: flex; }
+      .nav-logo img { height: 28px; }
     }
 
     .top-line {
@@ -1766,15 +1792,19 @@
 
   <div class="top-line"></div>
 
-  <nav id="navbar">
-    <img id="xs-logo" class="nav-logo-img" onclick="navigate('home')" alt="Xerxès" />
-    <ul class="nav-links">
-      <li onclick="navigate('home')">Accueil</li>
-      <li onclick="navigate('bagues')">Bagues</li>
-      <li onclick="navigate('bracelets')">Bracelets</li>
-      <li onclick="navigate('composition')">Éditions</li>
-      <li onclick="navigate('maison')">La Maison</li>
-      <li onclick="navigate('contact')">Contact</li>
+  <nav id="navbar" class="nav-bar">
+    <ul class="nav-groupe nav-groupe-gauche">
+      <li data-vue="home" onclick="navigate('home')">Accueil</li>
+      <li data-vue="bagues" onclick="navigate('bagues')">Bagues</li>
+      <li data-vue="bracelets" onclick="navigate('bracelets')">Bracelets</li>
+    </ul>
+    <a class="nav-logo" onclick="navigate('home')" aria-label="Xerxès, accueil">
+      <img src="images/site/logo-xerxes.webp" alt="Xerxès" width="340" height="297">
+    </a>
+    <ul class="nav-groupe nav-groupe-droite">
+      <li data-vue="composition" onclick="navigate('composition')">Éditions</li>
+      <li data-vue="maison" onclick="navigate('maison')">La Maison</li>
+      <li data-vue="contact" onclick="navigate('contact')">Contact</li>
     </ul>
     <button class="nav-burger" onclick="toggleMobileMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
