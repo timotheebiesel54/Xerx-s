@@ -3,7 +3,6 @@
 // palette de coloris et autres structures de contenu. Aucune fonction ici.
 
 // ─── Chemins d'images ───
-    const XERXES_LOGO_IMG = "images/site/logo.webp";
     const XS_ONE_MAIN_IMG = "images/site/one-main.webp";
     const XS_ONE_DECOR_IMGS = [
       "images/site/decor-00.webp",
