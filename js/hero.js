@@ -150,22 +150,77 @@
       xsBuildMasterTimeline();
     }
 
-    function xsInitProgressBar() {
-      const fills = gsap.utils.toArray('.xs-progress-bar .xs-fill');
-      if (!fills.length) return;
+    // ─── INDICATEUR HERO (barres + chiffre flottant) ───
+    let xsHeroActiveIdx = null;
+
+    function xsHeroSetIndex(idx) {
+      if (idx === xsHeroActiveIdx) return;
+      xsHeroActiveIdx = idx;
+
+      const bars = gsap.utils.toArray('#xs-indicateur .xs-indic-bar');
+      gsap.to(bars, {
+        opacity: (i) => (i === idx ? 1 : 0.3),
+        duration: 0.4,
+        ease: 'power2.out',
+      });
+
+      const numEl = document.getElementById('xs-indic-num');
+      const container = document.getElementById('xs-indicateur');
+      if (numEl && container && bars[idx]) {
+        const cRect = container.getBoundingClientRect();
+        const bRect = bars[idx].getBoundingClientRect();
+        const centerX = (bRect.left - cRect.left) + bRect.width / 2;
+        numEl.textContent = String(idx + 1);
+        gsap.to(numEl, { x: centerX, duration: 0.4, ease: 'power2.out' });
+      }
+    }
+
+    function xsHeroGoTo(i) {
+      const stage = document.querySelector('.xs-stage');
+      const bars = document.querySelectorAll('#xs-indicateur .xs-indic-bar');
+      if (!stage || !bars.length) return;
+
+      const rect = stage.getBoundingClientRect();
+      const stageTop = rect.top + window.scrollY;
+      const distance = stage.offsetHeight - window.innerHeight;
+      const targetProgress = (i + 0.5) / bars.length;
+      const targetY = stageTop + distance * targetProgress;
+
+      if (typeof lenis !== 'undefined' && lenis) lenis.scrollTo(targetY, { duration: 1.2 });
+      else window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
+
+    function xsInitHeroIndicator() {
+      const bars = gsap.utils.toArray('#xs-indicateur .xs-indic-bar');
+      if (!bars.length) return;
+
+      xsHeroActiveIdx = null;
+      gsap.set(bars, { opacity: 0.3 });
+      xsHeroSetIndex(0);
+
       ScrollTrigger.create({
         trigger: '.xs-stage',
         start: 'top top',
         end: 'bottom bottom',
         scrub: 0.3,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
-          const progress = self.progress;
-          const totalSteps = fills.length;
-          fills.forEach((fill, i) => {
-            let p = (progress - i / totalSteps) * totalSteps;
-            p = Math.max(0, Math.min(1, p));
-            fill.style.width = `${p * 100}%`;
-          });
+          const idx = Math.min(bars.length - 1, Math.floor(self.progress * bars.length));
+          xsHeroSetIndex(idx);
         },
+      });
+    }
+
+    // ─── NAVBAR TRANSPARENTE SUR LA SECTION SCROLL ───
+    // ScrollTrigger unique : la classe .nav-transparente est presente tant que .xs-stage
+    // est actif (toggleClass gere l'etat initial et les 4 sens de defilement sans
+    // dupliquer de logique de scroll manuelle).
+    function xsInitNavTransparency() {
+      ScrollTrigger.create({
+        trigger: '.xs-stage',
+        start: 'top top',
+        end: 'bottom bottom',
+        invalidateOnRefresh: true,
+        toggleClass: { targets: '#navbar', className: 'nav-transparente' },
       });
     }

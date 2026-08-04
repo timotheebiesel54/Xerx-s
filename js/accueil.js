@@ -4,68 +4,55 @@
 // sont partagees avec navigate()/render() et restent dans main.js).
 
     // ─── HOME ───
+    // Nombre de "vh" de scroll pin par transition entre deux images, derive de la
+    // section historique a 3 images (250vh pour 2 transitions). Sert a recalculer la
+    // hauteur de .xs-stage proportionnellement a XS_HERO_SLIDES.length, sans jamais
+    // ecrire le nombre d'images en dur.
+    const XS_STAGE_VH_PAR_TRANSITION = 125;
+
     function renderHome() {
-      app.innerHTML = `
-        <section class="xs-stage">
-          <div class="xs-layers">
+      const nSlides = XS_HERO_SLIDES.length;
+      const stageHeight = Math.max(1, nSlides - 1) * XS_STAGE_VH_PAR_TRANSITION;
+
+      const layersHTML = XS_HERO_SLIDES.map((slide, i) => `
             <svg class="xs-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
-                <mask id="xs-mask1" maskUnits="userSpaceOnUse">
+                <mask id="xs-mask${i}" maskUnits="userSpaceOnUse">
                   <rect x="0" y="0" width="100" height="100" fill="black" />
-                  <g id="xs-blinds1"></g>
+                  <g id="xs-blinds${i}"></g>
                 </mask>
               </defs>
-              <image href="${XS_HERO_IMG_1}"
+              <image href="${slide.src}"
                      x="0" y="0" width="100" height="100"
                      preserveAspectRatio="xMidYMid slice"
-                     mask="url(#xs-mask1)" />
-            </svg>
-            <svg class="xs-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <mask id="xs-mask2" maskUnits="userSpaceOnUse">
-                  <rect x="0" y="0" width="100" height="100" fill="black" />
-                  <g id="xs-blinds2"></g>
-                </mask>
-              </defs>
-              <image href="${XS_HERO_IMG_2}"
-                     x="0" y="0" width="100" height="100"
-                     preserveAspectRatio="xMidYMid slice"
-                     mask="url(#xs-mask2)" />
-            </svg>
-            <svg class="xs-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <mask id="xs-mask3" maskUnits="userSpaceOnUse">
-                  <rect x="0" y="0" width="100" height="100" fill="black" />
-                  <g id="xs-blinds3"></g>
-                </mask>
-              </defs>
-              <image href="${XS_HERO_IMG_3}"
-                     x="0" y="0" width="100" height="100"
-                     preserveAspectRatio="xMidYMid slice"
-                     mask="url(#xs-mask3)" />
-            </svg>
-            <div class="xs-progress-bar">
-              <div class="xs-segment"><div class="xs-fill"></div></div>
-              <div class="xs-segment"><div class="xs-fill"></div></div>
-              <div class="xs-segment"><div class="xs-fill"></div></div>
-            </div>
+                     mask="url(#xs-mask${i})" />
+            </svg>`).join('');
+
+      const indicateurHTML = `
+            <div class="xs-indicateur" id="xs-indicateur">
+              <span class="xs-indic-num" id="xs-indic-num"></span>
+              ${XS_HERO_SLIDES.map((_, i) => `<div class="xs-indic-bar" onclick="xsHeroGoTo(${i})"></div>`).join('')}
+            </div>`;
+
+      const textsHTML = `
             <div class="xs-texts">
+              ${XS_HERO_SLIDES.map((slide) => `
               <div class="xs-txt">
-                <h1>Genève</h1>
-                <h2>L'origine</h2>
-                <span>Une maison discrète, entre lac et lumière, où chaque pièce prend forme.</span>
-              </div>
-              <div class="xs-txt">
-                <h1>L'heure dorée</h1>
-                <h2>L'instant précis</h2>
-                <span>Le crépuscule comme mesure du temps; l'or comme matière du souvenir.</span>
-              </div>
-              <div class="xs-txt">
-                <h1>Le silence</h1>
-                <h2>L'épreuve du geste</h2>
-                <span>Au cœur des montagnes, la patience façonne ce que l'éclat révèle.</span>
-              </div>
-            </div>
+                <div class="xs-txt-inner">
+                  <h1>${slide.titre}</h1>
+                  <h2>${slide.sousTitre}</h2>
+                  <span>${slide.texte}</span>
+                  <button class="fiche-cta" onclick="navigate('${slide.route}')">${slide.bouton}</button>
+                </div>
+              </div>`).join('')}
+            </div>`;
+
+      app.innerHTML = `
+        <section class="xs-stage" style="height:${stageHeight}vh">
+          <div class="xs-layers">
+            ${layersHTML}
+            ${indicateurHTML}
+            ${textsHTML}
           </div>
         </section>
 
@@ -137,6 +124,7 @@
       ScrollTrigger.getAll().forEach(st => st.kill());
 
       xsUpdateLayout();
-      xsInitProgressBar();
+      xsInitHeroIndicator();
+      xsInitNavTransparency();
       xsGalleryInit();
     }
