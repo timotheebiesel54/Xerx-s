@@ -211,16 +211,21 @@
       });
     }
 
-    // ─── NAVBAR TRANSPARENTE SUR LA SECTION SCROLL ───
-    // ScrollTrigger unique : la classe .nav-transparente est presente tant que .xs-stage
-    // est actif (toggleClass gere l'etat initial et les 4 sens de defilement sans
-    // dupliquer de logique de scroll manuelle).
-    function xsInitNavTransparency() {
+    // ─── NAVBAR : OPACITE SUR LA SECTION SCROLL ───
+    // La transparence est l'etat par defaut de la navbar sur la page d'accueil (CSS pur,
+    // body.view-home), deja present au chargement sans intervention JS. Un seul
+    // ScrollTrigger ajoute la classe .nav-bar--opaque via toggleClass des que le scroll
+    // depasse la section des deux images (de sa fin jusqu'au bas de la page), et la
+    // retire partout ailleurs (y compris au tout premier rendu) : toggleClass reevalue
+    // l'etat courant a chaque refresh/scroll, donc pas de bug de bord meme lors d'un saut
+    // de scroll direct (ex. window.scrollTo(0,0) au changement de page), contrairement a
+    // des callbacks onEnter/onLeave qui ne se declenchent que sur un franchissement.
+    function xsInitNavOpacity() {
       ScrollTrigger.create({
         trigger: '.xs-stage',
-        start: 'top top',
-        end: 'bottom bottom',
+        start: 'bottom bottom',
+        end: () => ScrollTrigger.maxScroll(window),
         invalidateOnRefresh: true,
-        toggleClass: { targets: '#navbar', className: 'nav-transparente' },
+        toggleClass: { targets: '#navbar', className: 'nav-bar--opaque' },
       });
     }

@@ -125,6 +125,6 @@
 
       xsUpdateLayout();
       xsInitHeroIndicator();
-      xsInitNavTransparency();
+      xsInitNavOpacity();
       xsGalleryInit();
     }

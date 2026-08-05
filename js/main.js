@@ -29,7 +29,7 @@
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
         document.getElementById('navbar').classList.remove('nav-bar--cachee');
-        if (view !== 'home') document.getElementById('navbar').classList.remove('nav-transparente');
+        if (view !== 'home') document.getElementById('navbar').classList.remove('nav-bar--opaque');
         xsNavCachee = false;
         xsNavLastY = window.scrollY;
         xsNavScrollCheck();
@@ -100,8 +100,8 @@
     });
 
     // ─── NAVBAR : masquage au defilement ───
-    // (la transparence sur la section photo est pilotee par le ScrollTrigger unique de
-    // xsInitNavTransparency, dans hero.js, via la classe .nav-transparente)
+    // (l'opacite sur la section photo est pilotee par le ScrollTrigger unique de
+    // xsInitNavOpacity, dans hero.js, via la classe .nav-bar--opaque)
     // nav-bar--cachee au defilement vers le bas, retiree vers le haut ou sous 80px de
     // defilement ; hysteresis de 8px sur le delta (n'avance la reference que lorsqu'elle
     // est franchie, pour ne pas rater un defilement lent fait de petits pas).
