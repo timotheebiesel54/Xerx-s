@@ -167,12 +167,8 @@
             <button class="fiche-cta xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition</button>
           </div>
 
-          <!-- Emplacement provisoire de la photo de gravure du numéro d'édition : renseigner
-               l'attribut src de la balise img juste en dessous (js/accueil.js, ligne 175,
-               #xs-edition-image-img) une fois la photo définitive disponible. Tant qu'il
-               reste vide, l'aplat noir de .xs-edition-image tient lieu de fond. -->
           <div class="xs-edition-image">
-            <img id="xs-edition-image-img" class="xs-edition-image-img" src="" alt="Gravure du numéro d'édition sur la pièce" loading="lazy" />
+            <img id="xs-edition-image-img" class="xs-edition-image-img" src="${XS_EDITION_IMG}" alt="Gravure du numéro d'édition sur la pièce" loading="lazy" />
           </div>
         </section>
 

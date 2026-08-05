@@ -1941,12 +1941,10 @@
       margin-top: 44px;
     }
 
-    /* Emplacement photo provisoire : voir le commentaire HTML au dessus du conteneur
-       dans accueil.js pour la ligne exacte où renseigner la source définitive. Tant que
-       l'attribut src reste vide, le sélecteur [src=""] masque l'image (et l'icône de
-       fichier manquant qu'elle provoquerait) pour laisser voir l'aplat noir du
-       conteneur ; dès qu'une source est renseignée, ce sélecteur ne matche plus et la
-       photo s'affiche normalement, sans aucun autre changement requis. */
+    /* [src=""] : si la source devait un jour être vidée à nouveau (retour à l'emplacement
+       provisoire), ce sélecteur masque l'image (et l'icône de fichier manquant qu'elle
+       provoquerait) pour laisser voir l'aplat noir du conteneur — aucun changement CSS
+       à faire dans un sens comme dans l'autre, seule la source varie. */
     .xs-edition-image {
       position: relative;
       left: 50%;

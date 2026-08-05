@@ -32,6 +32,8 @@
     const XS_HERO_IMG_1 = "images/site/hero-1.webp";
     const XS_HERO_IMG_2 = "images/site/hero-2.webp";
 
+    const XS_EDITION_IMG = "images/site/edition-gravure.webp";
+
     // Source de verite unique de la sequence hero de la page d'accueil : source de
     // l'image, titre, sous-titre, texte, libelle du bouton et route de destination
     // (slug reel du routeur, voir render() dans main.js). Le nombre d'images n'est
