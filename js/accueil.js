@@ -160,6 +160,18 @@
           </div>
         </section>
 
+        <section class="xs-edition-section">
+          <div class="xs-edition-texte">
+            <h2 class="xs-edition-titre">Composez une édition</h2>
+            <p class="xs-edition-soustitre">Un même numéro gravé sur chaque pièce ; à chacun sa forme, sa matière, sa mesure.</p>
+            <button class="fiche-cta xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition</button>
+          </div>
+
+          <div class="xs-edition-image">
+            <img id="xs-edition-image-img" class="xs-edition-image-img" src="${XS_EDITION_IMG}" alt="Gravure du numéro d'édition sur la pièce" loading="lazy" />
+          </div>
+        </section>
+
         <section class="xs-suggestion-heading">
           <h2 class="xs-suggestion-title">La suggestion Xerxès</h2>
           <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>

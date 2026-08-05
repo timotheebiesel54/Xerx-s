@@ -1906,6 +1906,75 @@
       .xs-genre-tile-visual { inset: 12%; }
     }
 
+    /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
+       var(--black) demandé par la spec n'existe pas dans :root ; mêmes convention que le
+       sélecteur Femme/Homme, on réutilise var(--encre) (couleur d'encre du site) pour ne
+       pas introduire de nouvelle variable de couleur. */
+    .xs-edition-section {
+      background: var(--fond);
+    }
+    .xs-edition-texte {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 120px 24px 90px;
+    }
+    .xs-edition-titre {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0;
+    }
+    .xs-edition-soustitre {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.7;
+      opacity: 0.85;
+      color: var(--encre);
+      margin: 32px 0 0;
+    }
+    .xs-edition-cta {
+      margin-top: 44px;
+    }
+
+    /* [src=""] : si la source devait un jour être vidée à nouveau (retour à l'emplacement
+       provisoire), ce sélecteur masque l'image (et l'icône de fichier manquant qu'elle
+       provoquerait) pour laisser voir l'aplat noir du conteneur — aucun changement CSS
+       à faire dans un sens comme dans l'autre, seule la source varie. */
+    .xs-edition-image {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      height: 140vh;
+      background: var(--encre);
+    }
+    .xs-edition-image-img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .xs-edition-image-img[src=""] {
+      visibility: hidden;
+    }
+
+    @media screen and (max-width: 900px) {
+      .xs-edition-texte {
+        width: 88vw;
+        max-width: 88vw;
+        padding: 84px 0 63px;
+      }
+      .xs-edition-soustitre { margin-top: 22px; }
+      .xs-edition-cta { margin-top: 31px; }
+      .xs-edition-image { height: 120vh; }
+    }
+
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
     .xs-suggestion-heading {
       background: var(--fond);
