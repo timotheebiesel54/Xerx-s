@@ -10,7 +10,7 @@ couleur ont changé.
 
 ```css
 :root {
-  --fond: #f4f1ea;
+  --fond: #fffdf8;
   --fond-2: #eae5da;
   --encre: #241c15;
   --encre-2: #6b5a48;
