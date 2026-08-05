@@ -31,7 +31,29 @@
 
     const XS_HERO_IMG_1 = "images/site/hero-1.webp";
     const XS_HERO_IMG_2 = "images/site/hero-2.webp";
-    const XS_HERO_IMG_3 = "images/site/hero-3.webp";
+
+    // Source de verite unique de la sequence hero de la page d'accueil : source de
+    // l'image, titre, sous-titre, texte, libelle du bouton et route de destination
+    // (slug reel du routeur, voir render() dans main.js). Le nombre d'images n'est
+    // ecrit en dur nulle part ailleurs ; tout se derive de XS_HERO_SLIDES.length.
+    const XS_HERO_SLIDES = [
+      {
+        src: XS_HERO_IMG_1,
+        titre: 'Genève',
+        sousTitre: "L'origine",
+        texte: "Une maison discrète, entre lac et lumière, où chaque pièce prend forme.",
+        bouton: 'Découvrir les bagues',
+        route: 'bagues',
+      },
+      {
+        src: XS_HERO_IMG_2,
+        titre: "L'heure dorée",
+        sousTitre: "L'instant précis",
+        texte: "Le crépuscule comme mesure du temps; l'or comme matière du souvenir.",
+        bouton: 'Découvrir les bracelets',
+        route: 'bracelets',
+      },
+    ];
 
 const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
 

@@ -28,8 +28,8 @@
         render(view);
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
-        xsNavPhotoRecalc();
         document.getElementById('navbar').classList.remove('nav-bar--cachee');
+        if (view !== 'home') document.getElementById('navbar').classList.remove('nav-bar--opaque');
         xsNavCachee = false;
         xsNavLastY = window.scrollY;
         xsNavScrollCheck();
@@ -90,7 +90,6 @@
         if (document.querySelector('.xs-stage')) {
           ScrollTrigger.refresh();
         }
-        xsNavPhotoRecalc();
       }, 250);
     });
 
@@ -100,40 +99,19 @@
       if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
     });
 
-    // ─── NAVBAR : etat sur photo + masquage au defilement ───
-    // nav-bar--sur-photo tant que le defilement n'a pas depasse le bas du hero moins la
-    // hauteur de la barre (presence de .xs-stage dans le DOM, pas la route), borne mise en
-    // cache et recalculee au redimensionnement/a la navigation ; hysteresis de 40px.
+    // ─── NAVBAR : masquage au defilement ───
+    // (l'opacite sur la section photo est pilotee par le ScrollTrigger unique de
+    // xsInitNavOpacity, dans hero.js, via la classe .nav-bar--opaque)
     // nav-bar--cachee au defilement vers le bas, retiree vers le haut ou sous 80px de
     // defilement ; hysteresis de 8px sur le delta (n'avance la reference que lorsqu'elle
     // est franchie, pour ne pas rater un defilement lent fait de petits pas).
-    let xsNavSurPhoto = null;
-    let xsNavPhotoBorne = null;
     let xsNavCachee = false;
     let xsNavLastY = window.scrollY;
     let xsNavTicking = false;
 
-    function xsNavPhotoRecalc() {
-      const heroEl = document.querySelector('.xs-stage');
-      const navEl = document.getElementById('navbar');
-      if (!heroEl) { xsNavPhotoBorne = null; return; }
-      const rect = heroEl.getBoundingClientRect();
-      xsNavPhotoBorne = (rect.bottom + window.scrollY) - navEl.offsetHeight;
-    }
-
     function xsNavScrollCheck() {
       const navEl = document.getElementById('navbar');
       const y = window.scrollY;
-
-      if (xsNavPhotoBorne === null) {
-        if (xsNavSurPhoto !== false) { navEl.classList.remove('nav-bar--sur-photo'); xsNavSurPhoto = false; }
-      } else if (xsNavSurPhoto !== false && y > xsNavPhotoBorne + 40) {
-        navEl.classList.remove('nav-bar--sur-photo');
-        xsNavSurPhoto = false;
-      } else if (xsNavSurPhoto !== true && y < xsNavPhotoBorne - 40) {
-        navEl.classList.add('nav-bar--sur-photo');
-        xsNavSurPhoto = true;
-      }
 
       const delta = y - xsNavLastY;
       if (y < 80) {
@@ -171,6 +149,5 @@
 
     updateActiveNav('home');
     render('home');
-    xsNavPhotoRecalc();
     xsNavScrollCheck();
     majPanier(0);
