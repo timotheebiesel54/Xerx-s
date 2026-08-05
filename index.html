@@ -1906,51 +1906,25 @@
       .xs-genre-tile-visual { inset: 12%; }
     }
 
-    /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
-       var(--black) demandé par la spec n'existe pas dans :root ; mêmes convention que le
-       sélecteur Femme/Homme, on réutilise var(--encre) (couleur d'encre du site) pour ne
-       pas introduire de nouvelle variable de couleur. */
+    /* ─── HOME : "Composez une édition" — titre/sous titre/CTA superposés à la photo ───
+       var(--black)/var(--gold)/var(--gold-light) demandés par la spec n'existent pas
+       dans :root. Mêmes principe que le reste du site : var(--black) -> var(--encre).
+       Pour le texte sur fond sombre, on reprend le precedent deja etabli par
+       .xs-txt .fiche-cta (CTA du hero, pose sur les photos plein ecran) : var(--gold)
+       -> var(--accent), var(--gold-light) -> var(--accent-clair), meme famille de
+       couleur que le brun or utilise sur fond creme, simplement eclaircie pour le
+       contraste sur photo. */
     .xs-edition-section {
       background: var(--fond);
+      padding: 100px 24px 120px;
     }
-    .xs-edition-texte {
-      max-width: 720px;
-      margin: 0 auto;
-      text-align: center;
-      padding: 120px 24px 90px;
-    }
-    .xs-edition-titre {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 300;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin: 0;
-    }
-    .xs-edition-soustitre {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 17px;
-      line-height: 1.7;
-      opacity: 0.85;
-      color: var(--encre);
-      margin: 32px 0 0;
-    }
-    .xs-edition-cta {
-      margin-top: 44px;
-    }
-
-    /* [src=""] : si la source devait un jour être vidée à nouveau (retour à l'emplacement
-       provisoire), ce sélecteur masque l'image (et l'icône de fichier manquant qu'elle
-       provoquerait) pour laisser voir l'aplat noir du conteneur — aucun changement CSS
-       à faire dans un sens comme dans l'autre, seule la source varie. */
     .xs-edition-image {
       position: relative;
-      left: 50%;
-      width: 100vw;
-      margin-left: -50vw;
-      height: 140vh;
+      width: 82vw;
+      max-width: 1186px;
+      height: 92vh;
+      margin: 0 auto;
+      overflow: hidden;
       background: var(--encre);
     }
     .xs-edition-image-img {
@@ -1960,19 +1934,68 @@
       object-fit: cover;
       object-position: center;
     }
+    /* [src=""] : si la source devait un jour être vidée à nouveau (retour à l'emplacement
+       provisoire), ce sélecteur masque l'image (et l'icône de fichier manquant qu'elle
+       provoquerait) pour laisser voir l'aplat noir du conteneur — aucun changement CSS
+       à faire dans un sens comme dans l'autre, seule la source varie. */
     .xs-edition-image-img[src=""] {
       visibility: hidden;
     }
+    .xs-edition-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .xs-edition-topbloc {
+      position: absolute;
+      left: 50%;
+      top: 6%;
+      width: 100%;
+      transform: translateX(-50%);
+      text-align: center;
+      padding: 0 24px;
+    }
+    .xs-edition-titre {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-clair);
+      white-space: nowrap;
+      margin: 0;
+    }
+    .xs-edition-soustitre {
+      max-width: 680px;
+      margin: 22px auto 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    .xs-edition-cta {
+      position: absolute;
+      left: 50%;
+      bottom: 56px;
+      transform: translateX(-50%);
+      width: auto;
+      pointer-events: auto;
+      background: transparent;
+      border-color: var(--accent);
+      color: var(--accent-clair);
+    }
+    .xs-edition-cta:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--encre);
+    }
 
-    @media screen and (max-width: 900px) {
-      .xs-edition-texte {
-        width: 88vw;
-        max-width: 88vw;
-        padding: 84px 0 63px;
-      }
-      .xs-edition-soustitre { margin-top: 22px; }
-      .xs-edition-cta { margin-top: 31px; }
-      .xs-edition-image { height: 120vh; }
+    @media screen and (max-width: 768px) {
+      .xs-edition-image { width: 92vw; height: 80vh; }
+      .xs-edition-titre { white-space: normal; }
+      .xs-edition-soustitre { max-width: 88%; font-size: 15px; }
+      .xs-edition-cta { bottom: 36px; }
     }
 
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
