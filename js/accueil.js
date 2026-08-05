@@ -10,9 +10,99 @@
     // ecrire le nombre d'images en dur.
     const XS_STAGE_VH_PAR_TRANSITION = 125;
 
+    // ─── Sélecteur Femme / Homme (entre le hero et "La suggestion Xerxès") ───
+    // Trois modèles par genre, puisés dans le catalogue existant (MODELES) : aucune
+    // nouvelle image, le bijou de chaque tuile est le meme rendu SVG detoure que la
+    // fiche produit (voir buildSVG dans fiche.js), avec un degrade chaud fixe plutot
+    // que la palette de coloris (les tuiles n'ont pas de selecteur de teinte).
+    const XS_GENRE_FEMME_SLUGS = ['aphrodite', 'gaia', 'eos'];
+    const XS_GENRE_HOMME_SLUGS = ['cephale', 'achille', 'heracles'];
+    let xsGenreEtat = 'femme';
+
+    function xsGenrePackshotSVG(slug, gradId, classeGenre) {
+      const m = MODELES[slug];
+      const formes = {
+        'ring': `<ellipse cx="100" cy="100" rx="64" ry="21" fill="none" stroke="url(#${gradId})" stroke-width="${m.svgStroke}" opacity="0.93"/>`,
+        'ring-beveled': `
+          <ellipse cx="100" cy="100" rx="64" ry="21" fill="none" stroke="url(#${gradId})" stroke-width="${m.svgStroke}" opacity="0.9"/>
+          <ellipse cx="100" cy="100" rx="76" ry="27" fill="none" stroke="url(#${gradId})" stroke-width="1" opacity="0.45"/>`,
+        'bracelet-thin': `<rect x="20" y="88" width="160" height="24" rx="12" fill="url(#${gradId})" opacity="0.9"/>`,
+        'bracelet-cord': `
+          <rect x="20" y="93" width="160" height="14" rx="7" fill="url(#${gradId})" opacity="0.85"/>
+          <circle cx="170" cy="100" r="9" fill="url(#${gradId})"/>`,
+        'bracelet-chain': `
+          ${[0,1,2,3,4,5,6,7].map(i => `<rect x="${22+i*20}" y="91" width="14" height="18" rx="4" fill="none" stroke="url(#${gradId})" stroke-width="2.5" opacity="0.9"/>`).join('')}
+          <circle cx="172" cy="100" r="8" fill="url(#${gradId})" opacity="0.9"/>`,
+      };
+      return `
+        <svg class="xs-genre-tile-visual ${classeGenre}" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:var(--accent-clair)"/>
+              <stop offset="100%" style="stop-color:var(--accent)"/>
+            </linearGradient>
+          </defs>
+          ${formes[m.svgType] || ''}
+        </svg>`;
+    }
+
+    function xsGenreSetGenre(genre) {
+      if (genre === xsGenreEtat) return;
+      xsGenreEtat = genre;
+
+      const toggle = document.getElementById('xs-genre-toggle');
+      const curseur = document.getElementById('xs-genre-cursor');
+      const labelFemme = document.getElementById('xs-genre-label-femme');
+      const labelHomme = document.getElementById('xs-genre-label-homme');
+      if (!toggle || !curseur) return;
+
+      const encreActive = getComputedStyle(document.documentElement).getPropertyValue('--encre').trim();
+      const inset = 4;
+      const dx = genre === 'homme' ? (toggle.offsetWidth - inset * 2 - curseur.offsetWidth) : 0;
+
+      gsap.killTweensOf(curseur);
+      gsap.to(curseur, { x: dx, duration: 0.45, ease: 'power3.out' });
+
+      const labelActif = genre === 'homme' ? labelHomme : labelFemme;
+      const labelInactif = genre === 'homme' ? labelFemme : labelHomme;
+      gsap.killTweensOf([labelFemme, labelHomme]);
+      // Les tweens capturent la valeur de depart (via getComputedStyle) avant que les
+      // classes ne changent ; l'inline style pose par GSAP prime ensuite sur la classe
+      // pendant toute la duree de l'animation, donc l'ordre classList -> gsap.to
+      // provoquerait un saut instantane (depart == arrivee) plutot qu'une animation.
+      gsap.to(labelActif, { fontWeight: 600, color: encreActive, duration: 0.45, ease: 'power3.out' });
+      gsap.to(labelInactif, { fontWeight: 400, color: 'rgba(10,10,10,0.55)', duration: 0.45, ease: 'power3.out' });
+      labelActif.classList.add('is-active');
+      labelInactif.classList.remove('is-active');
+
+      const montrerFemme = genre === 'femme';
+      document.querySelectorAll('.xs-genre-tile-visual--femme').forEach(el => {
+        gsap.killTweensOf(el);
+        gsap.to(el, { opacity: montrerFemme ? 1 : 0, duration: 0.45, ease: 'power2.out' });
+      });
+      document.querySelectorAll('.xs-genre-tile-visual--homme').forEach(el => {
+        gsap.killTweensOf(el);
+        gsap.to(el, { opacity: montrerFemme ? 0 : 1, duration: 0.45, ease: 'power2.out' });
+      });
+    }
+
+    function xsGenreNavigate() {
+      navigate(xsGenreEtat === 'femme' ? 'bagues' : 'bracelets');
+    }
+
     function renderHome() {
       const nSlides = XS_HERO_SLIDES.length;
       const stageHeight = Math.max(1, nSlides - 1) * XS_STAGE_VH_PAR_TRANSITION;
+
+      const genreTilesHTML = XS_GENRE_FEMME_SLUGS.map((slugFemme, i) => {
+        const slugHomme = XS_GENRE_HOMME_SLUGS[i];
+        return `
+            <div class="xs-genre-tile" onclick="xsGenreNavigate()">
+              <div class="xs-genre-tile-bg"></div>
+              ${xsGenrePackshotSVG(slugFemme, `g-genre-f${i}`, 'xs-genre-tile-visual--femme')}
+              ${xsGenrePackshotSVG(slugHomme, `g-genre-h${i}`, 'xs-genre-tile-visual--homme')}
+            </div>`;
+      }).join('');
 
       const layersHTML = XS_HERO_SLIDES.map((slide, i) => `
             <svg class="xs-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -47,12 +137,26 @@
               </div>`).join('')}
             </div>`;
 
+      xsGenreEtat = 'femme';
+
       app.innerHTML = `
         <section class="xs-stage" style="height:${stageHeight}vh">
           <div class="xs-layers">
             ${layersHTML}
             ${indicateurHTML}
             ${textsHTML}
+          </div>
+        </section>
+
+        <section class="xs-genre-section">
+          <div class="xs-genre-toggle" id="xs-genre-toggle">
+            <div class="xs-genre-cursor" id="xs-genre-cursor"></div>
+            <button type="button" class="xs-genre-label is-active" id="xs-genre-label-femme" onclick="xsGenreSetGenre('femme')">Femme</button>
+            <button type="button" class="xs-genre-label" id="xs-genre-label-homme" onclick="xsGenreSetGenre('homme')">Homme</button>
+          </div>
+
+          <div class="xs-genre-tiles">
+            ${genreTilesHTML}
           </div>
         </section>
 

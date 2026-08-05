@@ -1795,6 +1795,114 @@
       .back-arrow { top: 20px; left: 18px; }
     }
 
+    /* ─── HOME : sélecteur Femme / Homme + trois packshots commutés ───
+       Piste/curseur en valeurs fixes issues de la référence visuelle (mesures precises,
+       non dérivées des variables du site). Le glissement du curseur est piloté par GSAP
+       (propriété x), jamais left/margin — voir xsGenreSetGenre() dans accueil.js. La
+       rangée de tuiles est mise en pleine largeur de fenêtre (100vw) via le mécanisme
+       classique left:50%/margin-left:-50vw, sans danger de scrollbar horizontale car
+       body a déjà overflow-x:hidden (ligne ~57). */
+    .xs-genre-section {
+      background: var(--fond);
+      margin-top: 120px;
+    }
+    .xs-genre-toggle {
+      position: relative;
+      width: 420px;
+      height: 56px;
+      margin: 0 auto;
+      background: #ebe8e2;
+      border-radius: 4px;
+      display: flex;
+    }
+    .xs-genre-cursor {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 210px;
+      height: 48px;
+      border-radius: 3px;
+      background: #faf9f7;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .xs-genre-label {
+      position: relative;
+      z-index: 1;
+      flex: 1 1 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 0;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(10,10,10,0.55);
+      font-weight: 400;
+    }
+    .xs-genre-label.is-active {
+      color: var(--encre);
+      font-weight: 600;
+    }
+
+    /* Rangée de packshots : chaque tuile porte un fond fixe (.xs-genre-tile-bg, jamais
+       animé) et deux visuels superposés (Femme/Homme) dont seule l'opacité est
+       crossfadée par GSAP — voir xsGenreSetGenre(). */
+    .xs-genre-tiles {
+      position: relative;
+      left: 50%;
+      right: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      margin-top: 56px;
+      margin-bottom: 120px;
+      display: flex;
+      gap: 34px;
+    }
+    .xs-genre-tile {
+      position: relative;
+      flex: 0 0 calc((100vw - 68px) / 3);
+      width: calc((100vw - 68px) / 3);
+      aspect-ratio: 5 / 7;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .xs-genre-tile-bg {
+      position: absolute;
+      inset: 0;
+      background: color-mix(in srgb, var(--fond) 97%, black 3%);
+    }
+    .xs-genre-tile-visual {
+      position: absolute;
+      inset: 18%;
+      display: block;
+    }
+    .xs-genre-tile-visual--femme { opacity: 1; }
+    .xs-genre-tile-visual--homme { opacity: 0; }
+
+    @media screen and (max-width: 900px) {
+      .xs-genre-toggle { width: 300px; height: 48px; }
+      .xs-genre-cursor { width: 150px; height: 40px; }
+      .xs-genre-label { font-size: 13px; }
+      .xs-genre-tiles { gap: 12px; }
+      .xs-genre-tile {
+        flex-basis: calc((100vw - 24px) / 3);
+        width: calc((100vw - 24px) / 3);
+      }
+      .xs-genre-tile-visual { inset: 12%; }
+    }
+
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
     .xs-suggestion-heading {
       background: var(--fond);
