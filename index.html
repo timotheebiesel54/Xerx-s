@@ -1861,19 +1861,17 @@
     .xs-genre-tiles {
       position: relative;
       left: 50%;
-      right: 50%;
-      width: 100vw;
-      margin-left: -50vw;
-      margin-right: -50vw;
+      width: calc(100vw - 108px);
+      margin-left: calc(-50vw + 54px);
       margin-top: 56px;
       margin-bottom: 120px;
       display: flex;
-      gap: 34px;
+      gap: 88px;
     }
     .xs-genre-tile {
       position: relative;
-      flex: 0 0 calc((100vw - 68px) / 3);
-      width: calc((100vw - 68px) / 3);
+      flex: 0 0 calc((100vw - 284px) / 3);
+      width: calc((100vw - 284px) / 3);
       aspect-ratio: 2 / 3;
       overflow: hidden;
       cursor: pointer;
@@ -1895,10 +1893,14 @@
       .xs-genre-toggle { width: 300px; height: 48px; }
       .xs-genre-cursor { width: 150px; height: 40px; }
       .xs-genre-label { font-size: 13px; }
-      .xs-genre-tiles { gap: 12px; }
+      .xs-genre-tiles {
+        width: calc(100vw - 32px);
+        margin-left: calc(-50vw + 16px);
+        gap: 12px;
+      }
       .xs-genre-tile {
-        flex-basis: calc((100vw - 24px) / 3);
-        width: calc((100vw - 24px) / 3);
+        flex-basis: calc((100vw - 56px) / 3);
+        width: calc((100vw - 56px) / 3);
       }
       .xs-genre-tile-visual { inset: 12%; }
     }
