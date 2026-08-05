@@ -407,15 +407,9 @@
       color: var(--encre);
       opacity: 0.85;
     }
-    .xs-txt .fiche-cta {
+    .xs-txt .xs-lien {
       margin-top: clamp(14px, 2.2vh, 32px);
-      color: var(--accent-clair);
-      border-color: var(--accent-clair);
       pointer-events: auto;
-    }
-    .xs-txt .fiche-cta:hover {
-      background: rgba(244, 241, 234, 0.1);
-      border-color: var(--accent-clair);
     }
 
     /* ─── INDICATEUR (inspire Longines) : barres courtes + chiffre flottant ───
@@ -459,7 +453,6 @@
     @media screen and (max-width: 599px) {
       .xs-txt { padding: 0 24px; }
       .xs-txt-inner { max-width: 240px; }
-      .xs-txt .fiche-cta { padding: 14px 18px; }
     }
 
     .about-divider {
@@ -990,8 +983,11 @@
       opacity: 0.8;
     }
 
-    /* CTA liste privée */
-    .fiche-cta {
+    /* CTA achat (fiche produit) : seul bouton encadré restant sur le site, action d'achat
+       exclue de la conversion en liens (voir .xs-lien plus bas). Classe isolée pour ne
+       pas être emportée par cette conversion — anciennement partagée sous le nom
+       .fiche-cta avec tous les autres CTA du site. */
+    .fiche-cta-achat {
       width: 100%;
       background: transparent;
       border: 1px solid var(--accent);
@@ -1005,9 +1001,51 @@
       cursor: pointer;
       transition: background 0.3s, border-color 0.3s;
     }
-    .fiche-cta:hover {
+    .fiche-cta-achat:hover {
       background: var(--fond-2);
       border-color: var(--accent);
+    }
+
+    /* ─── LIEN DISCRET : source de vérité unique pour tous les CTA texte du site (remplace
+       les anciens boutons encadrés .fiche-cta / .compo-recap-cta). Aucune bordure, aucun
+       fond, aucun rayon, aucune ombre, aucun padding horizontal : seul un trait sous le
+       texte (.xs-lien-trait), de la largeur exacte du texte puisque l'élément est en
+       inline-block sans largeur forcée. Au survol, le trait se rétracte puis se redéploie
+       (xsInitLiensDiscrets() dans main.js, transform: scaleX animé en GSAP, origine fixée
+       à gauche) ; aucun changement de couleur, aucun déplacement du texte. Variante
+       --clair pour un lien posé sur une photo (hero, vue focus de la galerie). */
+    .xs-lien {
+      position: relative;
+      display: inline-block;
+      background: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--accent);
+    }
+    .xs-lien--clair {
+      color: var(--accent-clair);
+    }
+    .xs-lien-trait {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -10px;
+      height: 1px;
+      background: currentColor;
+      transform-origin: left;
+      transform: scaleX(1);
     }
 
     @media (max-width: 768px) {
@@ -1506,25 +1544,6 @@
       opacity: 0.6;
       margin-bottom: 36px;
     }
-    .compo-recap-cta {
-      display: inline-block;
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--encre);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8px;
-      font-weight: 400;
-      letter-spacing: 0.45em;
-      text-transform: uppercase;
-      padding: 16px 32px;
-      cursor: pointer;
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .compo-recap-cta:hover {
-      background: var(--fond-2);
-      border-color: var(--accent);
-    }
-
     /* Panneau de sélection (par emplacement) */
     .compo-veil {
       position: fixed;
@@ -1926,6 +1945,7 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
+      white-space: nowrap;
       margin: 0;
     }
     .xs-edition-soustitre {
@@ -1947,10 +1967,11 @@
        à faire dans un sens comme dans l'autre, seule la source varie. */
     .xs-edition-image {
       position: relative;
-      left: 50%;
-      width: 100vw;
-      margin-left: -50vw;
-      height: 140vh;
+      width: 82vw;
+      max-width: 1186px;
+      height: 92vh;
+      margin: 0 auto;
+      overflow: hidden;
       background: var(--encre);
     }
     .xs-edition-image-img {
@@ -1972,7 +1993,9 @@
       }
       .xs-edition-soustitre { margin-top: 22px; }
       .xs-edition-cta { margin-top: 31px; }
-      .xs-edition-image { height: 120vh; }
+    }
+    @media screen and (max-width: 768px) {
+      .xs-edition-titre { white-space: normal; }
     }
 
     /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */

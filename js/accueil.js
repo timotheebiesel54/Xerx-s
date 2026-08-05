@@ -132,7 +132,7 @@
                   <h1>${slide.titre}</h1>
                   <h2>${slide.sousTitre}</h2>
                   <span>${slide.texte}</span>
-                  <button class="fiche-cta" onclick="navigate('${slide.route}')">${slide.bouton}</button>
+                  <button class="xs-lien xs-lien--clair" onclick="navigate('${slide.route}')">${slide.bouton}<span class="xs-lien-trait"></span></button>
                 </div>
               </div>`).join('')}
             </div>`;
@@ -164,7 +164,7 @@
           <div class="xs-edition-texte">
             <h2 class="xs-edition-titre">Composez une édition</h2>
             <p class="xs-edition-soustitre">Un même numéro gravé sur chaque pièce ; à chacun sa forme, sa matière, sa mesure.</p>
-            <button class="fiche-cta xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition</button>
+            <button class="xs-lien xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition<span class="xs-lien-trait"></span></button>
           </div>
 
           <div class="xs-edition-image">
@@ -196,7 +196,7 @@
           <div class="xs-focus-content" id="xs-focus-content">
             <h3 class="xs-focus-label" id="xs-focus-label"></h3>
             <p class="xs-focus-desc" id="xs-focus-desc"></p>
-            <a href="#" class="fiche-cta xs-focus-cta" onclick="event.preventDefault()">Découvrir</a>
+            <a href="#" class="xs-lien xs-lien--clair xs-focus-cta" onclick="event.preventDefault()">Découvrir<span class="xs-lien-trait"></span></a>
           </div>
         </div>
 

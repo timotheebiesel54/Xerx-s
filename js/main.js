@@ -13,6 +13,23 @@
       });
     }
 
+    // ─── LIENS DISCRETS (voir .xs-lien dans index.html) ───
+    // Attache l'animation de survol du trait sous le texte a chaque lien fraichement
+    // rendu. Appelee apres chaque render() : les elements sont toujours neufs (innerHTML
+    // remplace a chaque navigation), donc jamais de doublon d'ecouteur ni de tween.
+    function xsInitLiensDiscrets() {
+      document.querySelectorAll('.xs-lien').forEach(el => {
+        const trait = el.querySelector('.xs-lien-trait');
+        if (!trait) return;
+        el.addEventListener('mouseenter', () => {
+          gsap.killTweensOf(trait);
+          gsap.timeline()
+            .to(trait, { scaleX: 0, duration: 0.175, ease: 'power2.out' })
+            .to(trait, { scaleX: 1, duration: 0.175, ease: 'power2.out' });
+        });
+      });
+    }
+
     function navigate(view) {
       if (view === currentView) return;
       app.classList.add('fade-out');
@@ -26,6 +43,7 @@
         document.body.classList.toggle('view-home', view === 'home');
         updateActiveNav(view);
         render(view);
+        xsInitLiensDiscrets();
         app.classList.remove('fade-out');
         window.scrollTo(0, 0);
         document.getElementById('navbar').classList.remove('nav-bar--cachee');
@@ -149,5 +167,6 @@
 
     updateActiveNav('home');
     render('home');
+    xsInitLiensDiscrets();
     xsNavScrollCheck();
     majPanier(0);

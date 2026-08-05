@@ -259,7 +259,7 @@
           ${slots.map((s, i) => `<li><span class="compo-recap-num">${COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0')}</span><span>${s.modele}, ${compoMatiereLabel(s.matiere)}</span></li>`).join('')}
         </ul>
         <p class="compo-recap-narrative">${compoNarrative(n)}</p>
-        <span class="compo-recap-cta" onclick="compoRequestAccess()">Demander l'accès</span>
+        <span class="xs-lien" onclick="compoRequestAccess()">Demander l'accès<span class="xs-lien-trait"></span></span>
       `;
       el.classList.add('is-visible');
     }
