@@ -1938,7 +1938,17 @@
       text-align: center;
       padding: 120px 24px 90px;
     }
+    /* En nowrap, le titre est plus large que la colonne de 720px (~816px a 1400px de
+       fenetre) : contraint dans cette colonne, il deborde et le navigateur rend l'exces
+       flush a gauche au lieu de le centrer, cassant le centrage malgre text-align:center
+       sur le parent. On sort donc le titre de la colonne via le meme mecanisme de pleine
+       largeur que .xs-genre-tiles (position:relative + left:50% + margin-left:-50vw) :
+       centre sur la fenetre entiere, il a toujours la place necessaire (le titre ne
+       depasse jamais ~60% de la largeur de fenetre, quel que soit son gabarit). */
     .xs-edition-titre {
+      position: relative;
+      left: 50%;
+      width: 100vw;
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(36px, 5vw, 56px);
       font-weight: 300;
@@ -1946,7 +1956,7 @@
       text-transform: uppercase;
       color: var(--accent);
       white-space: nowrap;
-      margin: 0;
+      margin: 0 0 0 -50vw;
     }
     .xs-edition-soustitre {
       font-family: 'Cormorant Garamond', serif;
