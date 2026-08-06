@@ -43,6 +43,8 @@
       --accent: #8a6e45;
       --accent-clair: #c9a96e;
       --encre-inverse: #f4f1ea;
+      --gold: #c9a96e;
+      --gold-light: #e8d5b0;
       --ivoire-barre: #f4f1ea;
       --bronze-lien: #80643a;
     }
@@ -2092,18 +2094,30 @@
     }
 
     /* ─── GALERIE D'ACCUEIL (Seealpsee, K2, The North Face, Titre test, Mount Everest) ───
-       Bande horizontale en boucle infinie (overflow-x natif, aucun scroll de PAGE impliqué :
-       zéro ScrollTrigger, zéro pin, zéro sticky, zéro fade/reveal au scroll). Le drag souris est
-       fait à la main (pointerdown/move/up) ; le swipe tactile et le trackpad horizontal restent
-       nativement gérés par le navigateur (aucun listener 'wheel' ici, donc la molette verticale
-       continue de faire défiler la PAGE, jamais la bande). */
-    .xs-gallery-track-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;padding:0 0 4rem}
-    .xs-gallery-track-wrap::-webkit-scrollbar{display:none}
-    .xs-gallery-track-wrap.is-dragging{cursor:grabbing}
-    .xs-gallery-track{display:flex;gap:32px;width:max-content;padding:0 1.5rem;user-select:none}
+       Navigation explicite (barre de progression + flèches précédent/suivant), inspirée des
+       carrousels horlogers. Zéro scroll horizontal natif, zéro boucle infinie, zéro
+       ScrollTrigger : la piste est un flex row translaté par GSAP sur x, bornée entre 0 et
+       (largeur totale de la piste - largeur du conteneur visible). Aucun listener 'wheel' ici,
+       donc la molette verticale continue toujours de faire défiler la PAGE, jamais la piste. Le
+       glissement au doigt/à la souris (pointerdown/move/up) reste possible, borné de la même
+       façon, avec calage sur la carte la plus proche au relâchement. */
+    .xs-gallery-viewport{overflow:hidden;cursor:grab;touch-action:pan-y}
+    .xs-gallery-viewport.is-dragging{cursor:grabbing}
+    .xs-gallery-track{display:flex;gap:32px;width:max-content;padding-left:1.5rem;user-select:none;will-change:transform}
     .xs-gallery-item{width:23vw;min-width:220px;max-width:340px;flex:0 0 auto;cursor:pointer}
     .xs-gallery-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
     .xs-gallery-item figcaption{letter-spacing:.02em;color:var(--encre);text-transform:uppercase;padding-top:.4rem;font-size:.875rem}
+    /* Barre de contrôle sous la piste : progression à gauche, flèches accolées à droite,
+       alignée sur le même padding horizontal (1.5rem) que la piste. */
+    .xs-gallery-nav{display:flex;align-items:center;gap:24px;margin:28px 0 4rem;padding:0 1.5rem}
+    .xs-gallery-progress{flex:1 1 auto;height:2px;background:rgba(201,169,110,0.18);position:relative}
+    .xs-gallery-progress-fill{position:absolute;top:0;left:0;height:100%;width:0%;background:var(--gold)}
+    .xs-gallery-arrows{display:flex;flex:0 0 auto}
+    .xs-gallery-arrow{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,169,110,0.25);background:transparent;padding:0;cursor:pointer;color:var(--gold);transition:border-color .4s ease,color .4s ease}
+    .xs-gallery-arrow+.xs-gallery-arrow{margin-left:-1px}
+    .xs-gallery-arrow svg{width:18px;height:18px;display:block}
+    .xs-gallery-arrow:hover:not(:disabled){border-color:var(--gold);color:var(--gold-light)}
+    .xs-gallery-arrow:disabled{opacity:.2;pointer-events:none}
     @media screen and (max-width: 900px) {
       .xs-gallery-item{width:70vw}
     }

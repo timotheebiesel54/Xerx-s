@@ -1,15 +1,15 @@
 // ─── galerie.js ───
-// Bande horizontale de la galerie d'accueil et vue focus au clic, avec
-// leur etat (xsGalleryGesture, xsFocusActive, xsFocusAnimating,
-// xsFocusOriginEl).
+// Navigation (barre de progression + flèches) de la galerie d'accueil et vue
+// focus au clic, avec leur etat (xsGalleryNav, xsFocusActive,
+// xsFocusAnimating, xsFocusOriginEl).
 
-    // ─── GALERIE D'ACCUEIL : bande horizontale en boucle infinie + vue focus au clic ───
+    // ─── GALERIE D'ACCUEIL : piste à pages, bornée, + vue focus au clic ───
     // Aucun ScrollTrigger, aucun scrub, aucun pin, aucune propriété liée au scroll de la PAGE :
-    // la bande défile dans son propre conteneur overflow-x, la page continue de défiler
-    // normalement par-dessus/en dessous. Alimentée par un tableau JS pour pouvoir passer de 5 à
-    // N images sans toucher au HTML.
+    // la piste est un flex row translaté par GSAP sur x à l'intérieur d'un conteneur overflow
+    // hidden, la page continue de défiler normalement par-dessus/en dessous. Alimentée par un
+    // tableau JS pour pouvoir passer de 5 à N images sans toucher au HTML.
 
-    let xsGalleryGesture = null;
+    let xsGalleryNav = null;
     let xsFocusActive = null;
     let xsFocusAnimating = false;
     let xsFocusOriginEl = null;
@@ -23,65 +23,153 @@
       `;
     }
 
+    // Nettoie les listeners posés sur window (resize, drag en cours) et les tweens résiduels.
+    // Appelée avant chaque (ré)initialisation et depuis navigate() au changement de page, pour
+    // ne jamais accumuler de doublons au retour sur l'accueil.
+    function xsGalleryCleanup() {
+      if (!xsGalleryNav) return;
+      clearTimeout(xsGalleryNav.resizeTimer);
+      window.removeEventListener('resize', xsGalleryNav.handleResize);
+      window.removeEventListener('pointermove', xsGalleryOnDragMove);
+      window.removeEventListener('pointerup', xsGalleryOnDragEnd);
+      window.removeEventListener('pointercancel', xsGalleryOnDragEnd);
+      gsap.killTweensOf([xsGalleryNav.track, xsGalleryNav.fill]);
+      xsGalleryNav = null;
+    }
+
+    // Mesure page/piste/carte à l'instant présent — jamais de valeur codée en dur.
+    function xsGalleryMeasure() {
+      const { viewport, track } = xsGalleryNav;
+      xsGalleryNav.pageWidth = viewport.getBoundingClientRect().width;
+      xsGalleryNav.trackWidth = track.scrollWidth;
+      xsGalleryNav.maxX = Math.max(0, xsGalleryNav.trackWidth - xsGalleryNav.pageWidth);
+      const items = track.children;
+      xsGalleryNav.cardStep = items.length > 1
+        ? items[1].offsetLeft - items[0].offsetLeft
+        : xsGalleryNav.pageWidth;
+    }
+
+    // Déplace la piste à `pos` (borné 0..maxX) et anime la barre de progression en accord —
+    // ratio = (déplacement + largeur visible) / largeur totale de la piste, borné 0..1.
+    function xsGalleryApply(pos, animate) {
+      const nav = xsGalleryNav;
+      if (!nav) return;
+      const clamped = Math.min(Math.max(pos, 0), nav.maxX);
+      const ratio = nav.trackWidth > 0
+        ? Math.min(1, Math.max(0, (clamped + nav.pageWidth) / nav.trackWidth))
+        : 0;
+      gsap.killTweensOf([nav.track, nav.fill]);
+      if (animate) {
+        gsap.to(nav.track, { x: -clamped, duration: 0.6, ease: 'power2.out' });
+        gsap.to(nav.fill, { width: (ratio * 100) + '%', duration: 0.6, ease: 'power2.out' });
+      } else {
+        gsap.set(nav.track, { x: -clamped });
+        gsap.set(nav.fill, { width: (ratio * 100) + '%' });
+      }
+      nav.pos = clamped;
+      nav.prevBtn.disabled = clamped <= 0.5;
+      nav.nextBtn.disabled = clamped >= nav.maxX - 0.5;
+    }
+
+    // Le pas est une page entière (largeur du conteneur visible), systématiquement écrêté aux
+    // bornes — pas de boucle, pas de retour au début.
+    function xsGalleryNext() {
+      if (!xsGalleryNav) return;
+      xsGalleryApply(xsGalleryNav.pos + xsGalleryNav.pageWidth, true);
+    }
+    function xsGalleryPrev() {
+      if (!xsGalleryNav) return;
+      xsGalleryApply(xsGalleryNav.pos - xsGalleryNav.pageWidth, true);
+    }
+
+    function xsGalleryOnResize() {
+      if (!xsGalleryNav) return;
+      xsGalleryMeasure();
+      xsGalleryApply(Math.min(xsGalleryNav.pos, xsGalleryNav.maxX), false);
+    }
+
+    // Glissement au doigt/à la souris (pointerdown/move/up), mêmes bornes que les flèches. Pas
+    // de setPointerCapture : ça redirigerait le 'click' final vers le conteneur au lieu de la
+    // figure sous le curseur, empêchant l'ouverture du focus sur un simple clic. On suit donc le
+    // pointeur via des listeners posés sur window pendant la durée du drag.
+    function xsGalleryOnDragStart(e) {
+      const nav = xsGalleryNav;
+      if (!nav || xsFocusActive !== null) return;
+      gsap.killTweensOf([nav.track, nav.fill]);
+      nav.gesture = { startX: e.clientX, startPos: nav.pos, pointerId: e.pointerId, moved: false };
+      nav.viewport.classList.add('is-dragging');
+      window.addEventListener('pointermove', xsGalleryOnDragMove);
+      window.addEventListener('pointerup', xsGalleryOnDragEnd);
+      window.addEventListener('pointercancel', xsGalleryOnDragEnd);
+    }
+    function xsGalleryOnDragMove(e) {
+      const nav = xsGalleryNav;
+      if (!nav || !nav.gesture || e.pointerId !== nav.gesture.pointerId) return;
+      const dx = e.clientX - nav.gesture.startX;
+      if (Math.abs(dx) > 4) nav.gesture.moved = true;
+      const clamped = Math.min(Math.max(nav.gesture.startPos - dx, 0), nav.maxX);
+      const ratio = nav.trackWidth > 0
+        ? Math.min(1, Math.max(0, (clamped + nav.pageWidth) / nav.trackWidth))
+        : 0;
+      gsap.set(nav.track, { x: -clamped });
+      gsap.set(nav.fill, { width: (ratio * 100) + '%' });
+      nav.pos = clamped;
+      nav.prevBtn.disabled = clamped <= 0.5;
+      nav.nextBtn.disabled = clamped >= nav.maxX - 0.5;
+    }
+    function xsGalleryOnDragEnd(e) {
+      const nav = xsGalleryNav;
+      if (!nav || !nav.gesture || e.pointerId !== nav.gesture.pointerId) return;
+      nav.viewport.classList.remove('is-dragging');
+      window.removeEventListener('pointermove', xsGalleryOnDragMove);
+      window.removeEventListener('pointerup', xsGalleryOnDragEnd);
+      window.removeEventListener('pointercancel', xsGalleryOnDragEnd);
+      // Au relâchement, la piste se cale sur la carte la plus proche, puis reste bornée.
+      const step = nav.cardStep || nav.pageWidth;
+      const nearest = Math.round(nav.pos / step) * step;
+      xsGalleryApply(nearest, true);
+    }
+
     function xsGalleryInit() {
-      const scroller = document.getElementById('xs-gallery-scroller');
+      xsGalleryCleanup();
+
+      const viewport = document.getElementById('xs-gallery-viewport');
       const track = document.getElementById('xs-gallery-track');
-      if (!scroller || !track) return;
+      const fill = document.getElementById('xs-gallery-progress-fill');
+      const prevBtn = document.getElementById('xs-gallery-prev');
+      const nextBtn = document.getElementById('xs-gallery-next');
+      if (!viewport || !track || !fill || !prevBtn || !nextBtn) return;
 
-      // Boucle infinie : la liste est dupliquée deux fois dans le DOM (mêmes index logiques
-      // 0..N-1 dans chaque copie), et on recale scrollLeft d'une largeur de copie dès qu'on la
-      // dépasse — repositionnement instantané et invisible car les deux copies sont identiques.
-      const onceHTML = XS_GALLERY_ITEMS.map(xsGalleryItemHTML).join('');
-      track.innerHTML = onceHTML + onceHTML;
+      track.innerHTML = XS_GALLERY_ITEMS.map(xsGalleryItemHTML).join('');
 
-      const halfWidth = () => track.scrollWidth / 2;
-      scroller.scrollLeft = halfWidth();
+      xsGalleryNav = {
+        viewport, track, fill, prevBtn, nextBtn,
+        pos: 0, pageWidth: 0, trackWidth: 0, maxX: 0, cardStep: 0,
+        resizeTimer: null, gesture: null, handleResize: null,
+      };
 
-      scroller.addEventListener('scroll', () => {
-        const half = halfWidth();
-        if (scroller.scrollLeft > half) {
-          scroller.scrollLeft -= half;
-        } else if (scroller.scrollLeft <= 0) {
-          scroller.scrollLeft += half;
-        }
-      });
+      xsGalleryMeasure();
+      xsGalleryApply(0, false);
 
-      // Drag à la souris uniquement (le swipe tactile et le trackpad horizontal restent gérés
-      // nativement par le navigateur — aucun listener 'wheel' n'est posé ici, la molette
-      // verticale continue donc toujours de faire défiler la page, jamais la bande).
-      // Pas de setPointerCapture : ça redirigerait le 'click' final vers le conteneur au lieu
-      // de la figure sous le curseur, empêchant l'ouverture du focus sur un simple clic. On
-      // suit donc le pointeur via des listeners posés sur window pendant la durée du drag.
-      scroller.addEventListener('pointerdown', (e) => {
-        if (e.pointerType !== 'mouse') return;
-        xsGalleryGesture = { startX: e.clientX, startScrollLeft: scroller.scrollLeft, moved: false, pointerId: e.pointerId };
-        scroller.classList.add('is-dragging');
-        window.addEventListener('pointermove', xsGalleryOnDragMove);
-        window.addEventListener('pointerup', xsGalleryOnDragEnd);
-        window.addEventListener('pointercancel', xsGalleryOnDragEnd);
-      });
-      function xsGalleryOnDragMove(e) {
-        if (!xsGalleryGesture || e.pointerId !== xsGalleryGesture.pointerId) return;
-        const dx = e.clientX - xsGalleryGesture.startX;
-        if (Math.abs(dx) > 4) xsGalleryGesture.moved = true;
-        scroller.scrollLeft = xsGalleryGesture.startScrollLeft - dx;
-      }
-      function xsGalleryOnDragEnd(e) {
-        if (!xsGalleryGesture || e.pointerId !== xsGalleryGesture.pointerId) return;
-        scroller.classList.remove('is-dragging');
-        window.removeEventListener('pointermove', xsGalleryOnDragMove);
-        window.removeEventListener('pointerup', xsGalleryOnDragEnd);
-        window.removeEventListener('pointercancel', xsGalleryOnDragEnd);
-      }
+      prevBtn.addEventListener('click', xsGalleryPrev);
+      nextBtn.addEventListener('click', xsGalleryNext);
+      viewport.addEventListener('pointerdown', xsGalleryOnDragStart);
+
       // Un drag qui a effectivement bougé ne doit pas déclencher le clic (ouverture du focus)
       // sur la figure relâchée.
-      scroller.addEventListener('click', (e) => {
-        if (xsGalleryGesture && xsGalleryGesture.moved) {
+      viewport.addEventListener('click', (e) => {
+        if (xsGalleryNav && xsGalleryNav.gesture && xsGalleryNav.gesture.moved) {
           e.preventDefault();
           e.stopPropagation();
         }
-        if (xsGalleryGesture) xsGalleryGesture.moved = false;
+        if (xsGalleryNav && xsGalleryNav.gesture) xsGalleryNav.gesture.moved = false;
       }, true);
+
+      xsGalleryNav.handleResize = () => {
+        clearTimeout(xsGalleryNav.resizeTimer);
+        xsGalleryNav.resizeTimer = setTimeout(xsGalleryOnResize, 150);
+      };
+      window.addEventListener('resize', xsGalleryNav.handleResize);
     }
 
     // Contenu affiché dans le focus (image, label, description) — appelé à l'ouverture.
@@ -98,12 +186,12 @@
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    // Fige le scroll de la page ET de la bande pendant le focus, pour que le rect d'origine
-    // (utilisé au retour) reste valide tant que l'overlay est ouvert.
+    // Fige le scroll de la page pendant le focus, pour que le rect d'origine (utilisé au
+    // retour) reste valide tant que l'overlay est ouvert. La piste elle-même est déjà en
+    // overflow hidden en permanence et le drag est bloqué tant que le focus est actif
+    // (voir xsGalleryOnDragStart).
     function xsFocusFreezeScroll(freeze) {
       document.body.style.overflow = freeze ? 'hidden' : '';
-      const scroller = document.getElementById('xs-gallery-scroller');
-      if (scroller) scroller.style.overflowX = freeze ? 'hidden' : '';
       if (typeof lenis !== 'undefined' && lenis) { if (freeze) lenis.stop(); else lenis.start(); }
     }
 

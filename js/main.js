@@ -39,6 +39,7 @@
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
         if (xsFocusActive !== null) xsGalleryForceCloseFocus();
+        xsGalleryCleanup();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         updateActiveNav(view);
