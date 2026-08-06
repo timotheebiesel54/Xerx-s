@@ -1,11 +1,14 @@
 // ─── duo.js ───
-// Grille duo de la page d'accueil (dg-section/dg-grid/dg-item) et sa vue focus, transformee
+// Grille duo de la page d'accueil (dg-section/dg-grid-*/dg-item) et sa vue focus, transformee
 // en parcours d'achat : au clic sur une image, l'image cliquee est clonee en position fixed
 // et animee (FLIP manuel, aucun plugin Flip sous licence Club GreenSock) vers le centre ; une
 // fois immobile, deux panneaux lateraux (un par piece du duo) et un bouton d'ajout au panier
 // apparaissent. CATALOGUE (donnees.js) est la seule source de verite pour matieres, mesures,
-// descriptions et prix des pieces ; XS_DUOS ne fait que designer, pour chaque duo, quelle
-// piece occupe l'emplacement gauche et lequel occupe le droit.
+// descriptions, prix et details (composition, entretien) des pieces ; XS_DUOS ne fait que
+// designer, pour chaque duo, quelle piece occupe l'emplacement gauche et lequel occupe le
+// droit. La grille elle meme reutilise le systeme de navigation par piste + barre de
+// progression + fleches (mêmes regles que l'ancien carrousel) : navigation visible seulement
+// si les duos depassent la largeur disponible, grille simple sinon.
 
     let dgActive = null;      // id du duo ouvert, ou null
     let dgClosing = false;    // vrai pendant l'animation de fermeture (anti double-fermeture)
@@ -72,7 +75,12 @@
       };
     }
 
-    // ─── Grille ───
+    // ─── Grille : piste + navigation (reprend telle quelle la mecanique page/bornee de
+    // l'ancien carrousel — pas de boucle, deplacement d'une page entiere, boutons inertes
+    // aux bornes) ; la barre et les fleches restent masquees si tous les duos tiennent deja
+    // dans la largeur visible (piste alors simplement centree, aucune navigation affichee). ───
+    let dgGridNav = null;
+
     function dgGridItemHTML(duo) {
       return `
         <div class="dg-item" data-duo-id="${duo.id}" onclick="dgOpen('${duo.id}', this)">
@@ -82,11 +90,150 @@
       `;
     }
 
-    function dgGridHTML() {
-      return XS_DUOS.map(dgGridItemHTML).join('');
+    function dgGridMeasure() {
+      const nav = dgGridNav;
+      nav.pageWidth = nav.viewport.getBoundingClientRect().width;
+      nav.trackWidth = nav.track.scrollWidth;
+      nav.maxX = Math.max(0, nav.trackWidth - nav.pageWidth);
+      const items = nav.track.children;
+      nav.cardStep = items.length > 1 ? items[1].offsetLeft - items[0].offsetLeft : nav.pageWidth;
     }
 
-    // ─── Panneau d'une piece (gauche ou droite) ───
+    function dgGridUpdateNavVisibility() {
+      const nav = dgGridNav;
+      if (!nav) return;
+      nav.navEl.hidden = nav.maxX <= 0;
+    }
+
+    function dgGridApply(pos, animate) {
+      const nav = dgGridNav;
+      if (!nav) return;
+      if (nav.maxX <= 0) {
+        // Tous les duos tiennent deja dans la largeur visible : piste centree, sans navigation.
+        const centered = (nav.pageWidth - nav.trackWidth) / 2;
+        gsap.killTweensOf(nav.track);
+        if (animate) gsap.to(nav.track, { x: centered, duration: 0.6, ease: 'power2.out' });
+        else gsap.set(nav.track, { x: centered });
+        nav.pos = 0;
+        return;
+      }
+      const clamped = Math.min(Math.max(pos, 0), nav.maxX);
+      const ratio = nav.trackWidth > 0 ? Math.min(1, Math.max(0, (clamped + nav.pageWidth) / nav.trackWidth)) : 0;
+      gsap.killTweensOf([nav.track, nav.fill]);
+      if (animate) {
+        gsap.to(nav.track, { x: -clamped, duration: 0.6, ease: 'power2.out' });
+        gsap.to(nav.fill, { width: (ratio * 100) + '%', duration: 0.6, ease: 'power2.out' });
+      } else {
+        gsap.set(nav.track, { x: -clamped });
+        gsap.set(nav.fill, { width: (ratio * 100) + '%' });
+      }
+      nav.pos = clamped;
+      nav.prevBtn.disabled = clamped <= 0.5;
+      nav.nextBtn.disabled = clamped >= nav.maxX - 0.5;
+    }
+
+    function dgGridNext() { if (dgGridNav) dgGridApply(dgGridNav.pos + dgGridNav.pageWidth, true); }
+    function dgGridPrev() { if (dgGridNav) dgGridApply(dgGridNav.pos - dgGridNav.pageWidth, true); }
+
+    function dgGridOnResize() {
+      if (!dgGridNav) return;
+      dgGridMeasure();
+      dgGridUpdateNavVisibility();
+      dgGridApply(Math.min(dgGridNav.pos, dgGridNav.maxX), false);
+    }
+
+    function dgGridOnDragStart(e) {
+      const nav = dgGridNav;
+      if (!nav || nav.maxX <= 0) return;
+      gsap.killTweensOf([nav.track, nav.fill]);
+      nav.gesture = { startX: e.clientX, startPos: nav.pos, pointerId: e.pointerId, moved: false };
+      nav.viewport.classList.add('is-dragging');
+      window.addEventListener('pointermove', dgGridOnDragMove);
+      window.addEventListener('pointerup', dgGridOnDragEnd);
+      window.addEventListener('pointercancel', dgGridOnDragEnd);
+    }
+    function dgGridOnDragMove(e) {
+      const nav = dgGridNav;
+      if (!nav || !nav.gesture || e.pointerId !== nav.gesture.pointerId) return;
+      const dx = e.clientX - nav.gesture.startX;
+      if (Math.abs(dx) > 4) nav.gesture.moved = true;
+      const clamped = Math.min(Math.max(nav.gesture.startPos - dx, 0), nav.maxX);
+      const ratio = nav.trackWidth > 0 ? Math.min(1, Math.max(0, (clamped + nav.pageWidth) / nav.trackWidth)) : 0;
+      gsap.set(nav.track, { x: -clamped });
+      gsap.set(nav.fill, { width: (ratio * 100) + '%' });
+      nav.pos = clamped;
+      nav.prevBtn.disabled = clamped <= 0.5;
+      nav.nextBtn.disabled = clamped >= nav.maxX - 0.5;
+    }
+    function dgGridOnDragEnd(e) {
+      const nav = dgGridNav;
+      if (!nav || !nav.gesture || e.pointerId !== nav.gesture.pointerId) return;
+      nav.viewport.classList.remove('is-dragging');
+      window.removeEventListener('pointermove', dgGridOnDragMove);
+      window.removeEventListener('pointerup', dgGridOnDragEnd);
+      window.removeEventListener('pointercancel', dgGridOnDragEnd);
+      const step = nav.cardStep || nav.pageWidth;
+      const nearest = Math.round(nav.pos / step) * step;
+      dgGridApply(nearest, true);
+    }
+
+    function dgGridCleanup() {
+      if (!dgGridNav) return;
+      clearTimeout(dgGridNav.resizeTimer);
+      window.removeEventListener('resize', dgGridNav.handleResize);
+      window.removeEventListener('pointermove', dgGridOnDragMove);
+      window.removeEventListener('pointerup', dgGridOnDragEnd);
+      window.removeEventListener('pointercancel', dgGridOnDragEnd);
+      gsap.killTweensOf([dgGridNav.track, dgGridNav.fill]);
+      dgGridNav = null;
+    }
+
+    function dgGridInit() {
+      dgGridCleanup();
+      const viewport = document.getElementById('dg-grid-viewport');
+      const track = document.getElementById('dg-grid-track');
+      const fill = document.getElementById('dg-grid-progress-fill');
+      const prevBtn = document.getElementById('dg-grid-prev');
+      const nextBtn = document.getElementById('dg-grid-next');
+      const navEl = document.getElementById('dg-grid-nav');
+      if (!viewport || !track || !fill || !prevBtn || !nextBtn || !navEl) return;
+
+      track.innerHTML = XS_DUOS.map(dgGridItemHTML).join('');
+
+      dgGridNav = {
+        viewport, track, fill, prevBtn, nextBtn, navEl,
+        pos: 0, pageWidth: 0, trackWidth: 0, maxX: 0, cardStep: 0,
+        resizeTimer: null, gesture: null, handleResize: null,
+      };
+
+      dgGridMeasure();
+      dgGridUpdateNavVisibility();
+      dgGridApply(0, false);
+
+      prevBtn.addEventListener('click', dgGridPrev);
+      nextBtn.addEventListener('click', dgGridNext);
+      viewport.addEventListener('pointerdown', dgGridOnDragStart);
+
+      // Un drag qui a effectivement bouge ne doit pas declencher l'ouverture du focus sur la
+      // carte relachee.
+      viewport.addEventListener('click', (e) => {
+        if (dgGridNav && dgGridNav.gesture && dgGridNav.gesture.moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (dgGridNav && dgGridNav.gesture) dgGridNav.gesture.moved = false;
+      }, true);
+
+      dgGridNav.handleResize = () => {
+        clearTimeout(dgGridNav.resizeTimer);
+        dgGridNav.resizeTimer = setTimeout(dgGridOnResize, 150);
+      };
+      window.addEventListener('resize', dgGridNav.handleResize);
+    }
+
+    // ─── Panneau d'une piece (gauche ou droite), en trois blocs : image (44% environ),
+    // identite + selection rapide (auto), detail defilant (flex:1, jamais dependant de la
+    // longueur du contenu — voir .dg-panel-detail). ───
     function dgPanelHTML(side, slot, sel) {
       const cat = CATALOGUE[slot.modele];
       if (!cat) return '';
@@ -95,16 +242,29 @@
         <button type="button" class="dg-swatch${m.key === sel.matiere ? ' is-active' : ''}" style="background:${m.swatch}" data-matiere="${m.key}" aria-label="${m.label}" onclick="dgSwapMatiere('${side}','${m.key}')"></button>
       `).join('');
       const mesuresHTML = (cat.mesures || []).map((v) => `<option value="${v}"${v === sel.mesure ? ' selected' : ''}>${v}</option>`).join('');
+      const compositionHTML = (cat.composition || []).map((c) => `<li>${c.label} : ${c.valeur}</li>`).join('');
+      const mesuresListe = (cat.mesures || []).join(', ');
+
       return `
-        <div class="dg-panel-imgwrap">
+        <div class="dg-panel-image">
           <img class="dg-panel-img dg-panel-img--a" id="dg-panel-img-${side}-a" src="${initialSrc}" alt="${cat.nom}" onerror="this.onerror=null;this.src='${DG_PANEL_FALLBACK_IMG}';" />
           <img class="dg-panel-img dg-panel-img--b" id="dg-panel-img-${side}-b" src="" alt="" />
         </div>
-        <h4 class="dg-panel-nom">${cat.nom}</h4>
-        <p class="dg-panel-desc">${cat.description}</p>
-        <div class="dg-panel-matieres" role="group" aria-label="Choix de la matière">${matieresHTML}</div>
-        <select class="dg-panel-mesure" aria-label="Choix de la mesure" onchange="dgSetMesure('${side}', this.value)">${mesuresHTML}</select>
-        <p class="dg-panel-prix" id="dg-panel-prix-${side}">${dgPrixPiece(slot, sel.matiere)} CHF</p>
+        <div class="dg-panel-identite">
+          <h4 class="dg-panel-nom">${cat.nom}</h4>
+          <p class="dg-panel-desc">${cat.description}</p>
+          <div class="dg-panel-matieres" role="group" aria-label="Choix de la matière">${matieresHTML}</div>
+          <select class="dg-panel-mesure" aria-label="Choix de la mesure" onchange="dgSetMesure('${side}', this.value)">${mesuresHTML}</select>
+          <p class="dg-panel-prix" id="dg-panel-prix-${side}">${dgPrixPiece(slot, sel.matiere)} CHF</p>
+        </div>
+        <div class="dg-panel-detail" data-lenis-prevent>
+          <p class="dg-panel-detail-label">Matière</p>
+          <ul class="dg-panel-detail-list">${compositionHTML}</ul>
+          <p class="dg-panel-detail-label">Mesures disponibles</p>
+          <p class="dg-panel-detail-text">${mesuresListe}</p>
+          <p class="dg-panel-detail-label">Entretien</p>
+          <p class="dg-panel-detail-text">${cat.entretien || ''}</p>
+        </div>
       `;
     }
 
@@ -162,9 +322,11 @@
       dgFocus[side].mesure = value;
     }
 
-    // ─── Mise en page de la composition (3 colonnes en bureau, empilee sous 900px) ───
-    // Toutes les dimensions sont calculees ici, jamais codees en dur ailleurs : destW/destH
-    // derivent de --duo-ratio, la largeur des panneaux et les marges du viewport courant.
+    // ─── Mise en page de la composition (3 colonnes 1fr/0.8fr/1fr en bureau, empilee sous
+    // 900px). Toutes les dimensions sont calculees ici, jamais codees en dur ailleurs :
+    // destW/destH derivent de --duo-ratio et de la largeur totale (92% du viewport, max
+    // 1800px, gouttiere 56px) ; la hauteur de l'image reste la reference de toute la
+    // composition, les panneaux s'y alignant en haut et en bas (voir CSS, height:100%). ───
     function dgComputeComposition() {
       const vw = window.innerWidth, vh = window.innerHeight;
       const ratio = dgRatio();
@@ -178,19 +340,29 @@
       }
 
       const margin = 40;
-      const gap = 32;
-      let destH = Math.min(vh * 0.56, 520);
-      let destW = destH * ratio;
-      let panelWidth = Math.min(260, Math.max(200, destW * 0.6));
-      const total = () => panelWidth * 2 + destW + gap * 2;
-      const maxTotal = vw - margin * 2;
-      if (total() > maxTotal) {
-        const scale = maxTotal / total();
-        destW *= scale; destH *= scale; panelWidth *= scale;
+      const gap = 56;
+      const cartMarginTop = 48;
+      const cartRowH = 60;
+      const colUnits = 1 + 0.8 + 1;
+
+      let totalW = Math.min(vw * 0.92, 1800);
+      let unitW = (totalW - gap * 2) / colUnits;
+      let panelWidth = unitW;
+      let destW = unitW * 0.8;
+      let destH = destW / ratio;
+
+      // L'image centrale reste la reference de hauteur des panneaux, jamais l'inverse : si la
+      // composition totale (image + marge + bouton) depasse la hauteur de fenetre disponible,
+      // on la reduit en bloc (largeur et hauteur ensemble), sans jamais recalculer les
+      // panneaux independamment de l'image.
+      const vAvail = vh - margin * 2;
+      if (destH + cartMarginTop + cartRowH > vAvail && vAvail > 200) {
+        const scale = Math.max(0.4, Math.min(1, (vAvail - cartMarginTop - cartRowH) / destH));
+        totalW *= scale; unitW *= scale; panelWidth *= scale; destW *= scale; destH *= scale;
       }
-      const compW = panelWidth * 2 + destW + gap * 2;
-      const destX = (vw - compW) / 2 + panelWidth + gap;
-      const destY = Math.max(margin, (vh - destH) / 2 - 16);
+
+      const destX = (vw - totalW) / 2 + panelWidth + gap;
+      const destY = Math.max(margin, (vh - (destH + cartMarginTop + cartRowH)) / 2);
       return { mobile: false, destX, destY, destW, destH, panelWidth, gap };
     }
 
@@ -226,7 +398,6 @@
       const comp = document.getElementById('dg-focus-composition');
       const focusImg = document.getElementById('dg-focus-image');
       const imageSlot = document.getElementById('dg-focus-image-slot');
-      const decouvrirWrap = document.getElementById('dg-focus-decouvrir-wrap');
       const panelG = document.getElementById('dg-focus-panel-gauche');
       const panelD = document.getElementById('dg-focus-panel-droite');
       const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
@@ -248,7 +419,7 @@
       dgFocus.mobile = composition.mobile;
       dgApplyCompositionLayout(comp, composition);
 
-      const reveals = [imageSlot, decouvrirWrap, panelG, panelD, addcartWrap];
+      const reveals = [imageSlot, panelG, panelD, addcartWrap];
       gsap.set(reveals, { opacity: 0 });
       gsap.set(panelG, { x: -24 });
       gsap.set(panelD, { x: 24 });
@@ -291,7 +462,7 @@
           if (!dgFocus || dgFocus.duoId !== duoId) return; // fermeture entre temps
           gsap.set(clone, { opacity: 0 });
           comp.classList.add('is-open');
-          gsap.to([imageSlot, decouvrirWrap], { opacity: 1, duration: 0.5, ease: 'power2.out' });
+          gsap.to(imageSlot, { opacity: 1, duration: 0.5, ease: 'power2.out' });
           gsap.to(panelG, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' });
           gsap.to(panelD, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.08 });
           gsap.to(addcartWrap, { opacity: 1, duration: 0.5, ease: 'power2.out' });
@@ -311,11 +482,10 @@
       const clone = document.getElementById('dg-clone');
       const comp = document.getElementById('dg-focus-composition');
       const imageSlot = document.getElementById('dg-focus-image-slot');
-      const decouvrirWrap = document.getElementById('dg-focus-decouvrir-wrap');
       const panelG = document.getElementById('dg-focus-panel-gauche');
       const panelD = document.getElementById('dg-focus-panel-droite');
       const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
-      const reveals = [imageSlot, decouvrirWrap, panelG, panelD, addcartWrap];
+      const reveals = [imageSlot, panelG, panelD, addcartWrap];
 
       const reduced = dgReducedMotion();
       comp.classList.remove('is-open');
@@ -368,7 +538,6 @@
       const comp = document.getElementById('dg-focus-composition');
       const reveals = [
         document.getElementById('dg-focus-image-slot'),
-        document.getElementById('dg-focus-decouvrir-wrap'),
         document.getElementById('dg-focus-panel-gauche'),
         document.getElementById('dg-focus-panel-droite'),
         document.getElementById('dg-focus-addcart-wrap'),
@@ -413,17 +582,14 @@
 
     // ─── Cycle de vie ───
     // Le redimensionnement pendant l'ouverture ferme le focus instantanement (ecouteur global,
-    // voir main.js, meme convention que xsGalleryForceCloseFocus). dgInit ne pose donc aucun
-    // ecouteur resize propre ; il ne reste qu'a re-attacher la grille a chaque rendu, en
-    // fermant d'abord tout focus laisse ouvert par un rendu precedent pour eviter les doublons
-    // au retour sur l'accueil.
+    // voir main.js). dgInit reste appelable une seule fois par rendu ; dgCleanup ferme d'abord
+    // tout focus laisse ouvert par un rendu precedent, dgGridInit nettoie et re-attache la
+    // grille, pour eviter tout doublon d'ecouteur au retour sur l'accueil.
     function dgCleanup() {
       dgForceClose();
     }
 
     function dgInit() {
       dgCleanup();
-      const grid = document.getElementById('dg-grid');
-      if (!grid) return;
-      grid.innerHTML = dgGridHTML();
+      dgGridInit();
     }

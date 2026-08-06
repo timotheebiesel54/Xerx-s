@@ -38,8 +38,8 @@
         if (xsMaster) { xsMaster.kill(); xsMaster = null; }
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
-        if (xsFocusActive !== null) xsGalleryForceCloseFocus();
         dgCleanup();
+        dgGridCleanup();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         updateActiveNav(view);
@@ -96,11 +96,7 @@
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'xs-focus-veil') xsGalleryCloseFocus();
-    });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && xsFocusActive !== null) xsGalleryCloseFocus();
       if (e.key === 'Escape' && dgActive !== null) dgClose();
     });
     window.addEventListener('resize', () => {
@@ -116,7 +112,6 @@
     // Resize pendant le focus : les rects (origine et destination) ne sont plus valides,
     // on ferme directement plutôt que de tenter de les recalculer.
     window.addEventListener('resize', () => {
-      if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
       if (dgActive !== null) dgForceClose();
     });
 

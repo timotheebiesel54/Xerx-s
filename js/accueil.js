@@ -160,12 +160,43 @@
           </div>
         </section>
 
+        <section class="xs-edition-section">
+          <div class="xs-edition-texte">
+            <h2 class="xs-edition-titre">Composez une édition</h2>
+            <p class="xs-edition-soustitre">Un même numéro gravé sur chaque pièce ; à chacun sa forme, sa matière, sa mesure.</p>
+            <button class="xs-lien xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition<span class="xs-lien-trait"></span></button>
+          </div>
+
+          <div class="xs-edition-image">
+            <img id="xs-edition-image-img" class="xs-edition-image-img" src="${XS_EDITION_IMG}" alt="Gravure du numéro d'édition sur la pièce" loading="lazy" />
+          </div>
+        </section>
+
         <section class="dg-section">
           <div class="dg-heading">
-            <h2 class="dg-heading-title">Le duo Xerxès</h2>
-            <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
+            <h2 class="dg-heading-title">La suggestion Xerxès</h2>
+            <p class="dg-heading-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
           </div>
-          <div class="dg-grid" id="dg-grid"></div>
+          <div class="dg-grid-viewport" id="dg-grid-viewport">
+            <div class="dg-grid-track" id="dg-grid-track"></div>
+          </div>
+          <div class="dg-grid-nav" id="dg-grid-nav" hidden>
+            <div class="dg-grid-progress" id="dg-grid-progress">
+              <div class="dg-grid-progress-fill" id="dg-grid-progress-fill"></div>
+            </div>
+            <div class="dg-grid-arrows">
+              <button type="button" class="dg-grid-arrow" id="dg-grid-prev" aria-label="Précédent">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button type="button" class="dg-grid-arrow" id="dg-grid-next" aria-label="Suivant">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </section>
 
         <div class="dg-veil" id="dg-veil" aria-hidden="true">
@@ -185,53 +216,10 @@
               <p class="dg-focus-desc" id="dg-focus-desc"></p>
             </div>
           </div>
-          <div class="dg-focus-decouvrir-wrap" id="dg-focus-decouvrir-wrap">
-            <a href="#" class="xs-lien xs-lien--clair" onclick="event.preventDefault()">Découvrir<span class="xs-lien-trait"></span></a>
-          </div>
           <div class="dg-focus-panel dg-focus-panel--gauche" id="dg-focus-panel-gauche"></div>
           <div class="dg-focus-panel dg-focus-panel--droite" id="dg-focus-panel-droite"></div>
           <div class="dg-focus-addcart-wrap" id="dg-focus-addcart-wrap">
             <button type="button" class="dg-focus-addcart" onclick="dgAddToCart()">Ajouter au panier</button>
-          </div>
-        </div>
-
-        <section class="xs-edition-section">
-          <div class="xs-edition-texte">
-            <h2 class="xs-edition-titre">Composez une édition</h2>
-            <p class="xs-edition-soustitre">Un même numéro gravé sur chaque pièce ; à chacun sa forme, sa matière, sa mesure.</p>
-            <button class="xs-lien xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition<span class="xs-lien-trait"></span></button>
-          </div>
-
-          <div class="xs-edition-image">
-            <img id="xs-edition-image-img" class="xs-edition-image-img" src="${XS_EDITION_IMG}" alt="Gravure du numéro d'édition sur la pièce" loading="lazy" />
-          </div>
-        </section>
-
-        <section class="xs-suggestion-heading">
-          <h2 class="xs-suggestion-title">La suggestion Xerxès</h2>
-          <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
-        </section>
-
-        <section class="xs-gallery">
-          <div class="xs-gallery-track-wrap" id="xs-gallery-scroller">
-            <div class="xs-gallery-track" id="xs-gallery-track"></div>
-          </div>
-        </section>
-
-        <div class="xs-focus-veil" id="xs-focus-veil" aria-hidden="true">
-          <div class="back-arrow" onclick="xsGalleryCloseFocus()">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="back-arrow-label">Retour</span>
-          </div>
-        </div>
-        <div class="xs-focus-box" id="xs-focus-box">
-          <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
-          <div class="xs-focus-content" id="xs-focus-content">
-            <h3 class="xs-focus-label" id="xs-focus-label"></h3>
-            <p class="xs-focus-desc" id="xs-focus-desc"></p>
-            <a href="#" class="xs-lien xs-lien--clair xs-focus-cta" onclick="event.preventDefault()">Découvrir<span class="xs-lien-trait"></span></a>
           </div>
         </div>
 
@@ -277,6 +265,5 @@
       xsUpdateLayout();
       xsInitHeroIndicator();
       xsInitNavOpacity();
-      xsGalleryInit();
       dgInit();
     }
