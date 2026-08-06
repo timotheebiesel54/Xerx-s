@@ -117,7 +117,7 @@
                 <span class="fiche-section-label">Prix</span>
                 <p style="font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; letter-spacing:0.1em; color:var(--encre); margin-bottom:20px;">300 CHF</p>
               </div>
-              <button class="fiche-cta" onclick="window.open('https://buy.stripe.com','_blank')">Acheter, 300 CHF</button>
+              <button class="fiche-cta-achat" onclick="window.open('https://buy.stripe.com','_blank')">Acheter, 300 CHF</button>
 
             </div>
 
