@@ -180,6 +180,127 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
       },
     };
 
+    // ─── CATALOGUE : seule source de vérité pour la vue focus des duos (grille duo,
+    // js/duo.js) — matières, mesures, description courte et prix par modèle. Les teintes
+    // reprennent les mêmes valeurs que COLORIS_MAP pour rester visuellement cohérentes.
+    const CATALOGUE = {
+      aphrodite: {
+        type: 'bague',
+        nom: 'Aphrodite',
+        description: 'Un trait continu, sans début ni fin.',
+        prix: 480,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+      },
+      gaia: {
+        type: 'bague',
+        nom: 'Gaïa',
+        description: 'Large et affirmée, elle parle avant vous.',
+        prix: 620,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+      },
+      eos: {
+        type: 'bague',
+        nom: 'Éos',
+        description: "La bague de celles qui annoncent ce qui vient.",
+        prix: 540,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+      },
+      cephale: {
+        type: 'bracelet',
+        nom: 'Céphale',
+        description: 'Cuir souple, fermoir discret, présence légère.',
+        prix: 280,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+      },
+      achille: {
+        type: 'bracelet',
+        nom: 'Achille',
+        description: 'Corde de soie tressée, fermoir en or vermeil.',
+        prix: 340,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+      },
+      heracles: {
+        type: 'bracelet',
+        nom: 'Héraclès',
+        description: 'Mailles milanaises, fermoir magnétique.',
+        prix: 360,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+      },
+    };
+
+    // ─── GRILLE DUO : deux pièces portées ensemble, sur une même photo. Les emplacements
+    // gauche/droite sont génériques (type + modèle) : un duo peut associer un bracelet et
+    // une bague, ou deux pièces du même type, sans hypothèse dans le code (voir js/duo.js).
+    // Images placeholders réutilisées le temps de recevoir les vraies photos duo.
+    const XS_DUOS = [
+      {
+        id: 'heracles-gaia',
+        label: 'Héraclès & Gaïa',
+        mainImg: XS_ONE_DECOR_IMGS[2],
+        description: 'Un bracelet et une bague, gravés du même numéro.',
+        gauche: { type: 'bracelet', modele: 'heracles' },
+        droite: { type: 'bague', modele: 'gaia' },
+      },
+      {
+        id: 'cephale-aphrodite',
+        label: 'Céphale & Aphrodite',
+        mainImg: XS_ONE_DECOR_IMGS[3],
+        description: 'Deux gestes qui se répondent, portés ensemble.',
+        gauche: { type: 'bracelet', modele: 'cephale' },
+        droite: { type: 'bague', modele: 'aphrodite' },
+      },
+      {
+        id: 'achille-eos',
+        label: 'Achille & Éos',
+        mainImg: XS_ONE_DECOR_IMGS[1],
+        description: 'Un même instant, partagé entre deux mains.',
+        gauche: { type: 'bracelet', modele: 'achille' },
+        droite: { type: 'bague', modele: 'eos' },
+      },
+      {
+        id: 'cephale-achille',
+        label: 'Céphale & Achille',
+        mainImg: XS_ONE_DECOR_IMGS[4],
+        description: 'Deux bracelets, une seule promesse.',
+        gauche: { type: 'bracelet', modele: 'cephale' },
+        droite: { type: 'bracelet', modele: 'achille' },
+      },
+    ];
+
+    // Image de repli si le fichier produit attendu (images/produits/{type}-{modele}-{matiere}.webp)
+    // n'est pas encore déposé — voir dgProduitSrc dans js/duo.js.
+    const DG_PANEL_FALLBACK_IMG = XS_ONE_DECOR_IMGS[0];
+
 // ─── Autres structures de donnees ───
     // Compteurs statiques — à connecter à une API plus tard
     const PLACES = { bagues: 23, bracelets: 17 };
@@ -221,7 +342,7 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
       {
         src: '/images/mads-schmidt-rasmussen-xfngap_DToE-unsplash.webp',
         label: 'Titre test',
-        description: 'Description test — à connecter au contenu définitif de cette pièce.',
+        description: 'Description test, à connecter au contenu définitif de cette pièce.',
       },
       {
         src: '/images/weichao-deng-eyn0LjpNWV4-unsplash.webp',

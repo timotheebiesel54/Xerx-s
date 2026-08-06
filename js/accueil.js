@@ -160,6 +160,41 @@
           </div>
         </section>
 
+        <section class="dg-section">
+          <div class="dg-heading">
+            <h2 class="dg-heading-title">Le duo Xerxès</h2>
+            <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
+          </div>
+          <div class="dg-grid" id="dg-grid"></div>
+        </section>
+
+        <div class="dg-veil" id="dg-veil" aria-hidden="true">
+          <div class="back-arrow" onclick="dgClose()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="back-arrow-label">Fermer</span>
+          </div>
+        </div>
+        <div class="dg-clone" id="dg-clone"><img src="" alt="" draggable="false" /></div>
+        <div class="dg-focus-composition" id="dg-focus-composition">
+          <div class="dg-focus-image-slot" id="dg-focus-image-slot">
+            <img class="dg-focus-image" id="dg-focus-image" src="" alt="" />
+            <div class="dg-focus-content" id="dg-focus-content">
+              <h3 class="dg-focus-title" id="dg-focus-title"></h3>
+              <p class="dg-focus-desc" id="dg-focus-desc"></p>
+            </div>
+          </div>
+          <div class="dg-focus-decouvrir-wrap" id="dg-focus-decouvrir-wrap">
+            <a href="#" class="xs-lien xs-lien--clair" onclick="event.preventDefault()">Découvrir<span class="xs-lien-trait"></span></a>
+          </div>
+          <div class="dg-focus-panel dg-focus-panel--gauche" id="dg-focus-panel-gauche"></div>
+          <div class="dg-focus-panel dg-focus-panel--droite" id="dg-focus-panel-droite"></div>
+          <div class="dg-focus-addcart-wrap" id="dg-focus-addcart-wrap">
+            <button type="button" class="dg-focus-addcart" onclick="dgAddToCart()">Ajouter au panier</button>
+          </div>
+        </div>
+
         <section class="xs-edition-section">
           <div class="xs-edition-texte">
             <h2 class="xs-edition-titre">Composez une édition</h2>
@@ -243,4 +278,5 @@
       xsInitHeroIndicator();
       xsInitNavOpacity();
       xsGalleryInit();
+      dgInit();
     }

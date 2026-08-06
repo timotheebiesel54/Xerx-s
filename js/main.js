@@ -39,6 +39,7 @@
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
         if (xsFocusActive !== null) xsGalleryForceCloseFocus();
+        dgCleanup();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         updateActiveNav(view);
@@ -100,6 +101,7 @@
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && xsFocusActive !== null) xsGalleryCloseFocus();
+      if (e.key === 'Escape' && dgActive !== null) dgClose();
     });
     window.addEventListener('resize', () => {
       clearTimeout(xsResizeTimer);
@@ -115,6 +117,15 @@
     // on ferme directement plutôt que de tenter de les recalculer.
     window.addEventListener('resize', () => {
       if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
+      if (dgActive !== null) dgForceClose();
+    });
+
+    // Grille duo (js/duo.js) : l'ouverture d'un focus pousse une entree d'historique ; le
+    // bouton retour du navigateur doit donc fermer le focus au lieu de quitter la page.
+    // skipHistory=true evite d'appeler history.back() une seconde fois (deja fait par le
+    // navigateur pour declencher cet evenement).
+    window.addEventListener('popstate', () => {
+      if (dgActive !== null) dgClose(true);
     });
 
     // ─── NAVBAR : masquage au defilement ───
@@ -169,4 +180,4 @@
     render('home');
     xsInitLiensDiscrets();
     xsNavScrollCheck();
-    majPanier(0);
+    majPanier(dgPanier.length);

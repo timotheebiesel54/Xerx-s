@@ -45,6 +45,11 @@
       --encre-inverse: #f4f1ea;
       --ivoire-barre: #f4f1ea;
       --bronze-lien: #80643a;
+      /* Rapport largeur/hauteur unique des images duo (grille d'accueil et vue focus) :
+         hauteur reduite d'environ 9% par rapport a un cadre 3/4 (0.75), a largeur constante,
+         soit 0.75 / 0.91. Aucune autre valeur de ratio ecrite en dur : voir dgRatio() dans
+         js/duo.js et .dg-item ci-dessous. */
+      --duo-ratio: 0.8242;
     }
 
     html { scroll-behavior: smooth; }
@@ -1925,6 +1930,249 @@
       .xs-genre-tile-visual { inset: 12%; }
     }
 
+    /* ─── HOME : GRILLE DUO (dg-*) — deux pièces portées ensemble, sur une même photo ───
+       Clic sur une vignette : l'image est clonee en position fixed (#dg-clone) et animee en
+       FLIP manuel (GSAP sur x/y/width/height, aucun plugin Flip sous licence Club GreenSock)
+       vers le centre. Une fois immobile, la composition (#dg-focus-composition) revele le
+       titre/description sur l'image, un lien "Decouvrir" sous l'image, et deux panneaux
+       lateraux (une piece par emplacement, lus dans CATALOGUE) menant a l'ajout au panier.
+       --duo-ratio (racine) est l'unique source du rapport largeur/hauteur des photos duo :
+       aucune valeur de ratio n'est ecrite en dur ailleurs, ni ici ni dans js/duo.js. */
+    .dg-section {
+      background: var(--fond);
+      padding: 90px 24px 110px;
+    }
+    .dg-heading {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .dg-heading-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .dg-heading-quote {
+      margin-top: 16px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(15px, 1.6vw, 19px);
+      color: var(--encre-2);
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .dg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .dg-item {
+      position: relative;
+      cursor: pointer;
+    }
+    .dg-item-img {
+      width: 100%;
+      aspect-ratio: var(--duo-ratio);
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .dg-item:hover .dg-item-img { transform: scale(1.02); }
+    .dg-item-label {
+      display: block;
+      margin-top: 14px;
+      text-align: center;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--encre);
+      font-size: 0.85rem;
+    }
+
+    .dg-veil {
+      position: fixed; inset: 0; z-index: 3000;
+      background: var(--fond);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .dg-clone {
+      position: fixed; z-index: 3002;
+      top: 0; left: 0;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .dg-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .dg-focus-composition {
+      position: fixed; z-index: 3001;
+      top: 0; left: 0;
+      display: grid;
+      grid-template-columns: var(--dg-panel-w, 240px) var(--dg-img-w, 40vw) var(--dg-panel-w, 240px);
+      grid-template-rows: var(--dg-img-h, 60vh) auto auto;
+      grid-template-areas:
+        "left image right"
+        ".    decouvrir ."
+        "cart cart cart";
+      column-gap: var(--dg-gap, 32px);
+      row-gap: 24px;
+      overflow-y: auto;
+      pointer-events: none;
+    }
+    .dg-focus-composition.is-open { pointer-events: auto; }
+
+    /* opacity par defaut a 0 : l'image reelle "amarree" reste invisible pendant tout le
+       morphing (c'est le clone fixed qui vole a l'ecran, voir #dg-clone), elle n'apparait,
+       avec son survol titre/description, qu'au onComplete du tween d'ouverture — en meme
+       temps que les panneaux et les boutons (voir dgOpen dans js/duo.js). */
+    .dg-focus-image-slot { grid-area: image; position: relative; overflow: hidden; opacity: 0; }
+    .dg-focus-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .dg-focus-content {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 20px 22px 22px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,.4) 45%, rgba(10,10,10,.82) 100%);
+    }
+    .dg-focus-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--encre-inverse);
+      margin: 0;
+    }
+    .dg-focus-desc {
+      margin: 8px 0 0;
+      font-style: italic;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--encre-inverse);
+    }
+
+    .dg-focus-decouvrir-wrap { grid-area: decouvrir; text-align: center; opacity: 0; }
+
+    .dg-focus-panel {
+      height: 100%;
+      overflow-y: auto;
+      text-align: center;
+      opacity: 0;
+    }
+    .dg-focus-panel--gauche { grid-area: left; }
+    .dg-focus-panel--droite { grid-area: right; }
+    .dg-panel-imgwrap {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      background: var(--fond-2);
+    }
+    .dg-panel-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    .dg-panel-img--b { opacity: 0; }
+    .dg-panel-nom {
+      margin: 14px 0 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--encre);
+    }
+    .dg-panel-desc {
+      margin: 6px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--encre-2);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .dg-panel-matieres {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .dg-swatch {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--fond);
+    }
+    .dg-swatch.is-active {
+      box-shadow: 0 0 0 2px var(--fond), 0 0 0 3px var(--gold);
+    }
+    .dg-panel-mesure {
+      display: block;
+      margin: 14px auto 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      color: var(--encre);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--trait);
+      padding: 4px 18px 6px 4px;
+      cursor: pointer;
+    }
+    .dg-panel-prix {
+      margin: 14px 0 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--encre);
+    }
+
+    .dg-focus-addcart-wrap { grid-area: cart; opacity: 0; }
+    .dg-focus-addcart {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      padding: 16px 24px;
+      cursor: pointer;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    .dg-focus-addcart:hover {
+      background: var(--gold);
+      color: var(--encre);
+    }
+
+    @media screen and (max-width: 900px) {
+      .dg-grid { gap: 16px; }
+      .dg-focus-composition {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--dg-img-h, 50vh) auto auto auto auto;
+        grid-template-areas:
+          "image"
+          "decouvrir"
+          "left"
+          "right"
+          "cart";
+        row-gap: 20px;
+      }
+      .dg-focus-panel { height: auto; overflow-y: visible; }
+    }
+
     /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
        var(--black) demandé par la spec n'existe pas dans :root ; mêmes convention que le
        sélecteur Femme/Homme, on réutilise var(--encre) (couleur d'encre du site) pour ne
@@ -2221,6 +2469,7 @@
   <script src="js/fiche.js"></script>
   <script src="js/edition.js"></script>
   <script src="js/galerie.js"></script>
+  <script src="js/duo.js"></script>
   <script src="js/hero.js"></script>
   <script src="js/accueil.js"></script>
   <script src="js/main.js"></script>
