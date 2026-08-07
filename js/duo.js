@@ -1,19 +1,35 @@
 // ─── duo.js ───
-// Grille duo de la page d'accueil (dg-section/dg-grid-*/dg-item) et sa vue focus, transformee
-// en parcours d'achat : au clic sur une image, l'image cliquee est clonee en position fixed
-// et animee (FLIP manuel, aucun plugin Flip sous licence Club GreenSock) vers le centre ; une
-// fois immobile, deux panneaux lateraux (un par piece du duo) et un bouton d'ajout au panier
-// apparaissent. CATALOGUE (donnees.js) est la seule source de verite pour matieres, mesures,
-// descriptions, prix et details (composition, entretien) des pieces ; XS_DUOS ne fait que
-// designer, pour chaque duo, quelle piece occupe l'emplacement gauche et lequel occupe le
-// droit. La grille elle meme reutilise le systeme de navigation par piste + barre de
-// progression + fleches (mêmes regles que l'ancien carrousel) : navigation visible seulement
-// si les duos depassent la largeur disponible, grille simple sinon.
+// Grille duo de la page d'accueil (dg-section/dg-grid-*/dg-item) et la page dediee /duo/{id}
+// qu'elle ouvre (renderDuo, rendue par le routeur comme n'importe quelle autre page). Au clic
+// sur une image de la grille, celle ci est clonee en position fixed et animee (FLIP manuel,
+// aucun plugin Flip sous licence Club GreenSock) vers la position de l'image principale de la
+// nouvelle page ; une fois immobile, les deux panneaux lateraux (un par piece du duo) et le
+// bouton d'ajout au panier apparaissent. CATALOGUE (donnees.js) est la seule source de verite
+// pour matieres, mesures, descriptions, prix et details (composition, entretien) des pieces ;
+// XS_DUOS ne fait que designer, pour chaque duo, quelle piece occupe l'emplacement gauche et
+// lequel occupe le droit. La grille elle meme reutilise le systeme de navigation par piste +
+// barre de progression + fleches (mêmes regles que l'ancien carrousel) : navigation visible
+// seulement si les duos depassent la largeur disponible, grille simple sinon.
 
-    let dgActive = null;      // id du duo ouvert, ou null
-    let dgClosing = false;    // vrai pendant l'animation de fermeture (anti double-fermeture)
-    let dgFocus = null;       // etat de travail de la vue focus ouverte (selections, etc.)
-    let dgHistoryPushed = false;
+    let dgFocus = null;       // etat de travail de la page duo actuellement rendue (selections, etc.)
+
+    // Position de la grille d'accueil et defilement de la page au moment de quitter l'accueil
+    // pour un duo : restaures au retour (voir dgRememberHomeState/dgConsumeHomeScroll et
+    // dgGridInit), pour qu'un visiteur revenant du cinquieme duo ne retombe pas en haut de la
+    // grille. Consommes une seule fois chacun, puis remis a null.
+    let dgSavedHomeScrollY = null;
+    let dgSavedCarouselPos = null;
+
+    function dgRememberHomeState() {
+      dgSavedHomeScrollY = window.scrollY;
+      dgSavedCarouselPos = dgGridNav ? dgGridNav.pos : 0;
+    }
+
+    function dgConsumeHomeScroll() {
+      const y = dgSavedHomeScrollY;
+      dgSavedHomeScrollY = null;
+      return y;
+    }
 
     // ─── Panier minimal : tableau en memoire persiste en localStorage, compteur d'en tete.
     // Aucun tunnel de commande ni page panier dans cette iteration. ───
@@ -224,7 +240,9 @@
 
       dgGridMeasure();
       dgGridUpdateNavVisibility();
-      dgGridApply(0, false);
+      const restorePos = dgSavedCarouselPos;
+      dgSavedCarouselPos = null;
+      dgGridApply(restorePos != null ? Math.min(restorePos, dgGridNav.maxX) : 0, false);
 
       prevBtn.addEventListener('click', dgGridPrev);
       nextBtn.addEventListener('click', dgGridNext);
@@ -247,10 +265,10 @@
       window.addEventListener('resize', dgGridNav.handleResize);
     }
 
-    // ─── Panneau d'une piece (gauche ou droite), en trois blocs de hauteur fixe (48% / 24% /
-    // 21% de --dg-img-h-actual, la hauteur reellement obtenue par l'image centrale, voir CSS
-    // et dgOpen) : image seule, identite + selection rapide, puis description detaillee sans
-    // defilement propre (voir .dg-panel-detail dans index.html). ───
+    // ─── Panneau d'une piece (gauche ou droite), en trois blocs empiles dont la hauteur vient
+    // uniquement de leur contenu (voir CSS) : image seule, identite + selection rapide, puis
+    // description detaillee. Aucun ne defile ni n'est jamais rogne : un texte plus long allonge
+    // simplement le bloc, et la page avec lui. ───
     function dgPanelHTML(side, slot, sel) {
       const cat = CATALOGUE[slot.modele];
       if (!cat) return '';
@@ -339,202 +357,110 @@
       dgFocus[side].mesure = value;
     }
 
-    // ─── Ouverture / fermeture (FLIP manuel) ───
-    // Aucun calcul de position en JS : la composition est entierement mise en page par CSS
-    // (--dg-h sur #dg-focus-composition, tout le reste en calc() de cette seule variable, voir
-    // index.html). Seule la destination du clone volant (image reelle "amarree", encore
-    // invisible) est mesuree via getBoundingClientRect() une fois le DOM peuple et le
-    // defilement interne remis a zero — jamais une valeur recalculee independamment du CSS.
-    function dgOpen(duoId, itemEl) {
-      if (dgActive || dgClosing || !itemEl) return;
-      const duo = XS_DUOS.find((d) => d.id === duoId);
-      if (!duo) return;
-      const img = itemEl.querySelector('.dg-item-img');
-      const startRect = img.getBoundingClientRect();
-
-      const veil = document.getElementById('dg-veil');
-      const closeBtn = document.getElementById('dg-focus-close');
-      const clone = document.getElementById('dg-clone');
-      const comp = document.getElementById('dg-focus-composition');
-      const focusImg = document.getElementById('dg-focus-image');
-      const imageSlot = document.getElementById('dg-focus-image-slot');
-      const panelG = document.getElementById('dg-focus-panel-gauche');
-      const panelD = document.getElementById('dg-focus-panel-droite');
-      const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
-      if (!veil || !closeBtn || !clone || !comp || !panelG || !panelD) return;
+    // ─── Page duo (rendue par le routeur, voir main.js) ───
+    // Construit la page duo directement remplie (jamais une coquille vide peuplee ensuite en
+    // JS) : un chargement direct de /duo/{id} doit s'afficher correct sans aucune transition.
+    // dgOpen (plus bas) se charge seul de masquer puis reveler ces memes elements lorsque la
+    // page arrive depuis un clic sur la grille d'accueil.
+    function renderDuo(id) {
+      const duo = XS_DUOS.find((d) => d.id === id);
+      if (!duo) { navigate('home'); return; }
 
       const gaucheSel = dgDefaultSelection(duo.gauche.modele);
       const droiteSel = dgDefaultSelection(duo.droite.modele);
-      dgFocus = { duoId, duo, itemEl, gauche: gaucheSel, droite: droiteSel };
-      dgActive = duoId;
+      dgFocus = { duoId: id, duo, gauche: gaucheSel, droite: droiteSel };
 
-      document.getElementById('dg-focus-title').textContent = duo.label;
-      document.getElementById('dg-focus-desc').textContent = duo.description;
-      focusImg.src = duo.mainImg;
-      focusImg.alt = duo.label;
-      panelG.innerHTML = dgPanelHTML('gauche', duo.gauche, gaucheSel);
-      panelD.innerHTML = dgPanelHTML('droite', duo.droite, droiteSel);
+      app.innerHTML = `
+        <div class="dg-focus-page">
+          <div class="dg-focus-back" onclick="navigate('home')">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="back-arrow-label">Retour</span>
+          </div>
+          <div class="dg-focus-columns">
+            <div class="dg-focus-panel dg-focus-panel--gauche" id="dg-focus-panel-gauche">${dgPanelHTML('gauche', duo.gauche, gaucheSel)}</div>
+            <div class="dg-focus-central">
+              <div class="dg-focus-image-slot" id="dg-focus-image-slot">
+                <img class="dg-focus-image" id="dg-focus-image" src="${duo.mainImg}" alt="${duo.label}" />
+                <div class="dg-focus-content">
+                  <h1 class="dg-focus-title">${duo.label}</h1>
+                  <p class="dg-focus-desc">${duo.description}</p>
+                </div>
+              </div>
+              <div class="dg-focus-addcart-wrap" id="dg-focus-addcart-wrap">
+                <button type="button" class="dg-focus-addcart" onclick="dgAddToCart()">Ajouter au panier</button>
+              </div>
+            </div>
+            <div class="dg-focus-panel dg-focus-panel--droite" id="dg-focus-panel-droite">${dgPanelHTML('droite', duo.droite, droiteSel)}</div>
+          </div>
+          <div class="dg-focus-below"></div>
+        </div>
+      `;
+    }
 
-      // Le defilement est remis a zero avant toute mesure : la destination du morphing
-      // correspond donc toujours au haut de la surcouche (voir dgClose/dgForceClose, qui le
-      // remettent aussi a zero a la fermeture pour que la prochaine ouverture reparte du haut).
-      comp.scrollTop = 0;
-      const destRect = imageSlot.getBoundingClientRect();
-      // Hauteur reellement obtenue par l'image une fois sa largeur de colonne resolue (voir
-      // .dg-focus-image-slot dans index.html) : les trois blocs des panneaux laterales en
-      // derivent par pourcentage (48/24/21), jamais d'une valeur ecrite en dur.
-      comp.style.setProperty('--dg-img-h-actual', destRect.height + 'px');
+    // ─── Transition depuis la grille d'accueil (FLIP manuel) ───
+    // Le clone volant est insere dans <body>, hors de #app : il survit donc au re-rendu que
+    // navigate() declenche pour la nouvelle route (#app.innerHTML est entierement remplace).
+    // Aucun etat d'ouverture "actif" n'est plus garde ici — chaque page duo est independante,
+    // rechargeable directement — dgOpen ne fait que sequencer une animation par dessus une
+    // navigation de route normale.
+    function dgOpen(duoId, itemEl) {
+      if (!itemEl) return;
+      const duo = XS_DUOS.find((d) => d.id === duoId);
+      if (!duo) return;
 
-      const reveals = [imageSlot, panelG, panelD, addcartWrap];
-      gsap.set(reveals, { opacity: 0 });
-      gsap.set(panelG, { x: -24 });
-      gsap.set(panelD, { x: 24 });
-      comp.classList.remove('is-open');
+      dgRememberHomeState();
 
-      document.querySelectorAll('.dg-item').forEach((el) => { if (el !== itemEl) gsap.set(el, { opacity: 1 }); });
-
-      const reduced = dgReducedMotion();
-
-      dgFreezeScroll(true);
-      if (!dgHistoryPushed) {
-        history.pushState({ dgFocus: duoId }, '');
-        dgHistoryPushed = true;
-      }
-
-      if (reduced) {
-        gsap.set(veil, { opacity: 1, pointerEvents: 'auto' });
-        gsap.set(closeBtn, { opacity: 0.55, pointerEvents: 'auto' });
-        gsap.set(clone, { opacity: 0 });
-        document.querySelectorAll('.dg-item').forEach((el) => { if (el !== itemEl) gsap.set(el, { opacity: 0 }); });
-        gsap.set(reveals, { opacity: 1, x: 0 });
-        comp.classList.add('is-open');
+      if (dgReducedMotion()) {
+        navigate('duo-' + duoId);
         return;
       }
 
+      const img = itemEl.querySelector('.dg-item-img');
+      const startRect = img.getBoundingClientRect();
+
+      const clone = document.createElement('div');
+      clone.className = 'dg-route-clone';
+      clone.innerHTML = `<img src="${duo.mainImg}" alt="" draggable="false" />`;
+      document.body.appendChild(clone);
       gsap.set(clone, {
         x: startRect.left, y: startRect.top,
         width: startRect.width, height: startRect.height,
         opacity: 1,
       });
-      clone.querySelector('img').src = duo.mainImg;
 
-      document.querySelectorAll('.dg-item').forEach((el) => { if (el !== itemEl) gsap.to(el, { opacity: 0, duration: 0.3 }); });
-      gsap.to(veil, { opacity: 1, pointerEvents: 'auto', duration: 0.4, ease: 'power2.out' });
-      gsap.to(closeBtn, { opacity: 0.55, pointerEvents: 'auto', duration: 0.4, ease: 'power2.out' });
+      navigate('duo-' + duoId, {
+        onRendered: () => {
+          const imageSlot = document.getElementById('dg-focus-image-slot');
+          if (!imageSlot) { clone.remove(); return; }
+          const panelG = document.getElementById('dg-focus-panel-gauche');
+          const panelD = document.getElementById('dg-focus-panel-droite');
+          const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
+          const reveals = [imageSlot, panelG, panelD, addcartWrap].filter(Boolean);
 
-      gsap.to(clone, {
-        x: destRect.left, y: destRect.top,
-        width: destRect.width, height: destRect.height,
-        duration: 0.6, ease: 'power3.inOut',
-        onComplete: () => {
-          if (!dgFocus || dgFocus.duoId !== duoId) return; // fermeture entre temps
-          gsap.set(clone, { opacity: 0 });
-          comp.classList.add('is-open');
-          gsap.to(imageSlot, { opacity: 1, duration: 0.5, ease: 'power2.out' });
-          gsap.to(panelG, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' });
-          gsap.to(panelD, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.08 });
-          gsap.to(addcartWrap, { opacity: 1, duration: 0.5, ease: 'power2.out' });
-        },
-      });
-    }
+          // Masque la page reelle avant le premier rendu visible (meme tick que render(),
+          // avant peinture du navigateur : aucun scintillement) le temps que le clone volant
+          // termine sa course vers la position finale de l'image centrale.
+          gsap.set(reveals, { opacity: 0 });
+          if (panelG) gsap.set(panelG, { x: -24 });
+          if (panelD) gsap.set(panelD, { x: 24 });
 
-    function dgClose(skipHistory) {
-      if (!dgActive || dgClosing || !dgFocus) return;
-      dgClosing = true;
-      const duoId = dgFocus.duoId;
-      const itemEl = dgFocus.itemEl;
-      const img = itemEl.querySelector('.dg-item-img');
-      const rect = img.getBoundingClientRect();
-
-      const veil = document.getElementById('dg-veil');
-      const closeBtn = document.getElementById('dg-focus-close');
-      const clone = document.getElementById('dg-clone');
-      const comp = document.getElementById('dg-focus-composition');
-      const imageSlot = document.getElementById('dg-focus-image-slot');
-      const panelG = document.getElementById('dg-focus-panel-gauche');
-      const panelD = document.getElementById('dg-focus-panel-droite');
-      const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
-      const reveals = [imageSlot, panelG, panelD, addcartWrap];
-
-      const reduced = dgReducedMotion();
-      comp.classList.remove('is-open');
-
-      const finish = () => {
-        gsap.set(clone, { opacity: 0 });
-        gsap.set(reveals, { opacity: 0 });
-        document.querySelectorAll('.dg-item').forEach((el) => gsap.set(el, { opacity: 1 }));
-        gsap.set(veil, { opacity: 0, pointerEvents: 'none' });
-        gsap.set(closeBtn, { opacity: 0, pointerEvents: 'none' });
-        comp.scrollTop = 0; // la prochaine ouverture doit toujours repartir du haut
-        dgFreezeScroll(false);
-        if (!skipHistory && dgHistoryPushed) { history.back(); }
-        dgHistoryPushed = false;
-        dgActive = null;
-        dgFocus = null;
-        dgClosing = false;
-      };
-
-      if (reduced) { finish(); return; }
-
-      gsap.to(document.querySelectorAll('.dg-item'), { opacity: 1, duration: 0.3 });
-      gsap.to(reveals, {
-        opacity: 0, duration: 0.25, ease: 'power2.out',
-        onComplete: () => {
-          // Le clone est reste, invisible, exactement a la position d'arrivee du morphing
-          // d'ouverture (x/y/width/height inchanges depuis l'onComplete de dgOpen — un resize
-          // pendant l'ouverture force une fermeture instantanee via dgForceClose, donc cet etat
-          // n'est jamais perime ici) : on le rend visible depuis cette position pour repartir
-          // vers le rect d'origine de la vignette.
-          gsap.set(clone, { opacity: 1 });
-          gsap.to(veil, { opacity: 0, duration: 0.4, ease: 'power2.out' });
-          gsap.to(closeBtn, { opacity: 0, duration: 0.4, ease: 'power2.out' });
+          const destRect = imageSlot.getBoundingClientRect();
           gsap.to(clone, {
-            x: rect.left, y: rect.top, width: rect.width, height: rect.height,
-            duration: 0.5, ease: 'power3.inOut',
-            onComplete: finish,
+            x: destRect.left, y: destRect.top,
+            width: destRect.width, height: destRect.height,
+            duration: 0.7, ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.set(imageSlot, { opacity: 1 });
+              clone.remove();
+              if (panelG) gsap.to(panelG, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' });
+              if (panelD) gsap.to(panelD, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.08 });
+              if (addcartWrap) gsap.to(addcartWrap, { opacity: 1, duration: 0.5, ease: 'power2.out' });
+            },
           });
         },
       });
-    }
-
-    function dgFreezeScroll(freeze) {
-      document.body.style.overflow = freeze ? 'hidden' : '';
-      if (typeof lenis !== 'undefined' && lenis) { if (freeze) lenis.stop(); else lenis.start(); }
-    }
-
-    // Fermeture immediate, sans animation : resize pendant l'ouverture ou changement de vue.
-    function dgForceClose() {
-      if (!dgActive && !dgClosing) return;
-      const veil = document.getElementById('dg-veil');
-      const closeBtn = document.getElementById('dg-focus-close');
-      const clone = document.getElementById('dg-clone');
-      const comp = document.getElementById('dg-focus-composition');
-      const reveals = [
-        document.getElementById('dg-focus-image-slot'),
-        document.getElementById('dg-focus-panel-gauche'),
-        document.getElementById('dg-focus-panel-droite'),
-        document.getElementById('dg-focus-addcart-wrap'),
-      ];
-      if (comp) comp.classList.remove('is-open');
-      [veil, closeBtn, clone, comp, ...reveals].forEach((el) => el && gsap.killTweensOf(el));
-      if (veil) gsap.set(veil, { opacity: 0, pointerEvents: 'none' });
-      if (closeBtn) gsap.set(closeBtn, { opacity: 0, pointerEvents: 'none' });
-      if (clone) gsap.set(clone, { opacity: 0 });
-      gsap.set(reveals, { opacity: 0, x: 0 });
-      if (comp) comp.scrollTop = 0;
-      document.querySelectorAll('.dg-item').forEach((el) => gsap.set(el, { opacity: 1 }));
-      dgFreezeScroll(false);
-      // Consomme l'entree d'historique poussee a l'ouverture, meme ici (resize ou changement
-      // de vue), pour ne jamais laisser une entree fantome : le prochain "retour" du
-      // navigateur doit quitter la page reellement visitee, pas repasser silencieusement par
-      // un focus deja ferme. dgActive est efface avant, le prochain evenement popstate ne
-      // relancera donc pas de fermeture.
-      const hadHistory = dgHistoryPushed;
-      dgHistoryPushed = false;
-      dgActive = null;
-      dgFocus = null;
-      dgClosing = false;
-      if (hadHistory) history.back();
     }
 
     // ─── Panier ───
@@ -552,19 +478,12 @@
       dgPanier.push(item);
       dgSavePanier();
       dgPulseCompteur();
-      dgClose();
     }
 
     // ─── Cycle de vie ───
-    // Le redimensionnement pendant l'ouverture ferme le focus instantanement (ecouteur global,
-    // voir main.js). dgInit reste appelable une seule fois par rendu ; dgCleanup ferme d'abord
-    // tout focus laisse ouvert par un rendu precedent, dgGridInit nettoie et re-attache la
-    // grille, pour eviter tout doublon d'ecouteur au retour sur l'accueil.
-    function dgCleanup() {
-      dgForceClose();
-    }
-
+    // Appelee par initHomeAnimations (accueil.js) a chaque rendu de l'accueil ; dgGridInit
+    // nettoie et re-attache seul la grille (piste, navigation, gestes), pour eviter tout
+    // doublon d'ecouteur au retour sur l'accueil.
     function dgInit() {
-      dgCleanup();
       dgGridInit();
     }

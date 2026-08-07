@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <!-- /duo/{id} donne a l'URL un segment de chemin supplementaire : sans base, tous les chemins
+       relatifs (js/..., images/...) se resoudraient contre /duo/ au lieu de la racine du site. -->
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=2">
@@ -1938,9 +1941,10 @@
        même mécanique page/bornée que l'ancien carrousel (barre de progression + flèches,
        zéro boucle) — navigation affichée seulement si les duos dépassent la largeur visible,
        piste simplement centrée sinon (voir dgGridApply dans js/duo.js).
-       Clic sur une vignette : l'image est clonee en position fixed (#dg-clone) et animee en
-       FLIP manuel (GSAP sur x/y/width/height, aucun plugin Flip sous licence Club GreenSock)
-       vers le centre. Une fois immobile, la composition (#dg-focus-composition) revele le
+       Clic sur une vignette : l'image est clonee en position fixed (.dg-route-clone, hors de
+       #app) et animee en FLIP manuel (GSAP sur x/y/width/height, aucun plugin Flip sous
+       licence Club GreenSock) vers l'image principale de la page /duo/{id} nouvellement
+       rendue (voir dgOpen, js/duo.js). Une fois immobile, cette page revele le
        titre/description sur l'image et deux panneaux lateraux (une piece par emplacement,
        lus dans CATALOGUE) menant a l'ajout au panier.
        --duo-ratio (racine) est l'unique source du rapport largeur/hauteur des photos duo :
@@ -2035,79 +2039,70 @@
     .dg-grid-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-light); }
     .dg-grid-arrow:disabled { opacity: 0.2; pointer-events: none; }
 
-    .dg-veil {
-      position: fixed; inset: 0; z-index: 3000;
-      background: var(--fond);
-      opacity: 0;
-      pointer-events: none;
+    /* La page /duo/{id} (voir renderDuo, js/duo.js), rendue par le routeur comme n'importe
+       quelle autre page — plus de voile, plus de conteneur fixed, plus de defilement propre :
+       #app lui donne deja son padding-top habituel (voir body:not(.view-home) #app plus haut),
+       cette regle n'ajoute qu'un peu d'air avant le lien de retour. Regle absolue pour toute
+       cette page : aucune hauteur en pixels ni en pourcentage sur un bloc de contenu, aucun
+       overflow hidden, aucun defilement interne — chaque bloc prend la hauteur de son contenu,
+       la page s'allonge avec lui. */
+    .dg-focus-page {
+      width: 92%;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding-top: 40px;
     }
-    /* Bouton Fermer : reprend .back-arrow (meme SVG, meme position fixed top:28px/left:32px,
-       meme transition au survol, meme repli mobile a 900px deja defini plus haut dans le
-       fichier), mais en dehors de la surcouche defilante : il doit rester visible et cliquable
-       pendant tout le defilement (voir #dg-focus-composition), d'ou un z-index superieur a
-       elle. Invisible par defaut (contrairement a .back-arrow, toujours affiche ailleurs sur
-       le site) : seul dgOpen (js/duo.js) l'amene a l'opacite 0.55 habituelle de la classe.
-       Le clic sur le fond ne ferme plus rien : ce fond EST desormais la page (surcouche en
-       overflow-y:auto) ; seuls ce bouton, Echap et le retour navigateur ferment le focus. */
-    /* transition:none annule .back-arrow{transition:opacity .25s ease} : l'opacite de ce
-       bouton est entierement pilotee par GSAP (voir dgOpen/dgClose dans js/duo.js), la
-       transition CSS entrerait sinon en conflit avec elle (double animation, et surtout un
-       etat "instantane" qui ne le serait plus lorsque prefers-reduced-motion est actif). */
-    .dg-focus-close { z-index: 3003; opacity: 0; pointer-events: none; transition: none; }
-    .dg-clone {
-      position: fixed; z-index: 3002;
+
+    /* Lien de retour : reprend l'apparence de .back-arrow (meme SVG, meme transition, meme
+       label) mais defile avec la page comme n'importe quel autre element — contrairement a
+       .back-arrow, toujours fixe ailleurs sur le site, rien ici ne doit rester a l'ecran
+       pendant le defilement. */
+    .dg-focus-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
+      margin-bottom: 40px;
+    }
+    .dg-focus-back:hover { opacity: 1; }
+    .dg-focus-back svg { width: 18px; height: 18px; }
+
+    /* Clone volant de la transition depuis la grille d'accueil (voir dgOpen, js/duo.js) :
+       insere dans <body>, hors de #app, pour survivre au re-rendu de route qui suit le clic. */
+    .dg-route-clone {
+      position: fixed; z-index: 4000;
       top: 0; left: 0;
       opacity: 0;
       pointer-events: none;
-      overflow: hidden;
     }
-    .dg-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    /* La surcouche est desormais une page a part entiere : fixed/inset:0/overflow-y:auto,
-       parcourue comme la page d'accueil restee en dessous (Lenis y reste sans effet, voir
-       data-lenis-prevent sur cet element). --dg-h est la hauteur de reference unique de toute
-       la composition (76vh, jamais moins de 560px) ; toutes les hauteurs internes en derivent
-       par pourcentage via calc(), aucune n'est ecrite en dur ailleurs. */
-    .dg-focus-composition {
-      position: fixed; inset: 0; z-index: 3001;
-      overflow-y: auto;
-      pointer-events: none;
-      --dg-h: max(76vh, 560px);
-    }
-    .dg-focus-composition.is-open { pointer-events: auto; }
+    .dg-route-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     /* Trois colonnes en grille, rapport 1.23fr / 1fr / 1.23fr (les proportions de colonnes
        priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse). Elles
        ne partagent que leur bordure haute (align-items:start) : les colonnes laterales, plus
-       hautes que l'image centrale, descendent plus bas — voulu. */
+       hautes que l'image centrale, descendent plus bas — voulu, jamais egalise, jamais la
+       colonne centrale etiree pour compenser. */
     .dg-focus-columns {
       display: grid;
       grid-template-columns: 1.23fr 1fr 1.23fr;
       align-items: start;
       column-gap: 48px;
-      width: 92%;
-      max-width: 1800px;
-      margin: 0 auto;
-      padding-top: 120px;
     }
 
     .dg-focus-central {
       display: flex;
       flex-direction: column;
     }
-    /* Largeur = colonne centrale (1fr, deduite de la grille) ; hauteur deduite de cette largeur
-       via --duo-ratio (aspect-ratio), jamais l'inverse. max-height:88% de --dg-h est une garde
-       haute qui ne joue que sur ecrans tres larges, quand la largeur de colonne deviendrait
-       disproportionnee : object-fit:cover absorbe alors l'ecart sans jamais laisser de cadre
-       vide. Le bouton Ajouter au panier, enfant de cette meme colonne en width:100%, herite
+    /* Largeur = colonne centrale (1fr, deduite de la grille) ; hauteur deduite de cette seule
+       largeur via --duo-ratio (aspect-ratio), jamais l'inverse, jamais une hauteur ecrite en
+       dur. Le bouton Ajouter au panier, enfant de cette meme colonne en width:100%, herite
        dans tous les cas exactement la largeur de l'image. */
     .dg-focus-image-slot {
       width: 100%;
       aspect-ratio: var(--duo-ratio);
-      max-height: calc(var(--dg-h) * 0.88);
       position: relative;
-      overflow: hidden;
-      opacity: 0;
     }
     .dg-focus-image { width: 100%; height: 100%; object-fit: cover; display: block; }
     .dg-focus-content {
@@ -2132,7 +2127,7 @@
       line-height: 1.5;
       color: var(--encre-inverse);
     }
-    .dg-focus-addcart-wrap { width: 100%; margin-top: 20px; opacity: 0; }
+    .dg-focus-addcart-wrap { width: 100%; margin-top: 28px; }
     .dg-focus-addcart {
       display: block;
       width: 100%;
@@ -2143,7 +2138,7 @@
       font-size: 0.95rem;
       letter-spacing: 0.24em;
       text-transform: uppercase;
-      padding: 18px 0;
+      padding: 20px 0;
       border-radius: 0;
       cursor: pointer;
       transition: background 0.4s ease, color 0.4s ease;
@@ -2154,37 +2149,29 @@
     }
 
     /* Colonnes laterales : largeur deduite de la grille (1.23fr, voir .dg-focus-columns),
-       jamais d'une valeur ecrite en dur. Empilement interne en trois blocs dont les hauteurs
-       sont figees en pourcentage de --dg-img-h-actual (48% / 24% / 21%), separes d'environ
-       22px : cette variable est la hauteur reellement obtenue par l'image centrale une fois sa
-       largeur de colonne resolue (mesuree et posee par dgOpen, voir js/duo.js), jamais --dg-h
-       directement, puisque l'image ne fait plus 88% de --dg-h par defaut. */
+       jamais d'une valeur ecrite en dur. Empilement de trois blocs separes d'environ 28px dont
+       la hauteur vient uniquement de leur contenu — aucune n'est jamais figee ni rognee. */
     .dg-focus-panel {
       min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 22px;
-      opacity: 0;
+      gap: 28px;
     }
 
     /* Bloc image de la piece : ne contient que l'image, ni titre ni pastilles ni prix. */
     .dg-panel-image {
-      flex: 0 0 auto;
       width: 100%;
-      height: calc(var(--dg-img-h-actual, 45vh) * 0.48);
+      aspect-ratio: 3 / 2;
       position: relative;
-      overflow: hidden;
       background: var(--fond-2);
     }
     .dg-panel-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .dg-panel-img--b { opacity: 0; }
 
-    /* Bloc identite + selection : nom, description courte, matieres, mesure, prix. */
+    /* Bloc identite + selection : nom, description courte, matieres, mesure, prix — dans cet
+       ordre, dont le prix (source unique : CATALOGUE, voir dgPrixPiece dans js/duo.js). */
     .dg-panel-identite {
-      flex: 0 0 auto;
-      height: calc(var(--dg-img-h-actual, 45vh) * 0.24);
       text-align: center;
-      overflow: hidden;
     }
     .dg-panel-nom {
       margin: 0;
@@ -2244,14 +2231,10 @@
       color: var(--encre);
     }
 
-    /* Bloc description du produit : hauteur figee (21% de --dg-img-h-actual), aucun defilement
-       propre — matiere, composition, mesures disponibles, entretien, alignes a gauche.
-       overflow:hidden en repli si le texte depasse legerement, pour ne jamais deborder sur la
-       zone reservee sous la composition. */
+    /* Bloc description du produit : matiere, composition, mesures disponibles, entretien,
+       alignes a gauche. Hauteur uniquement issue du contenu, aucun defilement propre, aucun
+       overflow hidden — un texte plus long allonge le bloc, et la colonne avec lui. */
     .dg-panel-detail {
-      flex: 0 0 auto;
-      height: calc(var(--dg-img-h-actual, 45vh) * 0.21);
-      overflow: hidden;
       text-align: left;
       font-size: 0.8rem;
       line-height: 1.7;
@@ -2270,32 +2253,23 @@
     .dg-panel-detail-text { margin: 6px 0 0; }
 
     /* Zone vide reservee sous la composition : rien n'y est place pour l'instant (futures
-       images/textes), aucune bordure ni fond distinct — c'est elle qui rend la surcouche
-       veritablement defilante au dela des trois colonnes. */
-    .dg-focus-below { height: 60vh; }
+       images/textes), aucune bordure ni fond distinct. */
+    .dg-focus-below { height: 25vh; }
 
     @media screen and (max-width: 900px) {
+      .dg-focus-page { width: calc(100% - 40px); padding-top: 24px; }
       .dg-focus-columns {
-        display: grid;
         grid-template-columns: 1fr;
         row-gap: 32px;
-        width: calc(100% - 40px);
-        max-width: none;
-        padding-top: 90px;
       }
       /* Ordre visuel demande : image principale, bouton, panneau gauche, panneau droit — le
-         DOM place le panneau gauche avant la colonne centrale (voir accueil.js, pour rester
-         l'ordre naturel gauche/centre/droite en bureau) ; order la fait passer en premier ici
-         sans toucher au DOM. */
+         DOM place le panneau gauche avant la colonne centrale (voir dgPanelHTML/renderDuo,
+         pour rester l'ordre naturel gauche/centre/droite en bureau) ; order la fait passer en
+         premier ici sans toucher au DOM. Toutes les hauteurs restent automatiques : aucune
+         exception mobile n'est necessaire, plus aucun bloc n'a de hauteur imposee. */
       .dg-focus-central { order: 0; }
       .dg-focus-panel--gauche { order: 1; }
       .dg-focus-panel--droite { order: 2; }
-      /* Hauteurs automatiques : chaque bloc se deploie selon son contenu, plus aucune ne
-         derive de --dg-h ni de --dg-img-h-actual. */
-      .dg-focus-image-slot { max-height: none; }
-      .dg-panel-image { height: auto; aspect-ratio: 1.6; }
-      .dg-panel-identite { height: auto; overflow: visible; }
-      .dg-panel-detail { height: auto; overflow: visible; }
     }
 
     /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
