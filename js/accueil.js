@@ -10,7 +10,7 @@
     // ecrire le nombre d'images en dur.
     const XS_STAGE_VH_PAR_TRANSITION = 125;
 
-    // ─── Sélecteur Femme / Homme (entre le hero et "La suggestion Xerxès") ───
+    // ─── Sélecteur Femme / Homme (entre le hero et "Le duo Xerxès") ───
     // Trois modèles par genre, puisés dans le catalogue existant (MODELES) : aucune
     // nouvelle image, le bijou de chaque tuile est le meme rendu SVG detoure que la
     // fiche produit (voir buildSVG dans fiche.js), avec un degrade chaud fixe plutot
@@ -174,8 +174,8 @@
 
         <section class="dg-section">
           <div class="dg-heading">
-            <h2 class="dg-heading-title">La suggestion Xerxès</h2>
-            <p class="dg-heading-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
+            <h2 class="dg-heading-title">Le duo Xerxès</h2>
+            <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
           </div>
           <div class="dg-grid-viewport" id="dg-grid-viewport">
             <div class="dg-grid-track" id="dg-grid-track"></div>

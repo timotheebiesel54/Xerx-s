@@ -96,7 +96,7 @@
     // aux bornes) ; la barre et les fleches restent masquees si tous les duos tiennent deja
     // dans la largeur visible (piste alors simplement centree, aucune navigation affichee). ───
     let dgGridNav = null;
-    const DG_GRID_GAP = 28;   // doit rester synchronise avec .dg-grid-track{gap} en CSS
+    const DG_GRID_GAP = 32;   // doit rester synchronise avec .dg-grid-track{gap} en CSS
     const DG_GRID_VISIBLE = 4; // nombre de duos visibles simultanement, jamais deduit d'une largeur en vw
 
     function dgGridItemHTML(duo) {

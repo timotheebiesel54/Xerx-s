@@ -52,10 +52,10 @@
       --gold: #c9a96e;
       --gold-light: #e8d5b0;
       /* Rapport largeur/hauteur unique des images duo (grille d'accueil et vue focus) :
-         hauteur reduite d'environ 9% par rapport a un cadre 3/4 (0.75), a largeur constante,
-         soit 0.75 / 0.91. Aucune autre valeur de ratio ecrite en dur : voir dgRatio() dans
-         js/duo.js et .dg-item ci-dessous. */
-      --duo-ratio: 0.8242;
+         format 5/7, plus haut qu'un cadre 3/4. La modifier fait grandir les deux a la fois,
+         c'est l'effet recherche. Aucune autre valeur de ratio ecrite en dur : voir dgRatio()
+         dans js/duo.js et .dg-item ci-dessous. */
+      --duo-ratio: 0.7143;
     }
 
     html { scroll-behavior: smooth; }
@@ -1937,6 +1937,9 @@
     }
 
     /* ─── HOME : GRILLE DUO (dg-*) — deux pièces portées ensemble, sur une même photo ───
+       Cette section s'appelle desormais "Le duo Xerxès" (voir .dg-heading-title) ; le prefixe
+       dg-* des classes/identifiants est conserve tel quel, le renommer toucherait la logique
+       de navigation du carrousel (js/duo.js) sans aucun benefice visible.
        La grille est une piste (#dg-grid-track) dans un conteneur overflow hidden, avec la
        même mécanique page/bornée que l'ancien carrousel (barre de progression + flèches,
        zéro boucle) — navigation affichée seulement si les duos dépassent la largeur visible,
@@ -1966,7 +1969,7 @@
       color: var(--accent);
     }
     .dg-heading-quote {
-      margin-top: 28px;
+      margin-top: 16px;
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
       font-weight: 300;
@@ -1986,9 +1989,9 @@
       }
     }
 
-    .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; max-width: 1500px; margin: 0 auto; }
+    .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; width: 96vw; max-width: 2100px; margin: 0 auto; }
     .dg-grid-viewport.is-dragging { cursor: grabbing; }
-    .dg-grid-track { display: flex; gap: 28px; width: max-content; user-select: none; will-change: transform; }
+    .dg-grid-track { display: flex; gap: 32px; width: max-content; user-select: none; will-change: transform; }
     /* Largeur calculee par dgGridApplyItemWidth (js/duo.js) a partir de la largeur mesuree du
        conteneur visible, jamais approximee en vw : quatre cartes remplissent exactement la
        largeur visible, sans qu'un debut de cinquieme carte ne deborde a l'etat initial. */
@@ -2019,7 +2022,7 @@
     /* Barre de navigation de la grille : identique dans l'esprit a l'ancien carrousel horloger
        (progression fine + flèches carrées accolées), masquée entièrement (hidden) si tous les
        duos tiennent deja dans la largeur visible — jamais de barre ni de flèches inertes. */
-    .dg-grid-nav { display: flex; align-items: center; gap: 24px; max-width: 1500px; margin: 28px auto 0; }
+    .dg-grid-nav { display: flex; align-items: center; gap: 24px; width: 96vw; max-width: 2100px; margin: 28px auto 0; }
     .dg-grid-nav[hidden] { display: none; }
     .dg-grid-progress { flex: 1 1 auto; height: 2px; background: rgba(201, 169, 110, 0.18); position: relative; }
     .dg-grid-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--gold); }
@@ -2079,14 +2082,16 @@
     }
     .dg-route-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* Trois colonnes en grille, rapport 1.2fr / 1fr / 1.2fr (les proportions de colonnes
-       priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse). Elles
-       ne partagent que leur bordure haute (align-items:start) : les colonnes laterales, plus
-       hautes que l'image centrale, descendent plus bas — voulu, jamais egalise, jamais la
-       colonne centrale etiree pour compenser. */
+    /* Trois colonnes en grille, rapport 1.05fr / 1fr / 1.05fr (les proportions de colonnes
+       priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse).
+       L'ecart entre colonnes laterales et centrale est resserre par rapport a avant, au profit
+       de la presence de l'image principale. Elles ne partagent que leur bordure haute
+       (align-items:start) : les colonnes laterales, plus hautes que l'image centrale,
+       descendent plus bas — voulu, jamais egalise, jamais la colonne centrale etiree pour
+       compenser. */
     .dg-focus-columns {
       display: grid;
-      grid-template-columns: 1.2fr 1fr 1.2fr;
+      grid-template-columns: 1.05fr 1fr 1.05fr;
       align-items: start;
       column-gap: 40px;
     }
@@ -2118,7 +2123,7 @@
     }
     .dg-focus-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
+      font-size: 1.75rem;
       font-weight: 400;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -2128,7 +2133,7 @@
     .dg-focus-desc {
       margin: 8px 0 0;
       font-style: italic;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       line-height: 1.5;
       color: var(--encre-inverse);
     }
@@ -2162,7 +2167,7 @@
       color: var(--black);
     }
 
-    /* Colonnes laterales : largeur deduite de la grille (1.2fr, voir .dg-focus-columns),
+    /* Colonnes laterales : largeur deduite de la grille (1.05fr, voir .dg-focus-columns),
        jamais d'une valeur ecrite en dur. Empilement de trois blocs separes d'environ 28px dont
        la hauteur vient uniquement de leur contenu — aucune n'est jamais figee ni rognee. */
     .dg-focus-panel {
