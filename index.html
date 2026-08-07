@@ -2047,8 +2047,8 @@
        overflow hidden, aucun defilement interne — chaque bloc prend la hauteur de son contenu,
        la page s'allonge avec lui. */
     .dg-focus-page {
-      width: 92%;
-      max-width: 1800px;
+      width: 96%;
+      max-width: 2100px;
       margin: 0 auto;
       padding-top: 40px;
     }
@@ -2079,16 +2079,16 @@
     }
     .dg-route-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* Trois colonnes en grille, rapport 1.23fr / 1fr / 1.23fr (les proportions de colonnes
+    /* Trois colonnes en grille, rapport 1.2fr / 1fr / 1.2fr (les proportions de colonnes
        priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse). Elles
        ne partagent que leur bordure haute (align-items:start) : les colonnes laterales, plus
        hautes que l'image centrale, descendent plus bas — voulu, jamais egalise, jamais la
        colonne centrale etiree pour compenser. */
     .dg-focus-columns {
       display: grid;
-      grid-template-columns: 1.23fr 1fr 1.23fr;
+      grid-template-columns: 1.2fr 1fr 1.2fr;
       align-items: start;
-      column-gap: 48px;
+      column-gap: 40px;
     }
 
     .dg-focus-central {
@@ -2104,7 +2104,12 @@
       aspect-ratio: var(--duo-ratio);
       position: relative;
     }
-    .dg-focus-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* position:absolute (comme .dg-panel-img) plutot que width/height:100% en flux normal :
+       un <img> reel a sa propre ratio intrinseque, et un enfant en hauteur pourcentage dans un
+       bloc dont la hauteur decoule d'aspect-ratio peut se voir imposer cette ratio intrinseque
+       au lieu de celle du parent (observe sur ce site avec decor-02.webp, 600x750). Sorti du
+       flux, il ne peut plus influencer la taille de son parent : seule --duo-ratio commande. */
+    .dg-focus-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
     .dg-focus-content {
       position: absolute; left: 0; right: 0; bottom: 0;
       padding: 20px 22px 22px;
@@ -2113,7 +2118,7 @@
     }
     .dg-focus-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       font-weight: 400;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -2123,16 +2128,25 @@
     .dg-focus-desc {
       margin: 8px 0 0;
       font-style: italic;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       line-height: 1.5;
       color: var(--encre-inverse);
     }
-    .dg-focus-addcart-wrap { width: 100%; margin-top: 28px; }
+    /* Le bouton forme un bloc autonome, detache de l'image (72px, contre 28px pour les blocs
+       empiles des colonnes laterales) : cet ecart est ce qui le separe visuellement, pas une
+       bordure. appearance/box-shadow a none retire tout filet natif du navigateur (ombre ou
+       relief par defaut d'un <button>) qui subsisterait sinon au dessus ou en dessous, en plus
+       de la bordure 1px voulue. */
+    .dg-focus-addcart-wrap { width: 100%; margin-top: 72px; }
     .dg-focus-addcart {
       display: block;
       width: 100%;
       background: transparent;
       border: 1px solid var(--gold);
+      box-shadow: none;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
       color: var(--gold);
       font-family: 'Cormorant Garamond', serif;
       font-size: 0.95rem;
@@ -2148,7 +2162,7 @@
       color: var(--black);
     }
 
-    /* Colonnes laterales : largeur deduite de la grille (1.23fr, voir .dg-focus-columns),
+    /* Colonnes laterales : largeur deduite de la grille (1.2fr, voir .dg-focus-columns),
        jamais d'une valeur ecrite en dur. Empilement de trois blocs separes d'environ 28px dont
        la hauteur vient uniquement de leur contenu — aucune n'est jamais figee ni rognee. */
     .dg-focus-panel {
@@ -2158,10 +2172,12 @@
       gap: 28px;
     }
 
-    /* Bloc image de la piece : ne contient que l'image, ni titre ni pastilles ni prix. */
+    /* Bloc image de la piece : ne contient que l'image, ni titre ni pastilles ni prix. Rapport
+       5/4 (plus haut que le 3/2 precedent) : combine a la composition elargie (voir
+       .dg-focus-page), la hauteur de ce bloc augmente d'environ un tiers. */
     .dg-panel-image {
       width: 100%;
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 5 / 4;
       position: relative;
       background: var(--fond-2);
     }
