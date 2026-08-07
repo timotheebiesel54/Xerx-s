@@ -199,28 +199,32 @@
           </div>
         </section>
 
-        <div class="dg-veil" id="dg-veil" aria-hidden="true">
-          <div class="back-arrow" onclick="dgClose()">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="back-arrow-label">Fermer</span>
-          </div>
+        <div class="dg-veil" id="dg-veil" aria-hidden="true"></div>
+        <div class="back-arrow dg-focus-close" id="dg-focus-close" onclick="dgClose()">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="back-arrow-label">Fermer</span>
         </div>
         <div class="dg-clone" id="dg-clone"><img src="" alt="" draggable="false" /></div>
-        <div class="dg-focus-composition" id="dg-focus-composition">
-          <div class="dg-focus-image-slot" id="dg-focus-image-slot">
-            <img class="dg-focus-image" id="dg-focus-image" src="" alt="" />
-            <div class="dg-focus-content" id="dg-focus-content">
-              <h3 class="dg-focus-title" id="dg-focus-title"></h3>
-              <p class="dg-focus-desc" id="dg-focus-desc"></p>
+        <div class="dg-focus-composition" id="dg-focus-composition" data-lenis-prevent>
+          <div class="dg-focus-columns" id="dg-focus-columns">
+            <div class="dg-focus-panel dg-focus-panel--gauche" id="dg-focus-panel-gauche"></div>
+            <div class="dg-focus-central">
+              <div class="dg-focus-image-slot" id="dg-focus-image-slot">
+                <img class="dg-focus-image" id="dg-focus-image" src="" alt="" />
+                <div class="dg-focus-content" id="dg-focus-content">
+                  <h3 class="dg-focus-title" id="dg-focus-title"></h3>
+                  <p class="dg-focus-desc" id="dg-focus-desc"></p>
+                </div>
+              </div>
+              <div class="dg-focus-addcart-wrap" id="dg-focus-addcart-wrap">
+                <button type="button" class="dg-focus-addcart" onclick="dgAddToCart()">Ajouter au panier</button>
+              </div>
             </div>
+            <div class="dg-focus-panel dg-focus-panel--droite" id="dg-focus-panel-droite"></div>
           </div>
-          <div class="dg-focus-panel dg-focus-panel--gauche" id="dg-focus-panel-gauche"></div>
-          <div class="dg-focus-panel dg-focus-panel--droite" id="dg-focus-panel-droite"></div>
-          <div class="dg-focus-addcart-wrap" id="dg-focus-addcart-wrap">
-            <button type="button" class="dg-focus-addcart" onclick="dgAddToCart()">Ajouter au panier</button>
-          </div>
+          <div class="dg-focus-below"></div>
         </div>
 
         <section class="xs-cats-section">

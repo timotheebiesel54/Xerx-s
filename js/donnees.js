@@ -340,6 +340,22 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
         gauche: { type: 'bracelet', modele: 'cephale' },
         droite: { type: 'bracelet', modele: 'achille' },
       },
+      {
+        id: 'aphrodite-eos',
+        label: 'Aphrodite & Éos',
+        mainImg: XS_ONE_DECOR_IMGS[5],
+        description: 'Deux bagues, un seul trait continu.',
+        gauche: { type: 'bague', modele: 'aphrodite' },
+        droite: { type: 'bague', modele: 'eos' },
+      },
+      {
+        id: 'gaia-achille',
+        label: 'Gaïa & Achille',
+        mainImg: XS_ONE_DECOR_IMGS[6],
+        description: 'Une bague affirmée, un bracelet discret.',
+        gauche: { type: 'bague', modele: 'gaia' },
+        droite: { type: 'bracelet', modele: 'achille' },
+      },
     ];
 
     // Image de repli si le fichier produit attendu (images/produits/{type}-{modele}-{matiere}.webp)

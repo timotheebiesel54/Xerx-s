@@ -80,6 +80,8 @@
     // aux bornes) ; la barre et les fleches restent masquees si tous les duos tiennent deja
     // dans la largeur visible (piste alors simplement centree, aucune navigation affichee). ───
     let dgGridNav = null;
+    const DG_GRID_GAP = 28;   // doit rester synchronise avec .dg-grid-track{gap} en CSS
+    const DG_GRID_VISIBLE = 4; // nombre de duos visibles simultanement, jamais deduit d'une largeur en vw
 
     function dgGridItemHTML(duo) {
       return `
@@ -90,9 +92,23 @@
       `;
     }
 
+    // La largeur d'une carte est deduite de la largeur mesuree du conteneur visible, jamais
+    // approximee en vw : a largeur egale, DG_GRID_VISIBLE cartes remplissent exactement la
+    // fenetre, sans qu'un debut de carte suivante ne deborde a l'etat initial.
+    function dgGridApplyItemWidth(pageWidth) {
+      const nav = dgGridNav;
+      if (window.innerWidth < 900) {
+        nav.viewport.style.removeProperty('--dg-grid-item-w');
+        return;
+      }
+      const itemWidth = (pageWidth - DG_GRID_GAP * (DG_GRID_VISIBLE - 1)) / DG_GRID_VISIBLE;
+      nav.viewport.style.setProperty('--dg-grid-item-w', itemWidth + 'px');
+    }
+
     function dgGridMeasure() {
       const nav = dgGridNav;
       nav.pageWidth = nav.viewport.getBoundingClientRect().width;
+      dgGridApplyItemWidth(nav.pageWidth);
       nav.trackWidth = nav.track.scrollWidth;
       nav.maxX = Math.max(0, nav.trackWidth - nav.pageWidth);
       const items = nav.track.children;
@@ -231,9 +247,10 @@
       window.addEventListener('resize', dgGridNav.handleResize);
     }
 
-    // ─── Panneau d'une piece (gauche ou droite), en trois blocs : image (44% environ),
-    // identite + selection rapide (auto), detail defilant (flex:1, jamais dependant de la
-    // longueur du contenu — voir .dg-panel-detail). ───
+    // ─── Panneau d'une piece (gauche ou droite), en trois blocs de hauteur fixe (48% / 24% /
+    // 21% de --dg-img-h-actual, la hauteur reellement obtenue par l'image centrale, voir CSS
+    // et dgOpen) : image seule, identite + selection rapide, puis description detaillee sans
+    // defilement propre (voir .dg-panel-detail dans index.html). ───
     function dgPanelHTML(side, slot, sel) {
       const cat = CATALOGUE[slot.modele];
       if (!cat) return '';
@@ -257,7 +274,7 @@
           <select class="dg-panel-mesure" aria-label="Choix de la mesure" onchange="dgSetMesure('${side}', this.value)">${mesuresHTML}</select>
           <p class="dg-panel-prix" id="dg-panel-prix-${side}">${dgPrixPiece(slot, sel.matiere)} CHF</p>
         </div>
-        <div class="dg-panel-detail" data-lenis-prevent>
+        <div class="dg-panel-detail">
           <p class="dg-panel-detail-label">Matière</p>
           <ul class="dg-panel-detail-list">${compositionHTML}</ul>
           <p class="dg-panel-detail-label">Mesures disponibles</p>
@@ -322,70 +339,12 @@
       dgFocus[side].mesure = value;
     }
 
-    // ─── Mise en page de la composition (3 colonnes 1fr/0.8fr/1fr en bureau, empilee sous
-    // 900px). Toutes les dimensions sont calculees ici, jamais codees en dur ailleurs :
-    // destW/destH derivent de --duo-ratio et de la largeur totale (92% du viewport, max
-    // 1800px, gouttiere 56px) ; la hauteur de l'image reste la reference de toute la
-    // composition, les panneaux s'y alignant en haut et en bas (voir CSS, height:100%). ───
-    function dgComputeComposition() {
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const ratio = dgRatio();
-      const mobile = vw < 900;
-
-      if (mobile) {
-        const margin = 20;
-        const destW = vw - margin * 2;
-        const destH = destW / ratio;
-        return { mobile: true, destX: margin, destY: margin, destW, destH, panelWidth: destW, gap: 20 };
-      }
-
-      const margin = 40;
-      const gap = 56;
-      const cartMarginTop = 48;
-      const cartRowH = 60;
-      const colUnits = 1 + 0.8 + 1;
-
-      let totalW = Math.min(vw * 0.92, 1800);
-      let unitW = (totalW - gap * 2) / colUnits;
-      let panelWidth = unitW;
-      let destW = unitW * 0.8;
-      let destH = destW / ratio;
-
-      // L'image centrale reste la reference de hauteur des panneaux, jamais l'inverse : si la
-      // composition totale (image + marge + bouton) depasse la hauteur de fenetre disponible,
-      // on la reduit en bloc (largeur et hauteur ensemble), sans jamais recalculer les
-      // panneaux independamment de l'image.
-      const vAvail = vh - margin * 2;
-      if (destH + cartMarginTop + cartRowH > vAvail && vAvail > 200) {
-        const scale = Math.max(0.4, Math.min(1, (vAvail - cartMarginTop - cartRowH) / destH));
-        totalW *= scale; unitW *= scale; panelWidth *= scale; destW *= scale; destH *= scale;
-      }
-
-      const destX = (vw - totalW) / 2 + panelWidth + gap;
-      const destY = Math.max(margin, (vh - (destH + cartMarginTop + cartRowH)) / 2);
-      return { mobile: false, destX, destY, destW, destH, panelWidth, gap };
-    }
-
-    function dgApplyCompositionLayout(compEl, comp) {
-      compEl.style.setProperty('--dg-img-w', comp.destW + 'px');
-      compEl.style.setProperty('--dg-img-h', comp.destH + 'px');
-      compEl.style.setProperty('--dg-panel-w', comp.panelWidth + 'px');
-      compEl.style.setProperty('--dg-gap', comp.gap + 'px');
-      if (comp.mobile) {
-        compEl.style.left = comp.destX + 'px';
-        compEl.style.top = comp.destY + 'px';
-        compEl.style.width = comp.destW + 'px';
-        compEl.style.maxHeight = (window.innerHeight - comp.destY * 2) + 'px';
-      } else {
-        const left = comp.destX - comp.panelWidth - comp.gap;
-        compEl.style.left = left + 'px';
-        compEl.style.top = comp.destY + 'px';
-        compEl.style.width = (comp.panelWidth * 2 + comp.destW + comp.gap * 2) + 'px';
-        compEl.style.maxHeight = (window.innerHeight - 40) + 'px';
-      }
-    }
-
     // ─── Ouverture / fermeture (FLIP manuel) ───
+    // Aucun calcul de position en JS : la composition est entierement mise en page par CSS
+    // (--dg-h sur #dg-focus-composition, tout le reste en calc() de cette seule variable, voir
+    // index.html). Seule la destination du clone volant (image reelle "amarree", encore
+    // invisible) est mesuree via getBoundingClientRect() une fois le DOM peuple et le
+    // defilement interne remis a zero — jamais une valeur recalculee independamment du CSS.
     function dgOpen(duoId, itemEl) {
       if (dgActive || dgClosing || !itemEl) return;
       const duo = XS_DUOS.find((d) => d.id === duoId);
@@ -394,6 +353,7 @@
       const startRect = img.getBoundingClientRect();
 
       const veil = document.getElementById('dg-veil');
+      const closeBtn = document.getElementById('dg-focus-close');
       const clone = document.getElementById('dg-clone');
       const comp = document.getElementById('dg-focus-composition');
       const focusImg = document.getElementById('dg-focus-image');
@@ -401,7 +361,7 @@
       const panelG = document.getElementById('dg-focus-panel-gauche');
       const panelD = document.getElementById('dg-focus-panel-droite');
       const addcartWrap = document.getElementById('dg-focus-addcart-wrap');
-      if (!veil || !clone || !comp || !panelG || !panelD) return;
+      if (!veil || !closeBtn || !clone || !comp || !panelG || !panelD) return;
 
       const gaucheSel = dgDefaultSelection(duo.gauche.modele);
       const droiteSel = dgDefaultSelection(duo.droite.modele);
@@ -415,9 +375,15 @@
       panelG.innerHTML = dgPanelHTML('gauche', duo.gauche, gaucheSel);
       panelD.innerHTML = dgPanelHTML('droite', duo.droite, droiteSel);
 
-      const composition = dgComputeComposition();
-      dgFocus.mobile = composition.mobile;
-      dgApplyCompositionLayout(comp, composition);
+      // Le defilement est remis a zero avant toute mesure : la destination du morphing
+      // correspond donc toujours au haut de la surcouche (voir dgClose/dgForceClose, qui le
+      // remettent aussi a zero a la fermeture pour que la prochaine ouverture reparte du haut).
+      comp.scrollTop = 0;
+      const destRect = imageSlot.getBoundingClientRect();
+      // Hauteur reellement obtenue par l'image une fois sa largeur de colonne resolue (voir
+      // .dg-focus-image-slot dans index.html) : les trois blocs des panneaux laterales en
+      // derivent par pourcentage (48/24/21), jamais d'une valeur ecrite en dur.
+      comp.style.setProperty('--dg-img-h-actual', destRect.height + 'px');
 
       const reveals = [imageSlot, panelG, panelD, addcartWrap];
       gsap.set(reveals, { opacity: 0 });
@@ -437,6 +403,7 @@
 
       if (reduced) {
         gsap.set(veil, { opacity: 1, pointerEvents: 'auto' });
+        gsap.set(closeBtn, { opacity: 0.55, pointerEvents: 'auto' });
         gsap.set(clone, { opacity: 0 });
         document.querySelectorAll('.dg-item').forEach((el) => { if (el !== itemEl) gsap.set(el, { opacity: 0 }); });
         gsap.set(reveals, { opacity: 1, x: 0 });
@@ -453,10 +420,11 @@
 
       document.querySelectorAll('.dg-item').forEach((el) => { if (el !== itemEl) gsap.to(el, { opacity: 0, duration: 0.3 }); });
       gsap.to(veil, { opacity: 1, pointerEvents: 'auto', duration: 0.4, ease: 'power2.out' });
+      gsap.to(closeBtn, { opacity: 0.55, pointerEvents: 'auto', duration: 0.4, ease: 'power2.out' });
 
       gsap.to(clone, {
-        x: composition.destX, y: composition.destY,
-        width: composition.destW, height: composition.destH,
+        x: destRect.left, y: destRect.top,
+        width: destRect.width, height: destRect.height,
         duration: 0.6, ease: 'power3.inOut',
         onComplete: () => {
           if (!dgFocus || dgFocus.duoId !== duoId) return; // fermeture entre temps
@@ -479,6 +447,7 @@
       const rect = img.getBoundingClientRect();
 
       const veil = document.getElementById('dg-veil');
+      const closeBtn = document.getElementById('dg-focus-close');
       const clone = document.getElementById('dg-clone');
       const comp = document.getElementById('dg-focus-composition');
       const imageSlot = document.getElementById('dg-focus-image-slot');
@@ -495,6 +464,8 @@
         gsap.set(reveals, { opacity: 0 });
         document.querySelectorAll('.dg-item').forEach((el) => gsap.set(el, { opacity: 1 }));
         gsap.set(veil, { opacity: 0, pointerEvents: 'none' });
+        gsap.set(closeBtn, { opacity: 0, pointerEvents: 'none' });
+        comp.scrollTop = 0; // la prochaine ouverture doit toujours repartir du haut
         dgFreezeScroll(false);
         if (!skipHistory && dgHistoryPushed) { history.back(); }
         dgHistoryPushed = false;
@@ -516,6 +487,7 @@
           // vers le rect d'origine de la vignette.
           gsap.set(clone, { opacity: 1 });
           gsap.to(veil, { opacity: 0, duration: 0.4, ease: 'power2.out' });
+          gsap.to(closeBtn, { opacity: 0, duration: 0.4, ease: 'power2.out' });
           gsap.to(clone, {
             x: rect.left, y: rect.top, width: rect.width, height: rect.height,
             duration: 0.5, ease: 'power3.inOut',
@@ -534,6 +506,7 @@
     function dgForceClose() {
       if (!dgActive && !dgClosing) return;
       const veil = document.getElementById('dg-veil');
+      const closeBtn = document.getElementById('dg-focus-close');
       const clone = document.getElementById('dg-clone');
       const comp = document.getElementById('dg-focus-composition');
       const reveals = [
@@ -543,10 +516,12 @@
         document.getElementById('dg-focus-addcart-wrap'),
       ];
       if (comp) comp.classList.remove('is-open');
-      [veil, clone, comp, ...reveals].forEach((el) => el && gsap.killTweensOf(el));
+      [veil, closeBtn, clone, comp, ...reveals].forEach((el) => el && gsap.killTweensOf(el));
       if (veil) gsap.set(veil, { opacity: 0, pointerEvents: 'none' });
+      if (closeBtn) gsap.set(closeBtn, { opacity: 0, pointerEvents: 'none' });
       if (clone) gsap.set(clone, { opacity: 0 });
       gsap.set(reveals, { opacity: 0, x: 0 });
+      if (comp) comp.scrollTop = 0;
       document.querySelectorAll('.dg-item').forEach((el) => gsap.set(el, { opacity: 1 }));
       dgFreezeScroll(false);
       // Consomme l'entree d'historique poussee a l'ouverture, meme ici (resize ou changement

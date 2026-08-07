@@ -1985,7 +1985,10 @@
     .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; max-width: 1500px; margin: 0 auto; }
     .dg-grid-viewport.is-dragging { cursor: grabbing; }
     .dg-grid-track { display: flex; gap: 28px; width: max-content; user-select: none; will-change: transform; }
-    .dg-item { position: relative; cursor: pointer; flex: 0 0 auto; width: 23vw; min-width: 220px; max-width: 340px; }
+    /* Largeur calculee par dgGridApplyItemWidth (js/duo.js) a partir de la largeur mesuree du
+       conteneur visible, jamais approximee en vw : quatre cartes remplissent exactement la
+       largeur visible, sans qu'un debut de cinquieme carte ne deborde a l'etat initial. */
+    .dg-item { position: relative; cursor: pointer; flex: 0 0 auto; width: var(--dg-grid-item-w, 25%); }
     .dg-item-img {
       width: 100%;
       aspect-ratio: var(--duo-ratio);
@@ -2038,6 +2041,19 @@
       opacity: 0;
       pointer-events: none;
     }
+    /* Bouton Fermer : reprend .back-arrow (meme SVG, meme position fixed top:28px/left:32px,
+       meme transition au survol, meme repli mobile a 900px deja defini plus haut dans le
+       fichier), mais en dehors de la surcouche defilante : il doit rester visible et cliquable
+       pendant tout le defilement (voir #dg-focus-composition), d'ou un z-index superieur a
+       elle. Invisible par defaut (contrairement a .back-arrow, toujours affiche ailleurs sur
+       le site) : seul dgOpen (js/duo.js) l'amene a l'opacite 0.55 habituelle de la classe.
+       Le clic sur le fond ne ferme plus rien : ce fond EST desormais la page (surcouche en
+       overflow-y:auto) ; seuls ce bouton, Echap et le retour navigateur ferment le focus. */
+    /* transition:none annule .back-arrow{transition:opacity .25s ease} : l'opacite de ce
+       bouton est entierement pilotee par GSAP (voir dgOpen/dgClose dans js/duo.js), la
+       transition CSS entrerait sinon en conflit avec elle (double animation, et surtout un
+       etat "instantane" qui ne le serait plus lorsque prefers-reduced-motion est actif). */
+    .dg-focus-close { z-index: 3003; opacity: 0; pointer-events: none; transition: none; }
     .dg-clone {
       position: fixed; z-index: 3002;
       top: 0; left: 0;
@@ -2047,30 +2063,52 @@
     }
     .dg-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* Trois colonnes 1fr / 0.8fr / 1fr (panneaux nettement plus larges que l'image) ; la
-       hauteur de l'image (--dg-img-h) reste la reference unique de hauteur des panneaux, qui
-       s'y alignent en haut et en bas via height:100% (voir .dg-focus-panel). */
+    /* La surcouche est desormais une page a part entiere : fixed/inset:0/overflow-y:auto,
+       parcourue comme la page d'accueil restee en dessous (Lenis y reste sans effet, voir
+       data-lenis-prevent sur cet element). --dg-h est la hauteur de reference unique de toute
+       la composition (76vh, jamais moins de 560px) ; toutes les hauteurs internes en derivent
+       par pourcentage via calc(), aucune n'est ecrite en dur ailleurs. */
     .dg-focus-composition {
-      position: fixed; z-index: 3001;
-      top: 0; left: 0;
-      display: grid;
-      grid-template-columns: var(--dg-panel-w, 1fr) var(--dg-img-w, 0.8fr) var(--dg-panel-w, 1fr);
-      grid-template-rows: var(--dg-img-h, 60vh) auto;
-      grid-template-areas:
-        "left image right"
-        "cart cart cart";
-      column-gap: var(--dg-gap, 56px);
-      row-gap: 48px;
+      position: fixed; inset: 0; z-index: 3001;
       overflow-y: auto;
       pointer-events: none;
+      --dg-h: max(76vh, 560px);
     }
     .dg-focus-composition.is-open { pointer-events: auto; }
 
-    /* opacity par defaut a 0 : l'image reelle "amarree" reste invisible pendant tout le
-       morphing (c'est le clone fixed qui vole a l'ecran, voir #dg-clone), elle n'apparait,
-       avec son survol titre/description, qu'au onComplete du tween d'ouverture — en meme
-       temps que les panneaux et le bouton (voir dgOpen dans js/duo.js). */
-    .dg-focus-image-slot { grid-area: image; position: relative; overflow: hidden; opacity: 0; }
+    /* Trois colonnes en grille, rapport 1.23fr / 1fr / 1.23fr (les proportions de colonnes
+       priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse). Elles
+       ne partagent que leur bordure haute (align-items:start) : les colonnes laterales, plus
+       hautes que l'image centrale, descendent plus bas — voulu. */
+    .dg-focus-columns {
+      display: grid;
+      grid-template-columns: 1.23fr 1fr 1.23fr;
+      align-items: start;
+      column-gap: 48px;
+      width: 92%;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding-top: 120px;
+    }
+
+    .dg-focus-central {
+      display: flex;
+      flex-direction: column;
+    }
+    /* Largeur = colonne centrale (1fr, deduite de la grille) ; hauteur deduite de cette largeur
+       via --duo-ratio (aspect-ratio), jamais l'inverse. max-height:88% de --dg-h est une garde
+       haute qui ne joue que sur ecrans tres larges, quand la largeur de colonne deviendrait
+       disproportionnee : object-fit:cover absorbe alors l'ecart sans jamais laisser de cadre
+       vide. Le bouton Ajouter au panier, enfant de cette meme colonne en width:100%, herite
+       dans tous les cas exactement la largeur de l'image. */
+    .dg-focus-image-slot {
+      width: 100%;
+      aspect-ratio: var(--duo-ratio);
+      max-height: calc(var(--dg-h) * 0.88);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+    }
     .dg-focus-image { width: 100%; height: 100%; object-fit: cover; display: block; }
     .dg-focus-content {
       position: absolute; left: 0; right: 0; bottom: 0;
@@ -2094,38 +2132,60 @@
       line-height: 1.5;
       color: var(--encre-inverse);
     }
+    .dg-focus-addcart-wrap { width: 100%; margin-top: 20px; opacity: 0; }
+    .dg-focus-addcart {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      padding: 18px 0;
+      border-radius: 0;
+      cursor: pointer;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    .dg-focus-addcart:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
 
-    /* Panneau en trois blocs verticaux : image (~44%, flex 0 0 auto sur aspect-ratio 16/10),
-       identite + selection rapide (auto), detail defilant (flex:1, min-height:0 — sa hauteur
-       ne depend donc jamais de la longueur du contenu, seulement de la place restante). */
+    /* Colonnes laterales : largeur deduite de la grille (1.23fr, voir .dg-focus-columns),
+       jamais d'une valeur ecrite en dur. Empilement interne en trois blocs dont les hauteurs
+       sont figees en pourcentage de --dg-img-h-actual (48% / 24% / 21%), separes d'environ
+       22px : cette variable est la hauteur reellement obtenue par l'image centrale une fois sa
+       largeur de colonne resolue (mesuree et posee par dgOpen, voir js/duo.js), jamais --dg-h
+       directement, puisque l'image ne fait plus 88% de --dg-h par defaut. */
     .dg-focus-panel {
-      height: 100%;
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 22px;
       opacity: 0;
     }
-    .dg-focus-panel--gauche { grid-area: left; }
-    .dg-focus-panel--droite { grid-area: right; }
 
-    /* max-height:44% est la contrainte prioritaire (hauteur du bloc image), aspect-ratio:1.6
-       s'applique tant qu'elle ne la dépasse pas : avec des panneaux plus larges que hauts
-       (colonnes 1fr/0.8fr/1fr), un vrai 16/10 pleine largeur dépasserait largement 44% et
-       écraserait le bloc détail à zéro — object-fit:cover sur l'image absorbe l'écart sans
-       jamais laisser de cadre vide. */
+    /* Bloc image de la piece : ne contient que l'image, ni titre ni pastilles ni prix. */
     .dg-panel-image {
       flex: 0 0 auto;
-      position: relative;
       width: 100%;
-      aspect-ratio: 1.6;
-      max-height: 44%;
+      height: calc(var(--dg-img-h-actual, 45vh) * 0.48);
+      position: relative;
       overflow: hidden;
       background: var(--fond-2);
     }
     .dg-panel-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .dg-panel-img--b { opacity: 0; }
 
-    .dg-panel-identite { flex: 0 0 auto; text-align: center; }
+    /* Bloc identite + selection : nom, description courte, matieres, mesure, prix. */
+    .dg-panel-identite {
+      flex: 0 0 auto;
+      height: calc(var(--dg-img-h-actual, 45vh) * 0.24);
+      text-align: center;
+      overflow: hidden;
+    }
     .dg-panel-nom {
       margin: 0;
       font-family: 'Cormorant Garamond', serif;
@@ -2184,23 +2244,19 @@
       color: var(--encre);
     }
 
-    /* Bloc description detaillee : defilement interne propre (le geste ne remonte jamais a la
-       page ni au voile grace a overscroll-behavior:contain), barre de defilement discrete. */
+    /* Bloc description du produit : hauteur figee (21% de --dg-img-h-actual), aucun defilement
+       propre — matiere, composition, mesures disponibles, entretien, alignes a gauche.
+       overflow:hidden en repli si le texte depasse legerement, pour ne jamais deborder sur la
+       zone reservee sous la composition. */
     .dg-panel-detail {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overscroll-behavior: contain;
+      flex: 0 0 auto;
+      height: calc(var(--dg-img-h-actual, 45vh) * 0.21);
+      overflow: hidden;
       text-align: left;
       font-size: 0.8rem;
       line-height: 1.7;
       color: var(--encre-2);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(201, 169, 110, 0.35) transparent;
     }
-    .dg-panel-detail::-webkit-scrollbar { width: 3px; }
-    .dg-panel-detail::-webkit-scrollbar-track { background: transparent; }
-    .dg-panel-detail::-webkit-scrollbar-thumb { background: rgba(201, 169, 110, 0.35); border-radius: 0; }
     .dg-panel-detail-label {
       margin: 0;
       font-size: 0.7rem;
@@ -2213,42 +2269,33 @@
     .dg-panel-detail-list li { margin-top: 4px; }
     .dg-panel-detail-text { margin: 6px 0 0; }
 
-    .dg-focus-addcart-wrap { grid-area: cart; text-align: center; opacity: 0; }
-    .dg-focus-addcart {
-      display: inline-block;
-      min-width: 320px;
-      background: transparent;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.95rem;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      padding: 18px 64px;
-      border-radius: 0;
-      cursor: pointer;
-      transition: background 0.4s ease, color 0.4s ease;
-    }
-    .dg-focus-addcart:hover {
-      background: var(--gold);
-      color: var(--black);
-    }
+    /* Zone vide reservee sous la composition : rien n'y est place pour l'instant (futures
+       images/textes), aucune bordure ni fond distinct — c'est elle qui rend la surcouche
+       veritablement defilante au dela des trois colonnes. */
+    .dg-focus-below { height: 60vh; }
 
     @media screen and (max-width: 900px) {
-      .dg-focus-composition {
+      .dg-focus-columns {
+        display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: var(--dg-img-h, 50vh) auto auto auto;
-        grid-template-areas:
-          "image"
-          "left"
-          "right"
-          "cart";
         row-gap: 32px;
+        width: calc(100% - 40px);
+        max-width: none;
+        padding-top: 90px;
       }
-      .dg-focus-panel { height: auto; }
-      /* Un seul defilement a la fois : la surcouche entiere defile en bloc sous 900px, le
-         bloc detail abandonne donc son defilement interne et se deploie en hauteur. */
-      .dg-panel-detail { flex: none; min-height: auto; overflow-y: visible; }
+      /* Ordre visuel demande : image principale, bouton, panneau gauche, panneau droit — le
+         DOM place le panneau gauche avant la colonne centrale (voir accueil.js, pour rester
+         l'ordre naturel gauche/centre/droite en bureau) ; order la fait passer en premier ici
+         sans toucher au DOM. */
+      .dg-focus-central { order: 0; }
+      .dg-focus-panel--gauche { order: 1; }
+      .dg-focus-panel--droite { order: 2; }
+      /* Hauteurs automatiques : chaque bloc se deploie selon son contenu, plus aucune ne
+         derive de --dg-h ni de --dg-img-h-actual. */
+      .dg-focus-image-slot { max-height: none; }
+      .dg-panel-image { height: auto; aspect-ratio: 1.6; }
+      .dg-panel-identite { height: auto; overflow: visible; }
+      .dg-panel-detail { height: auto; overflow: visible; }
     }
 
     /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
