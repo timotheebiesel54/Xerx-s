@@ -131,7 +131,7 @@
       opacity: 0.75;
       cursor: pointer;
       white-space: nowrap;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.25s ease, color 0.4s ease;
     }
     .nav-groupe li::after {
       content: '';
@@ -141,7 +141,7 @@
       width: 0;
       height: 1px;
       background: var(--bronze-lien);
-      transition: width 0.25s ease;
+      transition: width 0.25s ease, background-color 0.4s ease;
     }
     .nav-groupe li:hover { opacity: 1; }
     .nav-groupe li:hover::after,
@@ -165,7 +165,7 @@
       color: var(--bronze-lien);
       cursor: default;
       opacity: 0.75;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.25s ease, color 0.4s ease;
     }
     .nav-action:hover { opacity: 0.55; }
     .nav-pastille {
@@ -173,30 +173,43 @@
       width: 15px; height: 15px; border-radius: 50%;
       background: var(--bronze-lien); color: var(--ivoire-barre);
       font-size: 11px; line-height: 15px; text-align: center;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
-    /* Couleurs "sur photo" (validees, inchangees) : etat par defaut sur la page d'accueil,
-       sans transition (snap) puisque le fond seul est anime en douceur. .nav-bar--opaque
-       (ajoutee par le scroll) revient aux couleurs normales de la navbar. */
+    /* Couleurs "sur photo" : etat par defaut sur la page d'accueil, blanc pur (meme
+       couleur que le logo clair, filtre juste au-dessous). .nav-bar--opaque (ajoutee par
+       le scroll) revient aux couleurs normales de la navbar (var(--encre)). Les deux
+       etats et le logo partagent desormais la meme duree/courbe de transition (.4s ease)
+       que le fond de la navbar, pour un changement synchrone. */
     body.view-home .nav-bar .nav-groupe li,
     body.view-home .nav-bar .nav-action {
-      color: var(--accent-clair);
+      color: #fff;
     }
     body.view-home .nav-bar .nav-groupe li::after {
-      background: var(--accent-clair);
+      background: #fff;
     }
     body.view-home .nav-bar .nav-logo img {
       filter: brightness(0) invert(1);
     }
+    /* Pastille panier sur photo : chiffre fonce sur pastille claire, plus lisible qu'un
+       contour blanc au-dessus d'une photo de bijou aux tons variables. */
+    body.view-home .nav-bar .nav-pastille {
+      background: #fff;
+      color: var(--encre);
+    }
     body.view-home .nav-bar--opaque .nav-groupe li,
     body.view-home .nav-bar--opaque .nav-action {
-      color: var(--bronze-lien);
+      color: var(--encre);
     }
     body.view-home .nav-bar--opaque .nav-groupe li::after {
-      background: var(--bronze-lien);
+      background: var(--encre);
     }
     body.view-home .nav-bar--opaque .nav-logo img {
       filter: none;
+    }
+    body.view-home .nav-bar--opaque .nav-pastille {
+      background: var(--bronze-lien);
+      color: var(--ivoire-barre);
     }
 
     /* Logo : marges negatives calibrees sur la marge interne transparente du fichier
@@ -210,7 +223,7 @@
       width: auto;
       display: block;
       margin: -54px 0 -44px;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, filter 0.4s ease;
     }
     .nav-logo:hover img { opacity: 0.75; }
 
@@ -1863,9 +1876,8 @@
       position: relative;
       z-index: 1;
       flex: 1 1 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      place-items: center;
       background: transparent;
       border: 0;
       margin: 0;
@@ -1878,13 +1890,28 @@
       font-size: 15px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+    /* Deux calques superposes (grid-area: 1 / 1) au lieu d'un seul libelle dont on
+       anime le font-weight : les graisses 300 et 400 viennent de fichiers distincts
+       (voir @font-face plus haut, poids 300 400 uniquement) et ne s'interpolent pas,
+       ce qui provoquait un saut de largeur au clic. La largeur du bouton se fige donc
+       sur la plus large des deux variantes, et seule l'opacite est animee. */
+    .xs-genre-label-layer {
+      grid-area: 1 / 1;
+      transition: opacity 0.24s cubic-bezier(.33,1,.68,1);
+    }
+    .xs-genre-label-layer--light {
+      font-weight: 300;
       color: rgba(10,10,10,0.55);
+      opacity: 1;
+    }
+    .xs-genre-label-layer--bold {
       font-weight: 400;
-    }
-    .xs-genre-label.is-active {
       color: var(--encre);
-      font-weight: 600;
+      opacity: 0;
     }
+    .xs-genre-label.is-active .xs-genre-label-layer--light { opacity: 0; }
+    .xs-genre-label.is-active .xs-genre-label-layer--bold { opacity: 1; }
 
     /* Rangée de packshots : chaque tuile porte un fond fixe (.xs-genre-tile-bg, jamais
        animé) et deux visuels superposés (Femme/Homme) dont seule l'opacité est
@@ -1960,20 +1987,12 @@
       text-align: center;
       margin-bottom: 48px;
     }
-    .dg-heading-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 300;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
     .dg-heading-quote {
-      margin-top: 16px;
+      margin-top: 18px;
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
       font-weight: 300;
-      font-size: clamp(18px, 2.2vw, 24px);
+      font-size: clamp(20.7px, 2.53vw, 27.6px);
       line-height: 1.7;
       letter-spacing: 0.03em;
       color: var(--encre);
@@ -1985,7 +2004,7 @@
       .dg-heading-quote {
         white-space: nowrap;
         max-width: none;
-        font-size: clamp(15px, 1.35vw, 21px);
+        font-size: clamp(17.25px, 1.55vw, 24.15px);
       }
     }
 
@@ -2024,8 +2043,8 @@
        duos tiennent deja dans la largeur visible — jamais de barre ni de flèches inertes. */
     .dg-grid-nav { display: flex; align-items: center; gap: 24px; width: 96vw; max-width: 2100px; margin: 28px auto 0; }
     .dg-grid-nav[hidden] { display: none; }
-    .dg-grid-progress { flex: 1 1 auto; height: 2px; background: rgba(201, 169, 110, 0.18); position: relative; }
-    .dg-grid-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--gold); }
+    .dg-grid-progress { flex: 1 1 auto; height: 2px; background: var(--trait); position: relative; }
+    .dg-grid-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--bronze-lien); }
     .dg-grid-arrows { display: flex; flex: 0 0 auto; }
     .dg-grid-arrow {
       width: 48px; height: 48px;
@@ -2034,12 +2053,12 @@
       background: transparent;
       padding: 0;
       cursor: pointer;
-      color: var(--gold);
+      color: var(--bronze-lien);
       transition: border-color 0.4s ease, color 0.4s ease;
     }
     .dg-grid-arrow + .dg-grid-arrow { margin-left: -1px; }
     .dg-grid-arrow svg { width: 18px; height: 18px; display: block; }
-    .dg-grid-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-light); }
+    .dg-grid-arrow:hover:not(:disabled) { border-color: var(--bronze-lien); color: var(--bronze-lien); }
     .dg-grid-arrow:disabled { opacity: 0.2; pointer-events: none; }
 
     /* La page /duo/{id} (voir renderDuo, js/duo.js), rendue par le routeur comme n'importe
@@ -2306,6 +2325,18 @@
       text-align: center;
       padding: 120px 24px 90px;
     }
+    /* Bloc de tete partage par "Composez une édition" et "Le duo Xerxès" : memes regles
+       typographiques de titre (.xs-head-title, ajoutee en plus de la classe propre a
+       chaque section, jamais a sa place) pour que les deux sections restent jumelles sans
+       dupliquer ces regles ni renommer .xs-edition-titre / .dg-heading-title. */
+    .xs-head-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(27px, 3.75vw, 42px);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--encre);
+    }
     /* En nowrap, le titre est plus large que la colonne de 720px (~816px a 1400px de
        fenetre) : contraint dans cette colonne, il deborde et le navigateur rend l'exces
        flush a gauche au lieu de le centrer, cassant le centrage malgre text-align:center
@@ -2317,26 +2348,21 @@
       position: relative;
       left: 50%;
       width: 100vw;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 300;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
       white-space: nowrap;
       margin: 0 0 0 -50vw;
     }
     .xs-edition-soustitre {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
-      font-size: 17px;
+      font-size: 19.55px;
       line-height: 1.7;
       opacity: 0.85;
       color: var(--encre);
-      margin: 32px 0 0;
+      margin: 18px 0 0;
     }
     .xs-edition-cta {
-      margin-top: 44px;
+      margin-top: 16px;
+      color: var(--bronze-lien);
     }
 
     /* [src=""] : si la source devait un jour être vidée à nouveau (retour à l'emplacement
@@ -2369,82 +2395,11 @@
         max-width: 88vw;
         padding: 84px 0 63px;
       }
-      .xs-edition-soustitre { margin-top: 22px; }
-      .xs-edition-cta { margin-top: 31px; }
+      .xs-edition-soustitre { margin-top: 12px; }
+      .xs-edition-cta { margin-top: 11px; }
     }
     @media screen and (max-width: 768px) {
       .xs-edition-titre { white-space: normal; }
-    }
-
-    /* ─── Filet de citation partagé — encore utilisé par .xs-cats-section ci-dessous. Les
-       styles propres à l'ancienne section "La suggestion Xerxès" (titre, fond, en-tête) ont
-       été retirés : cette section est supprimée, la grille duo (.dg-heading, plus haut)
-       reprend son intention éditoriale et son habillage à sa nouvelle place, après
-       Composition. ─── */
-    .xs-suggestion-quote {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-weight: 300;
-      font-size: clamp(18px, 2.2vw, 24px);
-      line-height: 1.7;
-      letter-spacing: 0.03em;
-      color: var(--encre);
-      max-width: 640px;
-      margin: 0 auto;
-    }
-    @media screen and (min-width: 1024px) {
-      .xs-suggestion-quote {
-        white-space: nowrap;
-        max-width: none;
-        font-size: clamp(15px, 1.35vw, 21px);
-      }
-    }
-
-    /* ─── HOME : Hommes / Femmes / Sur mesure — 3 cartes espacées, N&B -> couleur ─── */
-    .xs-cats-section {
-      background: var(--fond);
-      padding: 80px 48px 140px;
-      text-align: center;
-    }
-    .xs-cats-grid {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 64px;
-      max-width: 1200px;
-      margin: 56px auto 0;
-    }
-    .xs-cat-card {
-      flex: 1 1 280px;
-      max-width: 340px;
-      cursor: pointer;
-    }
-    .xs-cat-img {
-      width: 100%;
-      aspect-ratio: 3/4;
-      border-radius: 18px;
-      background-size: cover;
-      background-position: center;
-      filter: grayscale(1);
-      transition: filter 0.5s ease;
-    }
-    .xs-cat-card:hover .xs-cat-img,
-    .xs-cat-card:active .xs-cat-img {
-      filter: grayscale(0);
-    }
-    .xs-cat-label {
-      display: block;
-      margin-top: 24px;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(15px, 1.8vw, 19px);
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--encre);
-    }
-    @media screen and (max-width: 900px) {
-      .xs-cats-grid { flex-direction: column; align-items: center; gap: 48px; }
-      .xs-cat-card { max-width: 400px; }
     }
 
   </style>
