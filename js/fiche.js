@@ -184,7 +184,11 @@
       const scenes = isBagues ? `
       <div class="xs-scenes-wrap xs-scenes-wrap--offset">
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
+            <p class="xs-scene-text">${MODELES.aphrodite.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-aphrodite')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
@@ -232,7 +236,11 @@
         </div>
 
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
+            <p class="xs-scene-text">${MODELES.gaia.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-gaia')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
@@ -280,7 +288,11 @@
         </div>
 
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
+            <p class="xs-scene-text">${MODELES.eos.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-eos')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">

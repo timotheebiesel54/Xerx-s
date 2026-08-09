@@ -47,7 +47,7 @@
       --accent-clair: #c9a96e;
       --encre-inverse: #f4f1ea;
       --ivoire-barre: #f4f1ea;
-      --bronze-lien: #80643a;
+      --bronze-lien: #6d4e1f;
       --black: #0a0a0a;
       --gold: #c9a96e;
       --gold-light: #e8d5b0;
@@ -640,12 +640,15 @@
       opacity: 0.3;
     }
 
-    /* ─── VAGUES BAGUES : décalage latéral + titre en zone libre ───
+    /* ─── VAGUES BAGUES : décalage latéral + bloc éditorial en zone libre ───
        .xs-scene-3d est un wrapper interne ajouté uniquement dans le rendu de la page
        Bagues (js/fiche.js, branche isBagues). Il porte perspective et reçoit le
        translateX, pour que perspective-origin reste centré sur sa propre boite et que
-       le rendu 3D des cartes soit identique quelle que soit la vague. Le titre reste
-       enfant direct de .xs-scene (non transformé) et se positionne dans la zone libre. */
+       le rendu 3D des cartes soit identique quelle que soit la vague. .xs-scene-editorial
+       (titre + texte + lien Découvrir) reste enfant direct de .xs-scene (non transformé),
+       centré verticalement sur sa hauteur, et positionné dans la zone libre. Ses enfants
+       sont en colonne flex centrée : même axe vertical, largeur au contenu (le trait sous
+       Découvrir épouse donc le texte, pas le bloc). */
     .xs-scenes-wrap--offset {
       overflow-x: clip;
     }
@@ -661,20 +664,34 @@
     .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-3d {
       transform: translateX(-18vw);
     }
-    .xs-scenes-wrap--offset .xs-scene-title {
+    .xs-scenes-wrap--offset .xs-scene-editorial {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       max-width: 30vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 22px;
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-title,
-    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-title {
+    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-editorial,
+    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-editorial {
       left: 6vw;
-      text-align: left;
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-title {
+    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-editorial {
       right: 6vw;
-      text-align: right;
+    }
+    .xs-scene-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--encre-2);
+      opacity: 0.85;
+    }
+    .xs-scene-editorial .xs-scene-lien {
+      color: var(--bronze-lien);
     }
 
     /* ─── LISTE PRIVÉE ─── */
