@@ -715,6 +715,76 @@
       color: var(--bronze-lien);
     }
 
+    /* ─── SAVOIR FAIRE (page Bagues) ───
+       Section fixe apres la derniere vague (Éos), en dehors de .xs-scenes-wrap : aucune
+       perspective ni transform-style ne lui est declaree ni heritee (aucun ancetre commun
+       avec .xs-scene ne porte ces proprietes, qui de toute facon ne s'heritent pas en CSS).
+       Composition en escalier : trois volets alignes par le haut (align-items:start), avec
+       un decalage vertical propre a chacun via margin-top, en vw pour suivre l'echelle du
+       reste du site. Images pas encore livrees : blocs --fond-2 aux ratios exacts, prets a
+       recevoir un <img class="..."> (regle object-fit deja en place) — voir noms de fichier
+       prevus dans le commentaire au-dessus de renderCollection (js/fiche.js). */
+    .xs-savoir-faire {
+      width: 100%;
+      max-width: 1100px;
+      margin: 100px auto 0;
+    }
+    .xs-savoir-grille {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: start;
+      gap: 48px;
+    }
+    .xs-savoir-volet {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      text-align: left;
+    }
+    .xs-savoir-volet--2 { margin-top: 5vw; }
+    .xs-savoir-volet--3 { margin-top: 2vw; }
+    .xs-savoir-chiffre {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      color: var(--encre-2);
+    }
+    .xs-savoir-image {
+      width: 100%;
+      background: var(--fond-2);
+      overflow: hidden;
+    }
+    .xs-savoir-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .xs-savoir-image--1 { aspect-ratio: 3 / 4; }
+    .xs-savoir-image--2 { aspect-ratio: 1 / 1; }
+    .xs-savoir-image--3 { aspect-ratio: 2 / 3; }
+    .xs-savoir-titre {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      color: var(--bronze-lien);
+      margin: 0;
+    }
+    .xs-savoir-texte {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--encre-2);
+      margin: 0;
+    }
+    .xs-savoir-faire .xs-savoir-lien {
+      color: var(--bronze-lien);
+    }
+
     /* ─── LISTE PRIVÉE ─── */
     .liste-privee {
       width: 100%;
