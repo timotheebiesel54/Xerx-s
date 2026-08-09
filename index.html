@@ -719,11 +719,12 @@
        Section fixe apres la derniere vague (Éos), en dehors de .xs-scenes-wrap : aucune
        perspective ni transform-style ne lui est declaree ni heritee (aucun ancetre commun
        avec .xs-scene ne porte ces proprietes, qui de toute facon ne s'heritent pas en CSS).
-       Composition en escalier : trois volets alignes par le haut (align-items:start), avec
-       un decalage vertical propre a chacun via margin-top, en vw pour suivre l'echelle du
-       reste du site. Images pas encore livrees : blocs --fond-2 aux ratios exacts, prets a
-       recevoir un <img class="..."> (regle object-fit deja en place) — voir noms de fichier
-       prevus dans le commentaire au-dessus de renderCollection (js/fiche.js). */
+       Purement informative : trois volets identiques (meme ratio d'image, meme alignement
+       haut via align-items:start), statiques, sans navigation ni effet — aucune opacite
+       de depart, aucune transition, aucun ScrollTrigger. Images pas encore livrees : blocs
+       --fond-2 au ratio 3/4, prets a recevoir un <img class="..."> (regle object-fit deja
+       en place) — voir noms de fichier prevus dans le commentaire au-dessus de
+       renderCollection (js/fiche.js). */
     .xs-savoir-faire {
       width: 100%;
       max-width: 1100px;
@@ -742,17 +743,9 @@
       gap: 18px;
       text-align: left;
     }
-    .xs-savoir-volet--2 { margin-top: 5vw; }
-    .xs-savoir-volet--3 { margin-top: 2vw; }
-    .xs-savoir-chiffre {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 11px;
-      letter-spacing: 0.24em;
-      color: var(--encre-2);
-    }
     .xs-savoir-image {
       width: 100%;
+      aspect-ratio: 3 / 4;
       background: var(--fond-2);
       overflow: hidden;
     }
@@ -762,9 +755,6 @@
       object-fit: cover;
       display: block;
     }
-    .xs-savoir-image--1 { aspect-ratio: 3 / 4; }
-    .xs-savoir-image--2 { aspect-ratio: 1 / 1; }
-    .xs-savoir-image--3 { aspect-ratio: 2 / 3; }
     .xs-savoir-titre {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
@@ -781,8 +771,14 @@
       color: var(--encre-2);
       margin: 0;
     }
-    .xs-savoir-faire .xs-savoir-lien {
-      color: var(--bronze-lien);
+    /* .xs-savoir-faire est le 3e enfant direct de .collection-view.animate-in : sans cette
+       regle elle heriterait de .animate-in > * (opacity:0 + animation fadeUp, l'entree de
+       page commune a toutes les vues), ce qui la laisserait invisible jusqu'a la fin du
+       delai/de l'animation. Neutralise ici pour qu'elle soit opaque des le rendu, sans
+       dependre du scroll ni d'aucun effet. */
+    .collection-view.animate-in > .xs-savoir-faire {
+      opacity: 1;
+      animation: none;
     }
 
     /* ─── LISTE PRIVÉE ─── */

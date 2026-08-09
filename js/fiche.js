@@ -489,35 +489,29 @@
       `;
 
       // Bloc "savoir faire" : section fixe apres la derniere vague, hors de .xs-scenes-wrap
-      // (aucun rapport avec le tambour). Les trois liens Decouvrir sont volontairement
-      // inertes : aucune route atelier / ecrin / gravure n'existe dans le routeur
-      // (js/main.js, fonction render()) ni dans CATALOGUE a ce jour. Images pas encore
-      // livrees : blocs de remplacement --fond-2, convention de nom prevue en
-      // images/site/atelier.webp, images/site/ecrin.webp, images/site/gravure.webp,
-      // coherente avec images/site/edition-gravure.webp deja utilisee sur le site.
+      // (aucun rapport avec le tambour). Purement informative, sans navigation ni effet :
+      // les trois volets sont statiques, visibles des le chargement, meme ratio d'image et
+      // meme alignement. Images pas encore livrees : blocs de remplacement --fond-2,
+      // convention de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
+      // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
+      // utilisee sur le site.
       const savoirFaire = isBagues ? `
       <section class="xs-savoir-faire">
         <div class="xs-savoir-grille">
-          <div class="xs-savoir-volet xs-savoir-volet--1">
-            <span class="xs-savoir-chiffre">I</span>
-            <div class="xs-savoir-image xs-savoir-image--1"></div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’atelier</h3>
             <p class="xs-savoir-texte">Portugal, quelques mains, série courte.</p>
-            <button type="button" class="xs-lien xs-savoir-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
-          <div class="xs-savoir-volet xs-savoir-volet--2">
-            <span class="xs-savoir-chiffre">II</span>
-            <div class="xs-savoir-image xs-savoir-image--2"></div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’écrin</h3>
             <p class="xs-savoir-texte">Un coffret, deux pièces, un cachet de cire.</p>
-            <button type="button" class="xs-lien xs-savoir-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
-          <div class="xs-savoir-volet xs-savoir-volet--3">
-            <span class="xs-savoir-chiffre">III</span>
-            <div class="xs-savoir-image xs-savoir-image--3"></div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">La gravure</h3>
             <p class="xs-savoir-texte">Un numéro, porté à deux.</p>
-            <button type="button" class="xs-lien xs-savoir-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
         </div>
       </section>
@@ -541,23 +535,6 @@
       `;
 
       xsInitProductCarousels();
-      xsInitSavoirFaire();
-    }
-
-    // Une seule apparition en autoAlpha pour toute la section (meme nature que le fondu des
-    // titres de vague dans xsCreateCarouselTimeline), avec un leger stagger entre les trois
-    // volets dans l'ordre I, II, III. Aucun scrub, aucune translation, aucune echelle.
-    function xsInitSavoirFaire() {
-      const section = document.querySelector('.xs-savoir-faire');
-      if (!section) return;
-      const volets = section.querySelectorAll('.xs-savoir-volet');
-      gsap.fromTo(volets, { autoAlpha: 0 }, {
-        autoAlpha: 1,
-        duration: 0.5,
-        ease: 'none',
-        stagger: 0.15,
-        scrollTrigger: { trigger: section, start: 'top center', toggleActions: 'play none none reverse' },
-      });
     }
 
     function xsSplitTitleChars(el) {
