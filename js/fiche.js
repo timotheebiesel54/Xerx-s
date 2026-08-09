@@ -176,6 +176,13 @@
     }
 
     // ─── COLLECTION ───
+    // Route de la fiche produit d'un modele, deduite de sa cle CATALOGUE (seule source de
+    // verite) plutot que construite a la main : evite tout risque de desynchronisation
+    // avec les cles reellement lues par renderFiche() en cas d'ajout/retrait de modele.
+    function xsRouteProduit(slug) {
+      return CATALOGUE[slug] ? 'fiche-' + slug : null;
+    }
+
     function renderCollection(type) {
       const isBagues = type === 'bagues';
       const label = isBagues ? 'Femme' : 'Homme';
@@ -187,7 +194,7 @@
           <div class="xs-scene-editorial">
             <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
             <p class="xs-scene-text">${MODELES.aphrodite.intention}</p>
-            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-aphrodite')">Découvrir<span class="xs-lien-trait"></span></button>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('aphrodite')}')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
@@ -239,7 +246,7 @@
           <div class="xs-scene-editorial">
             <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
             <p class="xs-scene-text">${MODELES.gaia.intention}</p>
-            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-gaia')">Découvrir<span class="xs-lien-trait"></span></button>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('gaia')}')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
@@ -291,7 +298,7 @@
           <div class="xs-scene-editorial">
             <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
             <p class="xs-scene-text">${MODELES.eos.intention}</p>
-            <button class="xs-lien xs-scene-lien" onclick="navigate('fiche-eos')">Découvrir<span class="xs-lien-trait"></span></button>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('eos')}')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-scene-3d">
           <div class="xs-carousel">
@@ -489,9 +496,9 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="collection-view animate-in">
-          <p class="collection-eyebrow">Collection ${label}</p>
+          ${isBagues ? '' : `<p class="collection-eyebrow">Collection ${label}</p>`}
           <h1 class="collection-title">${titre}</h1>
-          <div class="collection-divider"></div>
+          ${isBagues ? '' : '<div class="collection-divider"></div>'}
 
           ${scenes}
         </div>

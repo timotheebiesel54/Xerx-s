@@ -212,6 +212,23 @@
       color: var(--ivoire-barre);
     }
 
+    /* Page Bagues : liens de nav, icône compte et icône panier passent en --encre au lieu
+       du --bronze-lien par défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus
+       haut, qui s'appliquent sinon à toutes les routes hors accueil). Scopé à
+       body.view-bagues (bascule dans navigate(), js/main.js) pour ne pas affecter les
+       autres pages, notamment Bracelets. */
+    body.view-bagues .nav-groupe li,
+    body.view-bagues .nav-action {
+      color: var(--encre);
+    }
+    body.view-bagues .nav-groupe li::after {
+      background: var(--encre);
+    }
+    body.view-bagues .nav-pastille {
+      background: var(--encre);
+      color: var(--ivoire-barre);
+    }
+
     /* Logo : marges negatives calibrees sur la marge interne transparente du fichier
        logo.webp (monogramme X centre a ~32% du haut du carre source, mot Genève finissant
        a ~74%), pour que seule la zone visible (X, XERXÈS, Genève) compte dans la hauteur
@@ -691,6 +708,9 @@
       opacity: 0.85;
     }
     .xs-scene-editorial .xs-scene-lien {
+      color: var(--bronze-lien);
+    }
+    .xs-scenes-wrap--offset .xs-scene-title {
       color: var(--bronze-lien);
     }
 
