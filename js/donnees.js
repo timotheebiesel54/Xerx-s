@@ -23,12 +23,6 @@
     const COMPO_SLOT_MEDUSA_IMG = "images/medaillons/meduse.webp";
     const COMPO_SLOT_ATHENA_IMG = "images/medaillons/athena.webp";
 
-    // Placeholders temporaires pour la section Hommes/Femmes/Sur mesure — à remplacer
-    // par les vraies photos (une constante par carte, pas de refonte de structure requise).
-    const XS_CAT_HOMMES_IMG = XS_ONE_DECOR_IMGS[1];
-    const XS_CAT_FEMMES_IMG = XS_ONE_DECOR_IMGS[2];
-    const XS_CAT_SUR_MESURE_IMG = XS_ONE_DECOR_IMGS[3];
-
     const XS_HERO_IMG_1 = "images/site/hero-1.webp";
     const XS_HERO_IMG_2 = "images/site/hero-2.webp";
 

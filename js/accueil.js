@@ -56,22 +56,16 @@
       const labelHomme = document.getElementById('xs-genre-label-homme');
       if (!toggle || !curseur) return;
 
-      const encreActive = getComputedStyle(document.documentElement).getPropertyValue('--encre').trim();
       const inset = 4;
       const dx = genre === 'homme' ? (toggle.offsetWidth - inset * 2 - curseur.offsetWidth) : 0;
 
       gsap.killTweensOf(curseur);
       gsap.to(curseur, { x: dx, duration: 0.45, ease: 'power3.out' });
 
+      // Le crossfade graisse 300 <-> 400 (calques superposes) est purement CSS, pilote
+      // par .is-active via transition: opacity — voir .xs-genre-label-layer.
       const labelActif = genre === 'homme' ? labelHomme : labelFemme;
       const labelInactif = genre === 'homme' ? labelFemme : labelHomme;
-      gsap.killTweensOf([labelFemme, labelHomme]);
-      // Les tweens capturent la valeur de depart (via getComputedStyle) avant que les
-      // classes ne changent ; l'inline style pose par GSAP prime ensuite sur la classe
-      // pendant toute la duree de l'animation, donc l'ordre classList -> gsap.to
-      // provoquerait un saut instantane (depart == arrivee) plutot qu'une animation.
-      gsap.to(labelActif, { fontWeight: 600, color: encreActive, duration: 0.45, ease: 'power3.out' });
-      gsap.to(labelInactif, { fontWeight: 400, color: 'rgba(10,10,10,0.55)', duration: 0.45, ease: 'power3.out' });
       labelActif.classList.add('is-active');
       labelInactif.classList.remove('is-active');
 
@@ -151,8 +145,14 @@
         <section class="xs-genre-section">
           <div class="xs-genre-toggle" id="xs-genre-toggle">
             <div class="xs-genre-cursor" id="xs-genre-cursor"></div>
-            <button type="button" class="xs-genre-label is-active" id="xs-genre-label-femme" onclick="xsGenreSetGenre('femme')">Femme</button>
-            <button type="button" class="xs-genre-label" id="xs-genre-label-homme" onclick="xsGenreSetGenre('homme')">Homme</button>
+            <button type="button" class="xs-genre-label is-active" id="xs-genre-label-femme" onclick="xsGenreSetGenre('femme')">
+              <span class="xs-genre-label-layer xs-genre-label-layer--light">Femme</span>
+              <span class="xs-genre-label-layer xs-genre-label-layer--bold" aria-hidden="true">Femme</span>
+            </button>
+            <button type="button" class="xs-genre-label" id="xs-genre-label-homme" onclick="xsGenreSetGenre('homme')">
+              <span class="xs-genre-label-layer xs-genre-label-layer--light">Homme</span>
+              <span class="xs-genre-label-layer xs-genre-label-layer--bold" aria-hidden="true">Homme</span>
+            </button>
           </div>
 
           <div class="xs-genre-tiles">
@@ -162,7 +162,7 @@
 
         <section class="xs-edition-section">
           <div class="xs-edition-texte">
-            <h2 class="xs-edition-titre">Composez une édition</h2>
+            <h2 class="xs-edition-titre xs-head-title">Composez une édition</h2>
             <p class="xs-edition-soustitre">Un même numéro gravé sur chaque pièce ; à chacun sa forme, sa matière, sa mesure.</p>
             <button class="xs-lien xs-edition-cta" onclick="navigate('composition')">Ouvrir la composition<span class="xs-lien-trait"></span></button>
           </div>
@@ -174,7 +174,7 @@
 
         <section class="dg-section">
           <div class="dg-heading">
-            <h2 class="dg-heading-title">Le duo Xerxès</h2>
+            <h2 class="dg-heading-title xs-head-title">Le duo Xerxès</h2>
             <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
           </div>
           <div class="dg-grid-viewport" id="dg-grid-viewport">
@@ -195,24 +195,6 @@
                   <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
-            </div>
-          </div>
-        </section>
-
-        <section class="xs-cats-section">
-          <p class="xs-suggestion-quote">Certains préfèrent porter Xerxès seul ; la collection s'explore pièce à pièce.</p>
-          <div class="xs-cats-grid">
-            <div class="xs-cat-card" onclick="navigate('bracelets')">
-              <div class="xs-cat-img" style="background-image:url(${XS_CAT_HOMMES_IMG})"></div>
-              <span class="xs-cat-label">Hommes</span>
-            </div>
-            <div class="xs-cat-card" onclick="navigate('bagues')">
-              <div class="xs-cat-img" style="background-image:url(${XS_CAT_FEMMES_IMG})"></div>
-              <span class="xs-cat-label">Femmes</span>
-            </div>
-            <div class="xs-cat-card" onclick="navigate('composition')">
-              <div class="xs-cat-img" style="background-image:url(${XS_CAT_SUR_MESURE_IMG})"></div>
-              <span class="xs-cat-label">Sur mesure</span>
             </div>
           </div>
         </section>
