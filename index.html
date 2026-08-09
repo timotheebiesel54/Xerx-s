@@ -640,6 +640,43 @@
       opacity: 0.3;
     }
 
+    /* ─── VAGUES BAGUES : décalage latéral + titre en zone libre ───
+       .xs-scene-3d est un wrapper interne ajouté uniquement dans le rendu de la page
+       Bagues (js/fiche.js, branche isBagues). Il porte perspective et reçoit le
+       translateX, pour que perspective-origin reste centré sur sa propre boite et que
+       le rendu 3D des cartes soit identique quelle que soit la vague. Le titre reste
+       enfant direct de .xs-scene (non transformé) et se positionne dans la zone libre. */
+    .xs-scenes-wrap--offset {
+      overflow-x: clip;
+    }
+    .xs-scene-3d {
+      position: absolute;
+      inset: 0;
+      perspective: 900px;
+    }
+    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-3d,
+    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-3d {
+      transform: translateX(18vw);
+    }
+    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-3d {
+      transform: translateX(-18vw);
+    }
+    .xs-scenes-wrap--offset .xs-scene-title {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 30vw;
+    }
+    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-title,
+    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-title {
+      left: 6vw;
+      text-align: left;
+    }
+    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-title {
+      right: 6vw;
+      text-align: right;
+    }
+
     /* ─── LISTE PRIVÉE ─── */
     .liste-privee {
       width: 100%;

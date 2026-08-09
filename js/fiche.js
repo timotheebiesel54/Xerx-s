@@ -182,9 +182,10 @@
       const titre = isBagues ? 'Bagues' : 'Bracelets';
 
       const scenes = isBagues ? `
-      <div class="xs-scenes-wrap">
+      <div class="xs-scenes-wrap xs-scenes-wrap--offset">
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-aphrodite')"><span>Aphrodite</span></h2>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -226,11 +227,13 @@
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
 
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-gaia')"><span>Gaïa</span></h2>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -273,10 +276,12 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         <div class="xs-scene" data-radius="500">
           <h2 class="xs-scene-title" onclick="navigate('fiche-eos')"><span>Éos</span></h2>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -318,6 +323,7 @@
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
