@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <!-- /duo/{id} donne a l'URL un segment de chemin supplementaire : sans base, tous les chemins
+       relatifs (js/..., images/...) se resoudraient contre /duo/ au lieu de la racine du site. -->
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=2">
@@ -45,6 +48,14 @@
       --encre-inverse: #f4f1ea;
       --ivoire-barre: #f4f1ea;
       --bronze-lien: #80643a;
+      --black: #0a0a0a;
+      --gold: #c9a96e;
+      --gold-light: #e8d5b0;
+      /* Rapport largeur/hauteur unique des images duo (grille d'accueil et vue focus) :
+         format 5/7, plus haut qu'un cadre 3/4. La modifier fait grandir les deux a la fois,
+         c'est l'effet recherche. Aucune autre valeur de ratio ecrite en dur : voir dgRatio()
+         dans js/duo.js et .dg-item ci-dessous. */
+      --duo-ratio: 0.7143;
     }
 
     html { scroll-behavior: smooth; }
@@ -1925,6 +1936,363 @@
       .xs-genre-tile-visual { inset: 12%; }
     }
 
+    /* ─── HOME : GRILLE DUO (dg-*) — deux pièces portées ensemble, sur une même photo ───
+       Cette section s'appelle desormais "Le duo Xerxès" (voir .dg-heading-title) ; le prefixe
+       dg-* des classes/identifiants est conserve tel quel, le renommer toucherait la logique
+       de navigation du carrousel (js/duo.js) sans aucun benefice visible.
+       La grille est une piste (#dg-grid-track) dans un conteneur overflow hidden, avec la
+       même mécanique page/bornée que l'ancien carrousel (barre de progression + flèches,
+       zéro boucle) — navigation affichée seulement si les duos dépassent la largeur visible,
+       piste simplement centrée sinon (voir dgGridApply dans js/duo.js).
+       Clic sur une vignette : l'image est clonee en position fixed (.dg-route-clone, hors de
+       #app) et animee en FLIP manuel (GSAP sur x/y/width/height, aucun plugin Flip sous
+       licence Club GreenSock) vers l'image principale de la page /duo/{id} nouvellement
+       rendue (voir dgOpen, js/duo.js). Une fois immobile, cette page revele le
+       titre/description sur l'image et deux panneaux lateraux (une piece par emplacement,
+       lus dans CATALOGUE) menant a l'ajout au panier.
+       --duo-ratio (racine) est l'unique source du rapport largeur/hauteur des photos duo :
+       aucune valeur de ratio n'est ecrite en dur ailleurs, ni ici ni dans js/duo.js. */
+    .dg-section {
+      background: var(--fond);
+      padding: 90px 24px 110px;
+    }
+    .dg-heading {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .dg-heading-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .dg-heading-quote {
+      margin-top: 16px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.7;
+      letter-spacing: 0.03em;
+      color: var(--encre);
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media screen and (min-width: 1024px) {
+      .dg-heading-quote {
+        white-space: nowrap;
+        max-width: none;
+        font-size: clamp(15px, 1.35vw, 21px);
+      }
+    }
+
+    .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; width: 96vw; max-width: 2100px; margin: 0 auto; }
+    .dg-grid-viewport.is-dragging { cursor: grabbing; }
+    .dg-grid-track { display: flex; gap: 32px; width: max-content; user-select: none; will-change: transform; }
+    /* Largeur calculee par dgGridApplyItemWidth (js/duo.js) a partir de la largeur mesuree du
+       conteneur visible, jamais approximee en vw : quatre cartes remplissent exactement la
+       largeur visible, sans qu'un debut de cinquieme carte ne deborde a l'etat initial. */
+    .dg-item { position: relative; cursor: pointer; flex: 0 0 auto; width: var(--dg-grid-item-w, 25%); }
+    .dg-item-img {
+      width: 100%;
+      aspect-ratio: var(--duo-ratio);
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+    .dg-item:hover .dg-item-img { transform: scale(1.02); }
+    .dg-item-label {
+      display: block;
+      margin-top: 14px;
+      text-align: center;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--encre);
+      font-size: 0.85rem;
+    }
+    @media screen and (max-width: 900px) {
+      .dg-item { width: 70vw; }
+    }
+
+    /* Barre de navigation de la grille : identique dans l'esprit a l'ancien carrousel horloger
+       (progression fine + flèches carrées accolées), masquée entièrement (hidden) si tous les
+       duos tiennent deja dans la largeur visible — jamais de barre ni de flèches inertes. */
+    .dg-grid-nav { display: flex; align-items: center; gap: 24px; width: 96vw; max-width: 2100px; margin: 28px auto 0; }
+    .dg-grid-nav[hidden] { display: none; }
+    .dg-grid-progress { flex: 1 1 auto; height: 2px; background: rgba(201, 169, 110, 0.18); position: relative; }
+    .dg-grid-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--gold); }
+    .dg-grid-arrows { display: flex; flex: 0 0 auto; }
+    .dg-grid-arrow {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(201, 169, 110, 0.25);
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      color: var(--gold);
+      transition: border-color 0.4s ease, color 0.4s ease;
+    }
+    .dg-grid-arrow + .dg-grid-arrow { margin-left: -1px; }
+    .dg-grid-arrow svg { width: 18px; height: 18px; display: block; }
+    .dg-grid-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-light); }
+    .dg-grid-arrow:disabled { opacity: 0.2; pointer-events: none; }
+
+    /* La page /duo/{id} (voir renderDuo, js/duo.js), rendue par le routeur comme n'importe
+       quelle autre page — plus de voile, plus de conteneur fixed, plus de defilement propre :
+       #app lui donne deja son padding-top habituel (voir body:not(.view-home) #app plus haut),
+       cette regle n'ajoute qu'un peu d'air avant le lien de retour. Regle absolue pour toute
+       cette page : aucune hauteur en pixels ni en pourcentage sur un bloc de contenu, aucun
+       overflow hidden, aucun defilement interne — chaque bloc prend la hauteur de son contenu,
+       la page s'allonge avec lui. */
+    .dg-focus-page {
+      width: 96%;
+      max-width: 2100px;
+      margin: 0 auto;
+      padding-top: 40px;
+    }
+
+    /* Lien de retour : reprend l'apparence de .back-arrow (meme SVG, meme transition, meme
+       label) mais defile avec la page comme n'importe quel autre element — contrairement a
+       .back-arrow, toujours fixe ailleurs sur le site, rien ici ne doit rester a l'ecran
+       pendant le defilement. */
+    .dg-focus-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
+      margin-bottom: 40px;
+    }
+    .dg-focus-back:hover { opacity: 1; }
+    .dg-focus-back svg { width: 18px; height: 18px; }
+
+    /* Clone volant de la transition depuis la grille d'accueil (voir dgOpen, js/duo.js) :
+       insere dans <body>, hors de #app, pour survivre au re-rendu de route qui suit le clic. */
+    .dg-route-clone {
+      position: fixed; z-index: 4000;
+      top: 0; left: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .dg-route-clone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* Trois colonnes en grille, rapport 1.05fr / 1fr / 1.05fr (les proportions de colonnes
+       priment : la largeur de l'image centrale decoule de sa colonne, jamais l'inverse).
+       L'ecart entre colonnes laterales et centrale est resserre par rapport a avant, au profit
+       de la presence de l'image principale. Elles ne partagent que leur bordure haute
+       (align-items:start) : les colonnes laterales, plus hautes que l'image centrale,
+       descendent plus bas — voulu, jamais egalise, jamais la colonne centrale etiree pour
+       compenser. */
+    .dg-focus-columns {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr 1.05fr;
+      align-items: start;
+      column-gap: 40px;
+    }
+
+    .dg-focus-central {
+      display: flex;
+      flex-direction: column;
+    }
+    /* Largeur = colonne centrale (1fr, deduite de la grille) ; hauteur deduite de cette seule
+       largeur via --duo-ratio (aspect-ratio), jamais l'inverse, jamais une hauteur ecrite en
+       dur. Le bouton Ajouter au panier, enfant de cette meme colonne en width:100%, herite
+       dans tous les cas exactement la largeur de l'image. */
+    .dg-focus-image-slot {
+      width: 100%;
+      aspect-ratio: var(--duo-ratio);
+      position: relative;
+    }
+    /* position:absolute (comme .dg-panel-img) plutot que width/height:100% en flux normal :
+       un <img> reel a sa propre ratio intrinseque, et un enfant en hauteur pourcentage dans un
+       bloc dont la hauteur decoule d'aspect-ratio peut se voir imposer cette ratio intrinseque
+       au lieu de celle du parent (observe sur ce site avec decor-02.webp, 600x750). Sorti du
+       flux, il ne peut plus influencer la taille de son parent : seule --duo-ratio commande. */
+    .dg-focus-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .dg-focus-content {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 20px 22px 22px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,.4) 45%, rgba(10,10,10,.82) 100%);
+    }
+    .dg-focus-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--encre-inverse);
+      margin: 0;
+    }
+    .dg-focus-desc {
+      margin: 8px 0 0;
+      font-style: italic;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--encre-inverse);
+    }
+    /* Le bouton forme un bloc autonome, detache de l'image (72px, contre 28px pour les blocs
+       empiles des colonnes laterales) : cet ecart est ce qui le separe visuellement, pas une
+       bordure. appearance/box-shadow a none retire tout filet natif du navigateur (ombre ou
+       relief par defaut d'un <button>) qui subsisterait sinon au dessus ou en dessous, en plus
+       de la bordure 1px voulue. */
+    .dg-focus-addcart-wrap { width: 100%; margin-top: 72px; }
+    .dg-focus-addcart {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gold);
+      box-shadow: none;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      padding: 20px 0;
+      border-radius: 0;
+      cursor: pointer;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    .dg-focus-addcart:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* Colonnes laterales : largeur deduite de la grille (1.05fr, voir .dg-focus-columns),
+       jamais d'une valeur ecrite en dur. Empilement de trois blocs separes d'environ 28px dont
+       la hauteur vient uniquement de leur contenu — aucune n'est jamais figee ni rognee. */
+    .dg-focus-panel {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Bloc image de la piece : ne contient que l'image, ni titre ni pastilles ni prix. Rapport
+       5/4 (plus haut que le 3/2 precedent) : combine a la composition elargie (voir
+       .dg-focus-page), la hauteur de ce bloc augmente d'environ un tiers. */
+    .dg-panel-image {
+      width: 100%;
+      aspect-ratio: 5 / 4;
+      position: relative;
+      background: var(--fond-2);
+    }
+    .dg-panel-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .dg-panel-img--b { opacity: 0; }
+
+    /* Bloc identite + selection : nom, description courte, matieres, mesure, prix — dans cet
+       ordre, dont le prix (source unique : CATALOGUE, voir dgPrixPiece dans js/duo.js). */
+    .dg-panel-identite {
+      text-align: center;
+    }
+    .dg-panel-nom {
+      margin: 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--encre);
+    }
+    .dg-panel-desc {
+      margin: 6px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--encre-2);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .dg-panel-matieres {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .dg-swatch {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--fond);
+    }
+    .dg-swatch.is-active {
+      box-shadow: 0 0 0 2px var(--fond), 0 0 0 3px var(--gold);
+    }
+    .dg-panel-mesure {
+      display: block;
+      margin: 10px auto 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      color: var(--encre);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--trait);
+      padding: 4px 18px 6px 4px;
+      cursor: pointer;
+    }
+    .dg-panel-prix {
+      margin: 10px 0 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--encre);
+    }
+
+    /* Bloc description du produit : matiere, composition, mesures disponibles, entretien,
+       alignes a gauche. Hauteur uniquement issue du contenu, aucun defilement propre, aucun
+       overflow hidden — un texte plus long allonge le bloc, et la colonne avec lui. */
+    .dg-panel-detail {
+      text-align: left;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--encre-2);
+    }
+    .dg-panel-detail-label {
+      margin: 0;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--encre);
+    }
+    .dg-panel-detail-label:not(:first-child) { margin-top: 18px; }
+    .dg-panel-detail-list { margin: 6px 0 0; padding: 0; list-style: none; }
+    .dg-panel-detail-list li { margin-top: 4px; }
+    .dg-panel-detail-text { margin: 6px 0 0; }
+
+    /* Zone vide reservee sous la composition : rien n'y est place pour l'instant (futures
+       images/textes), aucune bordure ni fond distinct. */
+    .dg-focus-below { height: 25vh; }
+
+    @media screen and (max-width: 900px) {
+      .dg-focus-page { width: calc(100% - 40px); padding-top: 24px; }
+      .dg-focus-columns {
+        grid-template-columns: 1fr;
+        row-gap: 32px;
+      }
+      /* Ordre visuel demande : image principale, bouton, panneau gauche, panneau droit — le
+         DOM place le panneau gauche avant la colonne centrale (voir dgPanelHTML/renderDuo,
+         pour rester l'ordre naturel gauche/centre/droite en bureau) ; order la fait passer en
+         premier ici sans toucher au DOM. Toutes les hauteurs restent automatiques : aucune
+         exception mobile n'est necessaire, plus aucun bloc n'a de hauteur imposee. */
+      .dg-focus-central { order: 0; }
+      .dg-focus-panel--gauche { order: 1; }
+      .dg-focus-panel--droite { order: 2; }
+    }
+
     /* ─── HOME : "Composez une édition" — bloc texte + emplacement photo provisoire ───
        var(--black) demandé par la spec n'existe pas dans :root ; mêmes convention que le
        sélecteur Femme/Homme, on réutilise var(--encre) (couleur d'encre du site) pour ne
@@ -2008,23 +2376,11 @@
       .xs-edition-titre { white-space: normal; }
     }
 
-    /* ─── HOME : "La suggestion Xerxès" — titre + textes autour de la galerie WebGPU ─── */
-    .xs-suggestion-heading {
-      background: var(--fond);
-      padding: 110px 24px 32px;
-      text-align: center;
-    }
-    .xs-suggestion-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 300;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .xs-suggestion-heading .xs-suggestion-quote {
-      margin-top: 28px;
-    }
+    /* ─── Filet de citation partagé — encore utilisé par .xs-cats-section ci-dessous. Les
+       styles propres à l'ancienne section "La suggestion Xerxès" (titre, fond, en-tête) ont
+       été retirés : cette section est supprimée, la grille duo (.dg-heading, plus haut)
+       reprend son intention éditoriale et son habillage à sa nouvelle place, après
+       Composition. ─── */
     .xs-suggestion-quote {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
@@ -2091,43 +2447,6 @@
       .xs-cat-card { max-width: 400px; }
     }
 
-    /* ─── GALERIE D'ACCUEIL (Seealpsee, K2, The North Face, Titre test, Mount Everest) ───
-       Bande horizontale en boucle infinie (overflow-x natif, aucun scroll de PAGE impliqué :
-       zéro ScrollTrigger, zéro pin, zéro sticky, zéro fade/reveal au scroll). Le drag souris est
-       fait à la main (pointerdown/move/up) ; le swipe tactile et le trackpad horizontal restent
-       nativement gérés par le navigateur (aucun listener 'wheel' ici, donc la molette verticale
-       continue de faire défiler la PAGE, jamais la bande). */
-    .xs-gallery-track-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;padding:0 0 4rem}
-    .xs-gallery-track-wrap::-webkit-scrollbar{display:none}
-    .xs-gallery-track-wrap.is-dragging{cursor:grabbing}
-    .xs-gallery-track{display:flex;gap:32px;width:max-content;padding:0 1.5rem;user-select:none}
-    .xs-gallery-item{width:23vw;min-width:220px;max-width:340px;flex:0 0 auto;cursor:pointer}
-    .xs-gallery-item img{width:100%;aspect-ratio:.52;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
-    .xs-gallery-item figcaption{letter-spacing:.02em;color:var(--encre);text-transform:uppercase;padding-top:.4rem;font-size:.875rem}
-    @media screen and (max-width: 900px) {
-      .xs-gallery-item{width:70vw}
-    }
-
-    /* ─── VUE FOCUS DE LA GALERIE (clic sur une image) — FLIP manuel (skill
-       xerxes-duo-gallery-focus), adapté à la bande horizontale ───
-       Le voile (.xs-focus-veil) et le cadre (.xs-focus-box) sont deux éléments fixed distincts :
-       le cadre est positionné/dimensionné ENTIÈREMENT par GSAP (x/y/width/height tweenés depuis
-       le rect de l'image cliquée vers le rect de destination, puis inversement à la fermeture) —
-       aucune valeur géométrique fixe ici. Ni gsap.Flip (non sous licence ici) ni ScrollTrigger :
-       le déclenchement est uniquement le clic, jamais le scroll de page. */
-    .xs-focus-veil{position:fixed;inset:0;z-index:2900;background:var(--fond);opacity:0;pointer-events:none}
-    /* Flèche de fermeture = exactement .back-arrow/.back-arrow-label du reste du site (même
-       SVG, même position fixed top:28px/left:32px, même opacité/transition au survol), seul le
-       libellé change ("Retour") et l'onclick ferme le focus au lieu de naviguer vers l'accueil. */
-    .xs-focus-box{position:fixed;top:0;left:0;z-index:2901;opacity:0;pointer-events:none;overflow:hidden}
-    .xs-focus-img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
-    /* Titre, description et CTA restent superposés à l'image, dans sa partie basse, jamais
-       en dessous ni à côté — dégradé sombre derrière le texte pour la lisibilité, même
-       principe que .compo-slot-socle (page Éditions). */
-    .xs-focus-content{position:absolute;left:0;right:0;bottom:0;padding:20px 24px 26px;text-align:center;opacity:0;background:linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,.4) 45%, rgba(10,10,10,.82) 100%)}
-    .xs-focus-label{letter-spacing:.08em;text-transform:uppercase;color:var(--encre-inverse);font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;margin:0}
-    .xs-focus-desc{color:var(--encre-inverse);font-size:.9rem;line-height:1.55;font-style:italic;margin:.5rem 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .xs-focus-cta{display:inline-block;margin-top:14px;text-decoration:none}
   </style>
 </head>
 <body class="view-home">
@@ -2220,7 +2539,7 @@
   <script src="js/pages.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/edition.js"></script>
-  <script src="js/galerie.js"></script>
+  <script src="js/duo.js"></script>
   <script src="js/hero.js"></script>
   <script src="js/accueil.js"></script>
   <script src="js/main.js"></script>

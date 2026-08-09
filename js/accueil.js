@@ -10,7 +10,7 @@
     // ecrire le nombre d'images en dur.
     const XS_STAGE_VH_PAR_TRANSITION = 125;
 
-    // ─── Sélecteur Femme / Homme (entre le hero et "La suggestion Xerxès") ───
+    // ─── Sélecteur Femme / Homme (entre le hero et "Le duo Xerxès") ───
     // Trois modèles par genre, puisés dans le catalogue existant (MODELES) : aucune
     // nouvelle image, le bijou de chaque tuile est le meme rendu SVG detoure que la
     // fiche produit (voir buildSVG dans fiche.js), avec un degrade chaud fixe plutot
@@ -172,33 +172,32 @@
           </div>
         </section>
 
-        <section class="xs-suggestion-heading">
-          <h2 class="xs-suggestion-title">La suggestion Xerxès</h2>
-          <p class="xs-suggestion-quote">Nos bijoux sont conçus pour être portés à deux ou à plusieurs, scellant ce qui a été vécu ensemble.</p>
-        </section>
-
-        <section class="xs-gallery">
-          <div class="xs-gallery-track-wrap" id="xs-gallery-scroller">
-            <div class="xs-gallery-track" id="xs-gallery-track"></div>
+        <section class="dg-section">
+          <div class="dg-heading">
+            <h2 class="dg-heading-title">Le duo Xerxès</h2>
+            <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
+          </div>
+          <div class="dg-grid-viewport" id="dg-grid-viewport">
+            <div class="dg-grid-track" id="dg-grid-track"></div>
+          </div>
+          <div class="dg-grid-nav" id="dg-grid-nav" hidden>
+            <div class="dg-grid-progress" id="dg-grid-progress">
+              <div class="dg-grid-progress-fill" id="dg-grid-progress-fill"></div>
+            </div>
+            <div class="dg-grid-arrows">
+              <button type="button" class="dg-grid-arrow" id="dg-grid-prev" aria-label="Précédent">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button type="button" class="dg-grid-arrow" id="dg-grid-next" aria-label="Suivant">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </section>
-
-        <div class="xs-focus-veil" id="xs-focus-veil" aria-hidden="true">
-          <div class="back-arrow" onclick="xsGalleryCloseFocus()">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="back-arrow-label">Retour</span>
-          </div>
-        </div>
-        <div class="xs-focus-box" id="xs-focus-box">
-          <img class="xs-focus-img" id="xs-focus-img" src="" alt="" draggable="false" />
-          <div class="xs-focus-content" id="xs-focus-content">
-            <h3 class="xs-focus-label" id="xs-focus-label"></h3>
-            <p class="xs-focus-desc" id="xs-focus-desc"></p>
-            <a href="#" class="xs-lien xs-lien--clair xs-focus-cta" onclick="event.preventDefault()">Découvrir<span class="xs-lien-trait"></span></a>
-          </div>
-        </div>
 
         <section class="xs-cats-section">
           <p class="xs-suggestion-quote">Certains préfèrent porter Xerxès seul ; la collection s'explore pièce à pièce.</p>
@@ -242,5 +241,5 @@
       xsUpdateLayout();
       xsInitHeroIndicator();
       xsInitNavOpacity();
-      xsGalleryInit();
+      dgInit();
     }

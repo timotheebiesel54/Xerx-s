@@ -180,6 +180,188 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
       },
     };
 
+    // ─── CATALOGUE : seule source de vérité pour la vue focus des duos (grille duo,
+    // js/duo.js) — matières, mesures, description courte, prix et détail (composition,
+    // entretien) par modèle. Les teintes reprennent les mêmes valeurs que COLORIS_MAP, la
+    // composition les mêmes valeurs que MODELES.materiaux, pour rester visuellement et
+    // factuellement cohérentes ; le tout est néanmoins déclaré ici en propre, CATALOGUE ne
+    // lisant jamais MODELES à l'exécution.
+    const CATALOGUE = {
+      aphrodite: {
+        type: 'bague',
+        nom: 'Aphrodite',
+        description: 'Un trait continu, sans début ni fin.',
+        prix: 480,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+        composition: [
+          { label: 'Métal', valeur: 'Or 18 carats' },
+          { label: 'Finition', valeur: 'Polie miroir' },
+          { label: 'Épaisseur', valeur: '1,8 mm' },
+          { label: 'Poids', valeur: '3,2 g' },
+        ],
+        entretien: "Éviter le contact prolongé avec l'eau chlorée et les parfums. Polir avec un chiffon doux ; ranger séparément pour préserver l'éclat du poli miroir.",
+      },
+      gaia: {
+        type: 'bague',
+        nom: 'Gaïa',
+        description: 'Large et affirmée, elle parle avant vous.',
+        prix: 620,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+        composition: [
+          { label: 'Métal', valeur: 'Or 18 carats' },
+          { label: 'Finition', valeur: 'Brossée mate' },
+          { label: 'Épaisseur', valeur: '4 mm' },
+          { label: 'Poids', valeur: '6,8 g' },
+        ],
+        entretien: "Nettoyer à l'eau tiède savonneuse et un chiffon doux. La finition brossée s'entretient sans polissage, qui en atténuerait le grain mat.",
+      },
+      eos: {
+        type: 'bague',
+        nom: 'Éos',
+        description: "La bague de celles qui annoncent ce qui vient.",
+        prix: 540,
+        matieres: [
+          { key: 'or',     label: 'Or jaune', swatch: 'radial-gradient(circle at 35% 35%, #f5d78e, #c9a96e 55%, #7a5c28)' },
+          { key: 'rose',   label: 'Or rose',  swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
+          { key: 'argent', label: 'Argent',   swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
+        ],
+        mesures: ['48', '50', '52', '54', '56', '58'],
+        composition: [
+          { label: 'Métal', valeur: 'Or 18 carats' },
+          { label: 'Finition', valeur: 'Biseautée, poli miroir' },
+          { label: 'Épaisseur', valeur: '3 mm' },
+          { label: 'Poids', valeur: '5,1 g' },
+        ],
+        entretien: "Retirer avant toute activité physique intense. Un chiffon microfibre suffit à raviver l'éclat des facettes biseautées.",
+      },
+      cephale: {
+        type: 'bracelet',
+        nom: 'Céphale',
+        description: 'Cuir souple, fermoir discret, présence légère.',
+        prix: 280,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+        composition: [
+          { label: 'Matière', valeur: 'Cuir de veau pleine fleur' },
+          { label: 'Fermoir', valeur: 'Acier inoxydable 316L' },
+          { label: 'Largeur', valeur: '12 mm' },
+          { label: 'Longueur', valeur: '19 cm ajustable' },
+        ],
+        entretien: "Garder au sec ; éviter l'exposition prolongée au soleil, qui ternit le cuir. Un baume incolore appliqué une fois l'an préserve sa souplesse.",
+      },
+      achille: {
+        type: 'bracelet',
+        nom: 'Achille',
+        description: 'Corde de soie tressée, fermoir en or vermeil.',
+        prix: 340,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+        composition: [
+          { label: 'Matière', valeur: 'Corde de soie tressée' },
+          { label: 'Fermoir', valeur: 'Or vermeil 18 carats' },
+          { label: 'Largeur', valeur: '8 mm' },
+          { label: 'Longueur', valeur: '18,5 cm ajustable' },
+        ],
+        entretien: "La soie craint l'humidité prolongée. Laisser sécher à plat avant de ranger ; éviter tout contact avec des produits abrasifs.",
+      },
+      heracles: {
+        type: 'bracelet',
+        nom: 'Héraclès',
+        description: 'Mailles milanaises, fermoir magnétique.',
+        prix: 360,
+        matieres: [
+          { key: 'bleu',     label: 'Bleu nuit',  swatch: 'radial-gradient(circle at 35% 35%, #7ba7d4, #3a6fa8 55%, #1a3a60)' },
+          { key: 'vert',     label: 'Vert forêt', swatch: 'radial-gradient(circle at 35% 35%, #7db88a, #3d7a50 55%, #1a4028)' },
+          { key: 'bordeaux', label: 'Bordeaux',   swatch: 'radial-gradient(circle at 35% 35%, #c47a8a, #8b2a42 55%, #4a0f1e)' },
+        ],
+        mesures: ['S', 'M', 'L', 'XL'],
+        composition: [
+          { label: 'Matière', valeur: 'Mailles d’acier milanais' },
+          { label: 'Fermoir', valeur: 'Magnétique, acier brossé' },
+          { label: 'Largeur', valeur: '6 mm' },
+          { label: 'Longueur', valeur: '20 cm ajustable' },
+        ],
+        entretien: 'Nettoyer les mailles avec un chiffon doux légèrement humide. Tenir à distance des champs magnétiques puissants et des appareils électroniques sensibles.',
+      },
+    };
+
+    // ─── GRILLE DUO : deux pièces portées ensemble, sur une même photo. Les emplacements
+    // gauche/droite sont génériques (type + modèle) : un duo peut associer un bracelet et
+    // une bague, ou deux pièces du même type, sans hypothèse dans le code (voir js/duo.js).
+    // Images placeholders réutilisées le temps de recevoir les vraies photos duo.
+    const XS_DUOS = [
+      {
+        id: 'heracles-gaia',
+        label: 'Héraclès & Gaïa',
+        mainImg: XS_ONE_DECOR_IMGS[2],
+        description: 'Un bracelet et une bague, gravés du même numéro.',
+        gauche: { type: 'bracelet', modele: 'heracles' },
+        droite: { type: 'bague', modele: 'gaia' },
+      },
+      {
+        id: 'cephale-aphrodite',
+        label: 'Céphale & Aphrodite',
+        mainImg: XS_ONE_DECOR_IMGS[3],
+        description: 'Deux gestes qui se répondent, portés ensemble.',
+        gauche: { type: 'bracelet', modele: 'cephale' },
+        droite: { type: 'bague', modele: 'aphrodite' },
+      },
+      {
+        id: 'achille-eos',
+        label: 'Achille & Éos',
+        mainImg: XS_ONE_DECOR_IMGS[1],
+        description: 'Un même instant, partagé entre deux mains.',
+        gauche: { type: 'bracelet', modele: 'achille' },
+        droite: { type: 'bague', modele: 'eos' },
+      },
+      {
+        id: 'cephale-achille',
+        label: 'Céphale & Achille',
+        mainImg: XS_ONE_DECOR_IMGS[4],
+        description: 'Deux bracelets, une seule promesse.',
+        gauche: { type: 'bracelet', modele: 'cephale' },
+        droite: { type: 'bracelet', modele: 'achille' },
+      },
+      {
+        id: 'aphrodite-eos',
+        label: 'Aphrodite & Éos',
+        mainImg: XS_ONE_DECOR_IMGS[5],
+        description: 'Deux bagues, un seul trait continu.',
+        gauche: { type: 'bague', modele: 'aphrodite' },
+        droite: { type: 'bague', modele: 'eos' },
+      },
+      {
+        id: 'gaia-achille',
+        label: 'Gaïa & Achille',
+        mainImg: XS_ONE_DECOR_IMGS[6],
+        description: 'Une bague affirmée, un bracelet discret.',
+        gauche: { type: 'bague', modele: 'gaia' },
+        droite: { type: 'bracelet', modele: 'achille' },
+      },
+    ];
+
+    // Image de repli si le fichier produit attendu (images/produits/{type}-{modele}-{matiere}.webp)
+    // n'est pas encore déposé — voir dgProduitSrc dans js/duo.js.
+    const DG_PANEL_FALLBACK_IMG = XS_ONE_DECOR_IMGS[0];
+
 // ─── Autres structures de donnees ───
     // Compteurs statiques — à connecter à une API plus tard
     const PLACES = { bagues: 23, bracelets: 17 };
@@ -202,30 +384,3 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
       { key: 'rose',    label: 'Or rose',    swatch: 'radial-gradient(circle at 35% 35%, #f4c5b0, #c9836a 55%, #7a3a20)' },
     ];
 
-    const XS_GALLERY_ITEMS = [
-      {
-        src: '/images/christian-regg-FNaFLvbLFuk-unsplash.webp',
-        label: 'Seealpsee',
-        description: 'Seealpsee lies at eleven hundred meters in the Appenzell Alps, a sliver of meltwater cupped beneath the limestone walls of the Säntis. For much of the day the cliffs keep it in shadow, and its surface settles into a still, glassy green.',
-      },
-      {
-        src: '/images/fabrizio-conti-rMWmDMeaoBk-unsplash.webp',
-        label: 'K2',
-        description: 'K2 rises to 8,611 meters on the Pakistan-China border, the second-highest point on Earth and by far the more dangerous to climb. It went unclimbed in winter until 2021, decades after every other eight-thousander had already fallen.',
-      },
-      {
-        src: '/images/johannes-andersson-UCd78vfC8vU-unsplash.webp',
-        label: 'The North Face',
-        description: "A mountain's north face turns away from the sun, so its ice never fully lets go. The Eiger's is eighteen hundred meters of it, a wall so deadly that climbers renamed the Nordwand the Mordwand, the murder wall.",
-      },
-      {
-        src: '/images/mads-schmidt-rasmussen-xfngap_DToE-unsplash.webp',
-        label: 'Titre test',
-        description: 'Description test — à connecter au contenu définitif de cette pièce.',
-      },
-      {
-        src: '/images/weichao-deng-eyn0LjpNWV4-unsplash.webp',
-        label: 'Mount Everest',
-        description: 'Mount Everest grows roughly four millimeters taller each year as the Indian plate keeps pushing into Asia. Its summit was once seabed, and fossilized marine creatures are still found near the top.',
-      },
-    ];

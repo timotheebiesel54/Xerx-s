@@ -6,6 +6,11 @@
     const app = document.getElementById('app');
     let currentView = 'home';
 
+    // Le retour navigateur sur /duo/{id} doit restaurer le defilement de l'accueil tel que
+    // memorise par dgConsumeHomeScroll (voir navigate()), jamais une position que le
+    // navigateur aurait tentee de deviner seul et qui entrerait en conflit avec la notre.
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
     // ─── NAVIGATION ───
     function updateActiveNav(view) {
       document.querySelectorAll('.nav-groupe li[data-vue]').forEach(li => {
@@ -30,27 +35,69 @@
       });
     }
 
-    function navigate(view) {
+    // La route /duo/{id} est la seule vue synchronisee avec l'URL : navigate() y pousse une
+    // entree d'historique dediee, et la remet a '/' des qu'on la quitte ; aucune autre vue de
+    // ce routeur n'a jamais eu d'URL propre, ce narrow scope n'y change rien.
+    function xsDuoIdFromPath(pathname) {
+      const m = pathname.match(/^\/duo\/([^\/]+)\/?$/);
+      if (!m) return null;
+      return XS_DUOS.some((d) => d.id === m[1]) ? m[1] : null;
+    }
+
+    function navigate(view, opts) {
+      opts = opts || {};
       if (view === currentView) return;
+      // Pousse l'entree d'historique avant tout changement visuel : Chrome fige le defilement
+      // associe a l'entree qu'on quitte au moment ou l'URL change (pas plus tard), donc le
+      // faire ici, avant que le rendu ne fasse defiler la page ailleurs, est ce qui permet au
+      // retour navigateur de retrouver la bonne position sur l'accueil.
+      if (!opts.skipHistory) {
+        if (view.startsWith('duo-')) {
+          history.pushState({ view }, '', '/duo/' + view.slice(4));
+        } else if (location.pathname !== '/') {
+          history.pushState({ view }, '', '/');
+        }
+      }
       app.classList.add('fade-out');
       setTimeout(() => {
         ScrollTrigger.getAll().forEach(st => st.kill());
         if (xsMaster) { xsMaster.kill(); xsMaster = null; }
         xsCarouselTimelines.forEach(tl => tl.kill());
         xsCarouselTimelines = [];
-        if (xsFocusActive !== null) xsGalleryForceCloseFocus();
+        dgGridCleanup();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         updateActiveNav(view);
         render(view);
         xsInitLiensDiscrets();
         app.classList.remove('fade-out');
-        window.scrollTo(0, 0);
+        // window.scrollTo seul ne suffit pas : Lenis garde sa propre position cible et la
+        // reimpose au prochain frame (voir js/vendor/lenis.min.js, setScroll). lenis.scrollTo
+        // en immediate:true la met a jour en meme temps que le defilement natif ; resize()
+        // d'abord force Lenis a remesurer la hauteur du nouveau contenu (son observateur de
+        // redimensionnement est debounce, il mesurerait sinon encore l'ancienne page et
+        // plafonnerait le defilement a son ancienne limite, trop courte).
+        const targetY = (view === 'home' && typeof dgConsumeHomeScroll === 'function') ? dgConsumeHomeScroll() : null;
+        const y = targetY != null ? targetY : 0;
+        if (typeof lenis !== 'undefined' && lenis) {
+          lenis.resize();
+          lenis.scrollTo(y, { immediate: true });
+          // Une image encore en cours de chargement au moment du resize() ci-dessus peut
+          // allonger le document juste apres : un second resize+scrollTo au frame suivant,
+          // une fois la mise en page stabilisee, corrige cet ecart residuel.
+          requestAnimationFrame(() => {
+            lenis.resize();
+            lenis.scrollTo(y, { immediate: true });
+          });
+        } else {
+          window.scrollTo(0, y);
+        }
         document.getElementById('navbar').classList.remove('nav-bar--cachee');
         if (view !== 'home') document.getElementById('navbar').classList.remove('nav-bar--opaque');
         xsNavCachee = false;
         xsNavLastY = window.scrollY;
         xsNavScrollCheck();
+        if (typeof opts.onRendered === 'function') opts.onRendered();
       }, 350);
     }
 
@@ -59,6 +106,7 @@
       else if (view === 'bagues') renderCollection('bagues');
       else if (view === 'bracelets') renderCollection('bracelets');
       else if (view.startsWith('fiche-')) renderFiche(view.replace('fiche-', ''));
+      else if (view.startsWith('duo-')) renderDuo(view.slice(4));
       else if (view === 'contact') renderContact();
       else if (view === 'mentions') renderMentions();
       else if (view === 'cgv') renderCGV();
@@ -95,12 +143,6 @@
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'xs-focus-veil') xsGalleryCloseFocus();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && xsFocusActive !== null) xsGalleryCloseFocus();
-    });
     window.addEventListener('resize', () => {
       clearTimeout(xsResizeTimer);
       xsResizeTimer = setTimeout(() => {
@@ -111,10 +153,13 @@
       }, 250);
     });
 
-    // Resize pendant le focus : les rects (origine et destination) ne sont plus valides,
-    // on ferme directement plutôt que de tenter de les recalculer.
-    window.addEventListener('resize', () => {
-      if (xsFocusActive !== null || xsFocusAnimating) xsGalleryForceCloseFocus();
+    // /duo/{id} est la seule route synchronisee avec l'historique du navigateur (voir
+    // navigate()) : un retour/avance du navigateur doit donc y correspondre. skipHistory evite
+    // de repousser une entree d'historique deja geree par le navigateur lui meme.
+    window.addEventListener('popstate', () => {
+      const id = xsDuoIdFromPath(location.pathname);
+      const target = id ? 'duo-' + id : 'home';
+      if (target !== currentView) navigate(target, { skipHistory: true });
     });
 
     // ─── NAVBAR : masquage au defilement ───
@@ -165,8 +210,15 @@
       pastille.hidden = n === 0;
     }
 
-    updateActiveNav('home');
-    render('home');
+    // Chargement direct de /duo/{id} (rechargement de page, lien partage) : la vue s'ouvre
+    // telle quelle, sans animation ni entree d'historique supplementaire (l'URL est deja la
+    // bonne). Toute autre adresse retombe sur l'accueil habituel.
+    const bootDuoId = xsDuoIdFromPath(location.pathname);
+    const bootView = bootDuoId ? 'duo-' + bootDuoId : 'home';
+    currentView = bootView;
+    document.body.classList.toggle('view-home', bootView === 'home');
+    updateActiveNav(bootView);
+    render(bootView);
     xsInitLiensDiscrets();
     xsNavScrollCheck();
-    majPanier(0);
+    majPanier(dgPanier.length);
