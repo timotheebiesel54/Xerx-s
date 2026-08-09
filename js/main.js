@@ -67,6 +67,7 @@
         dgGridCleanup();
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
+        document.body.classList.toggle('view-bagues', view === 'bagues');
         updateActiveNav(view);
         render(view);
         xsInitLiensDiscrets();
