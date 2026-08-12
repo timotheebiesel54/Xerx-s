@@ -715,6 +715,72 @@
       color: var(--bronze-lien);
     }
 
+    /* ─── SAVOIR FAIRE (page Bagues) ───
+       Section fixe apres la derniere vague (Éos), en dehors de .xs-scenes-wrap : aucune
+       perspective ni transform-style ne lui est declaree ni heritee (aucun ancetre commun
+       avec .xs-scene ne porte ces proprietes, qui de toute facon ne s'heritent pas en CSS).
+       Purement informative : trois volets identiques (meme ratio d'image, meme alignement
+       haut via align-items:start), statiques, sans navigation ni effet — aucune opacite
+       de depart, aucune transition, aucun ScrollTrigger. Images pas encore livrees : blocs
+       --fond-2 au ratio 3/4, prets a recevoir un <img class="..."> (regle object-fit deja
+       en place) — voir noms de fichier prevus dans le commentaire au-dessus de
+       renderCollection (js/fiche.js). */
+    .xs-savoir-faire {
+      width: 100%;
+      max-width: 1100px;
+      margin: 100px auto 0;
+    }
+    .xs-savoir-grille {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: start;
+      gap: 48px;
+    }
+    .xs-savoir-volet {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      text-align: left;
+    }
+    .xs-savoir-image {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      background: var(--fond-2);
+      overflow: hidden;
+    }
+    .xs-savoir-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .xs-savoir-titre {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      color: var(--bronze-lien);
+      margin: 0;
+    }
+    .xs-savoir-texte {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--encre-2);
+      margin: 0;
+    }
+    /* .xs-savoir-faire est le 3e enfant direct de .collection-view.animate-in : sans cette
+       regle elle heriterait de .animate-in > * (opacity:0 + animation fadeUp, l'entree de
+       page commune a toutes les vues), ce qui la laisserait invisible jusqu'a la fin du
+       delai/de l'animation. Neutralise ici pour qu'elle soit opaque des le rendu, sans
+       dependre du scroll ni d'aucun effet. */
+    .collection-view.animate-in > .xs-savoir-faire {
+      opacity: 1;
+      animation: none;
+    }
+
     /* ─── LISTE PRIVÉE ─── */
     .liste-privee {
       width: 100%;

@@ -488,6 +488,35 @@
       </div>
       `;
 
+      // Bloc "savoir faire" : section fixe apres la derniere vague, hors de .xs-scenes-wrap
+      // (aucun rapport avec le tambour). Purement informative, sans navigation ni effet :
+      // les trois volets sont statiques, visibles des le chargement, meme ratio d'image et
+      // meme alignement. Images pas encore livrees : blocs de remplacement --fond-2,
+      // convention de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
+      // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
+      // utilisee sur le site.
+      const savoirFaire = isBagues ? `
+      <section class="xs-savoir-faire">
+        <div class="xs-savoir-grille">
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">L’atelier</h3>
+            <p class="xs-savoir-texte">Portugal, quelques mains, série courte.</p>
+          </div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">L’écrin</h3>
+            <p class="xs-savoir-texte">Un coffret, deux pièces, un cachet de cire.</p>
+          </div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">La gravure</h3>
+            <p class="xs-savoir-texte">Un numéro, porté à deux.</p>
+          </div>
+        </div>
+      </section>
+      ` : '';
+
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -501,6 +530,7 @@
           ${isBagues ? '' : '<div class="collection-divider"></div>'}
 
           ${scenes}
+          ${savoirFaire}
         </div>
       `;
 
