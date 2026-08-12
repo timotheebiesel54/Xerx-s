@@ -185,7 +185,6 @@
 
     function renderCollection(type) {
       const isBagues = type === 'bagues';
-      const label = isBagues ? 'Femme' : 'Homme';
       const titre = isBagues ? 'Bagues' : 'Bracelets';
 
       const scenes = isBagues ? `
@@ -347,9 +346,14 @@
         </div>
       </div>
       ` : `
-      <div class="xs-scenes-wrap">
+      <div class="xs-scenes-wrap xs-scenes-wrap--offset xs-scenes-wrap--offset-inverse">
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-cephale')"><span>Céphale</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-cephale')"><span>Céphale</span></h2>
+            <p class="xs-scene-text">${MODELES.cephale.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('cephale')}')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -392,10 +396,16 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-achille')"><span>Achille</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-achille')"><span>Achille</span></h2>
+            <p class="xs-scene-text">${MODELES.achille.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('achille')}')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -438,10 +448,16 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         <div class="xs-scene" data-radius="500">
-          <h2 class="xs-scene-title" onclick="navigate('fiche-heracles')"><span>Héraclès</span></h2>
+          <div class="xs-scene-editorial">
+            <h2 class="xs-scene-title" onclick="navigate('fiche-heracles')"><span>Héraclès</span></h2>
+            <p class="xs-scene-text">${MODELES.heracles.intention}</p>
+            <button class="xs-lien xs-scene-lien" onclick="navigate('${xsRouteProduit('heracles')}')">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
+          <div class="xs-scene-3d">
           <div class="xs-carousel">
             <div class="xs-carousel-cell">
               <div class="xs-card" style="--img: none">
@@ -483,19 +499,21 @@
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
       `;
 
       // Bloc "savoir faire" : section fixe apres la derniere vague, hors de .xs-scenes-wrap
-      // (aucun rapport avec le tambour). Purement informative, sans navigation ni effet :
-      // les trois volets sont statiques, visibles des le chargement, meme ratio d'image et
-      // meme alignement. Images pas encore livrees : blocs de remplacement --fond-2,
-      // convention de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
+      // (aucun rapport avec le tambour). Commune a Bagues et Bracelets (contenu identique,
+      // aucune donnee produit). Purement informative, sans navigation ni effet : les trois
+      // volets sont statiques, visibles des le chargement, meme ratio d'image et meme
+      // alignement. Images pas encore livrees : blocs de remplacement --fond-2, convention
+      // de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
       // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
       // utilisee sur le site.
-      const savoirFaire = isBagues ? `
+      const savoirFaire = `
       <section class="xs-savoir-faire">
         <div class="xs-savoir-grille">
           <div class="xs-savoir-volet">
@@ -515,7 +533,7 @@
           </div>
         </div>
       </section>
-      ` : '';
+      `;
 
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
@@ -525,9 +543,7 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="collection-view animate-in">
-          ${isBagues ? '' : `<p class="collection-eyebrow">Collection ${label}</p>`}
           <h1 class="collection-title">${titre}</h1>
-          ${isBagues ? '' : '<div class="collection-divider"></div>'}
 
           ${scenes}
           ${savoirFaire}
