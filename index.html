@@ -212,19 +212,23 @@
       color: var(--ivoire-barre);
     }
 
-    /* Page Bagues : liens de nav, icône compte et icône panier passent en --encre au lieu
-       du --bronze-lien par défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus
-       haut, qui s'appliquent sinon à toutes les routes hors accueil). Scopé à
-       body.view-bagues (bascule dans navigate(), js/main.js) pour ne pas affecter les
-       autres pages, notamment Bracelets. */
+    /* Pages Bagues et Bracelets : liens de nav, icône compte et icône panier passent en
+       --encre au lieu du --bronze-lien par défaut (voir .nav-groupe li / .nav-action /
+       .nav-pastille plus haut, qui s'appliquent sinon à toutes les routes hors accueil).
+       Scopé à body.view-bagues / body.view-bracelets (bascule dans navigate(),
+       js/main.js) pour ne pas affecter les autres pages. */
     body.view-bagues .nav-groupe li,
-    body.view-bagues .nav-action {
+    body.view-bracelets .nav-groupe li,
+    body.view-bagues .nav-action,
+    body.view-bracelets .nav-action {
       color: var(--encre);
     }
-    body.view-bagues .nav-groupe li::after {
+    body.view-bagues .nav-groupe li::after,
+    body.view-bracelets .nav-groupe li::after {
       background: var(--encre);
     }
-    body.view-bagues .nav-pastille {
+    body.view-bagues .nav-pastille,
+    body.view-bracelets .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -533,26 +537,12 @@
       text-align: center;
       padding: 120px 24px 80px;
     }
-    .collection-eyebrow {
-      font-size: 8px;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.7;
-      margin-bottom: 20px;
-    }
     .collection-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(52px, 9vw, 100px);
       font-weight: 300;
       letter-spacing: 0.2em;
       margin-bottom: 32px;
-    }
-    .collection-divider {
-      width: 40px; height: 1px;
-      background: var(--fond-2);
-      margin: 0 auto 48px;
-      opacity: 0.5;
     }
 
     /* ─── CARROUSEL 3D PRODUITS (scroll-driven) ─── */
@@ -657,15 +647,21 @@
       opacity: 0.3;
     }
 
-    /* ─── VAGUES BAGUES : décalage latéral + bloc éditorial en zone libre ───
-       .xs-scene-3d est un wrapper interne ajouté uniquement dans le rendu de la page
-       Bagues (js/fiche.js, branche isBagues). Il porte perspective et reçoit le
-       translateX, pour que perspective-origin reste centré sur sa propre boite et que
-       le rendu 3D des cartes soit identique quelle que soit la vague. .xs-scene-editorial
-       (titre + texte + lien Découvrir) reste enfant direct de .xs-scene (non transformé),
-       centré verticalement sur sa hauteur, et positionné dans la zone libre. Ses enfants
-       sont en colonne flex centrée : même axe vertical, largeur au contenu (le trait sous
-       Découvrir épouse donc le texte, pas le bloc). */
+    /* ─── VAGUES BAGUES / BRACELETS : décalage latéral + bloc éditorial en zone libre ───
+       .xs-scene-3d est un wrapper interne ajouté dans le rendu des deux collections
+       (js/fiche.js, renderCollection). Il porte perspective et reçoit le translateX, pour
+       que perspective-origin reste centré sur sa propre boite et que le rendu 3D des
+       cartes soit identique quelle que soit la vague. .xs-scene-editorial (titre + texte +
+       lien Découvrir) reste enfant direct de .xs-scene (non transformé), centré
+       verticalement sur sa hauteur, et positionné dans la zone libre. Ses enfants sont en
+       colonne flex centrée : même axe vertical, largeur au contenu (le trait sous
+       Découvrir épouse donc le texte, pas le bloc).
+
+       .xs-scenes-wrap--offset-inverse (ajoutée uniquement sur Bracelets, en plus de
+       --offset) inverse le sens du décalage : vague 1 et 3 à gauche, vague 2 à droite —
+       l'exact opposé de Bagues. Les deux jeux de règles nth-child ci-dessous sont mutuellement
+       exclusifs via :not(), donc chaque vague ne peut matcher qu'un seul sens ; c'est
+       la duplication de logique strictement nécessaire à cette inversion, signalée ici. */
     .xs-scenes-wrap--offset {
       overflow-x: clip;
     }
@@ -675,12 +671,19 @@
       perspective: 900px;
       pointer-events: none;
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-3d,
-    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-3d {
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(1) .xs-scene-3d,
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(3) .xs-scene-3d {
       transform: translateX(18vw);
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-3d {
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(2) .xs-scene-3d {
       transform: translateX(-18vw);
+    }
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(1) .xs-scene-3d,
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(3) .xs-scene-3d {
+      transform: translateX(-18vw);
+    }
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(2) .xs-scene-3d {
+      transform: translateX(18vw);
     }
     .xs-scenes-wrap--offset .xs-scene-editorial {
       position: absolute;
@@ -693,12 +696,19 @@
       text-align: center;
       gap: 22px;
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(1) .xs-scene-editorial,
-    .xs-scenes-wrap--offset .xs-scene:nth-child(3) .xs-scene-editorial {
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(1) .xs-scene-editorial,
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(3) .xs-scene-editorial {
       left: 6vw;
     }
-    .xs-scenes-wrap--offset .xs-scene:nth-child(2) .xs-scene-editorial {
+    .xs-scenes-wrap--offset:not(.xs-scenes-wrap--offset-inverse) .xs-scene:nth-child(2) .xs-scene-editorial {
       right: 6vw;
+    }
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(1) .xs-scene-editorial,
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(3) .xs-scene-editorial {
+      right: 6vw;
+    }
+    .xs-scenes-wrap--offset.xs-scenes-wrap--offset-inverse .xs-scene:nth-child(2) .xs-scene-editorial {
+      left: 6vw;
     }
     .xs-scene-text {
       font-family: 'Montserrat', sans-serif;
@@ -715,15 +725,16 @@
       color: var(--bronze-lien);
     }
 
-    /* ─── SAVOIR FAIRE (page Bagues) ───
-       Section fixe apres la derniere vague (Éos), en dehors de .xs-scenes-wrap : aucune
+    /* ─── SAVOIR FAIRE (Bagues et Bracelets) ───
+       Section fixe apres la derniere vague, en dehors de .xs-scenes-wrap : aucune
        perspective ni transform-style ne lui est declaree ni heritee (aucun ancetre commun
        avec .xs-scene ne porte ces proprietes, qui de toute facon ne s'heritent pas en CSS).
-       Purement informative : trois volets identiques (meme ratio d'image, meme alignement
-       haut via align-items:start), statiques, sans navigation ni effet — aucune opacite
-       de depart, aucune transition, aucun ScrollTrigger. Images pas encore livrees : blocs
-       --fond-2 au ratio 3/4, prets a recevoir un <img class="..."> (regle object-fit deja
-       en place) — voir noms de fichier prevus dans le commentaire au-dessus de
+       Commune aux deux collections (contenu identique, sans donnee produit). Purement
+       informative : trois volets identiques (meme ratio d'image, meme alignement haut via
+       align-items:start), statiques, sans navigation ni effet — aucune opacite de depart,
+       aucune transition, aucun ScrollTrigger. Images pas encore livrees : blocs --fond-2
+       au ratio 3/4, prets a recevoir un <img class="..."> (regle object-fit deja en
+       place) — voir noms de fichier prevus dans le commentaire au-dessus de
        renderCollection (js/fiche.js). */
     .xs-savoir-faire {
       width: 100%;
@@ -1973,7 +1984,6 @@
 
       .collection-view { padding: 96px 12px 64px; }
       .collection-title { margin-bottom: 24px; }
-      .collection-divider { margin-bottom: 36px; }
 
       .liste-privee { padding: 32px 20px; }
 

@@ -68,6 +68,7 @@
         currentView = view;
         document.body.classList.toggle('view-home', view === 'home');
         document.body.classList.toggle('view-bagues', view === 'bagues');
+        document.body.classList.toggle('view-bracelets', view === 'bracelets');
         updateActiveNav(view);
         render(view);
         xsInitLiensDiscrets();
