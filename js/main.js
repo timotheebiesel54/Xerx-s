@@ -69,6 +69,7 @@
         document.body.classList.toggle('view-home', view === 'home');
         document.body.classList.toggle('view-bagues', view === 'bagues');
         document.body.classList.toggle('view-bracelets', view === 'bracelets');
+        document.body.classList.toggle('view-composition', view === 'composition');
         updateActiveNav(view);
         render(view);
         xsInitLiensDiscrets();

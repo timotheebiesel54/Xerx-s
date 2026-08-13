@@ -20,9 +20,6 @@
       "images/site/decor-12.webp",
     ];
 
-    const COMPO_SLOT_MEDUSA_IMG = "images/medaillons/meduse.webp";
-    const COMPO_SLOT_ATHENA_IMG = "images/medaillons/athena.webp";
-
     const XS_HERO_IMG_1 = "images/site/hero-1.webp";
     const XS_HERO_IMG_2 = "images/site/hero-2.webp";
 
@@ -367,10 +364,6 @@ const APHRODITE_OR_IMG = "images/produits/bague-aphrodite-or.png";
       bracelet: ['Céphale', 'Achille', 'Héraclès'],
     };
     const COMPO_SLOT_NAMES = ["L'un", "L'autre", 'Le troisième', 'Le quatrième'];
-    // Portrait par emplacement — à compléter au fur et à mesure (null tant qu'aucune image
-    // n'est fournie pour cet emplacement ; le clic ouvre le même parcours de sélection
-    // que les emplacements sans portrait).
-    const COMPO_SLOT_IMAGES = [COMPO_SLOT_MEDUSA_IMG, COMPO_SLOT_ATHENA_IMG, null, null];
     const COMPO_MATIERES = [
       { key: 'argent',  label: 'Argent 925', swatch: 'radial-gradient(circle at 35% 35%, #f0f0f0, #c8c8c8 55%, #888888)' },
       { key: 'vermeil', label: 'Vermeil',    swatch: 'radial-gradient(circle at 35% 35%, #f6dca0, #cf9a5c 55%, #8a5a24)' },

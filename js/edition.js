@@ -35,10 +35,6 @@
 
           <div class="compo-slots" id="compo-slots"></div>
 
-          <div class="compo-expand-wrap" id="compo-expand-wrap">
-            <span class="compo-expand-link" id="compo-expand-link" onclick="compoExpand()">Élargir l'édition, jusqu'à quatre pièces</span>
-          </div>
-
           <div class="compo-recap" id="compo-recap"></div>
         </div>
 
@@ -54,19 +50,18 @@
       compoRenderRecap();
     }
 
+    const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M4 12H20" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+
     function compoSlotHTML(slot, i) {
       const filled = !!slot.matiere;
       const icon = slot.type === 'bracelet' ? COMPO_ICON_BRACELET : COMPO_ICON_BAGUE;
-      const portrait = COMPO_SLOT_IMAGES[i];
       const name = COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0');
 
       if (filled) {
-        const filledStyle = portrait
-          ? `style="background-image: linear-gradient(180deg, rgba(10,10,10,.2) 0%, rgba(10,10,10,.55) 55%, rgba(10,10,10,.85) 100%), url(${portrait}); background-size: auto, 96%; background-position: center, center; background-repeat: no-repeat, no-repeat;"`
-          : '';
         return `
           <div class="compo-slot is-filled" onclick="compoOpenSlot(${i})">
-            <div class="compo-slot-socle" ${filledStyle}>
+            <div class="compo-slot-socle">
               <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
               <span class="compo-slot-modele">${slot.modele}</span>
@@ -78,20 +73,29 @@
 
       return `
         <div class="compo-slot" onclick="compoOpenSlot(${i})">
-          <div class="compo-slot-socle${portrait ? '' : ' compo-slot-socle--center'}">
-            <span class="compo-slot-name">${name}</span>
-            ${portrait ? `<div class="compo-slot-portrait" style="background-image: url(${portrait})"></div>` : ''}
+          <span class="compo-slot-name">${name}</span>
+          <div class="compo-slot-socle compo-slot-socle--center">
+            <span class="compo-slot-plus" aria-hidden="true">${COMPO_PLUS_SVG}</span>
           </div>
         </div>
+      `;
+    }
+
+    function compoAddHTML() {
+      return `
+        <button type="button" class="compo-add" id="compo-add" onclick="compoExpand()" aria-label="Ajouter une pièce à l'édition">
+          <span class="compo-slot-name" aria-hidden="true" style="visibility:hidden">.</span>
+          <span class="compo-add-icon">${COMPO_ADD_PLUS_SVG}</span>
+        </button>
       `;
     }
 
     function compoRenderSlots() {
       const grid = document.getElementById('compo-slots');
       if (!grid) return;
-      grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i)).join('');
-      const link = document.getElementById('compo-expand-link');
-      if (link) link.style.display = compoState.slots.length >= 4 ? 'none' : '';
+      grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i)).join('') + compoAddHTML();
+      const addBtn = document.getElementById('compo-add');
+      if (addBtn) addBtn.style.display = compoState.slots.length >= 4 ? 'none' : '';
     }
 
     function compoExpand() {
