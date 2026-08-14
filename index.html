@@ -1557,11 +1557,17 @@
        ne participe pas au calcul de cette largeur ni du centrage. */
     /* --compo-gap porte le gap entre les deux rectangles ; .compo-add (plus bas) reprend cette
        meme variable pour son ecart au deuxieme rectangle, afin que les deux valeurs restent
-       strictement egales a tous les paliers (voir 1.2). */
+       strictement egales a tous les paliers (voir 1.2).
+       --compo-slot-width est l'unique source de la largeur d'un emplacement, reprise à la fois
+       par la piste de grille et par .compo-slot lui même : sans cette largeur explicite sur
+       .compo-slot, un emplacement seul sur la deuxième rangée (.compo-slot--lone, plus bas)
+       perd l'étirement automatique de la grille — justify-self:center le fait alors revenir à
+       sa taille de contenu, beaucoup plus étroite que les autres (cause du défaut corrigé ici). */
     .compo-slots {
       position: relative;
       display: grid;
-      grid-template-columns: repeat(2, clamp(150px, 17vw, 210px));
+      --compo-slot-width: clamp(150px, 17vw, 210px);
+      grid-template-columns: repeat(2, var(--compo-slot-width));
       --compo-gap: clamp(20px, 3.5vw, 44px);
       column-gap: var(--compo-gap);
       row-gap: clamp(56px, 7vw, 80px);
@@ -1572,6 +1578,7 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
+      width: var(--compo-slot-width);
     }
     /* Cas des 3 emplacements : le troisième, seul sur la deuxième rangée, s'étend sur les deux
        colonnes puis se centre lui même dedans — il paraît alors centré sur la page. Dès qu'un
@@ -1586,6 +1593,8 @@
     @media (prefers-reduced-motion: reduce) {
       .compo-slot--enter { animation: none; }
     }
+    /* margin-bottom relevé à 18px (au lieu de 14px) pour laisser respirer la croix de retrait
+       agrandie des emplacements 3/4, qui déborde désormais plus haut au dessus du cadre. */
     .compo-slot-name {
       text-align: center;
       font-family: 'Cormorant Garamond', serif;
@@ -1593,7 +1602,7 @@
       font-weight: 300;
       letter-spacing: 0.05em;
       color: var(--encre);
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
     /* Cadre — rectangle bordé, vide (fond var(--fond) + un + centré) tant qu'aucune pièce
        n'est choisie, puis rempli (fond var(--fond-2)) une fois la sélection faite. La
@@ -1628,14 +1637,16 @@
       opacity: 0.5;
     }
     /* Croix de retrait — emplacements 3 et 4 uniquement (voir compoSlotHTML), jamais sur
-       L'un/L'autre. Chevauche légèrement le coin supérieur droit du cadre ; la zone cliquable
-       (padding) dépasse le tracé visuel pour rester atteignable au doigt. */
+       L'un/L'autre. Décalée hors du cadre (au dessus et à droite du coin supérieur droit) pour
+       ne plus se confondre avec la bordure : le tracé visuel (22px) reste nettement plus petit
+       que le + intérieur (24px), avec un espace visible entre les deux. La zone cliquable
+       (32px, hit box) dépasse le tracé pour rester atteignable au doigt. */
     .compo-slot-remove {
       position: absolute;
-      top: -10px;
-      right: -10px;
-      width: 22px;
-      height: 22px;
+      top: -26px;
+      right: -26px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1644,10 +1655,10 @@
       padding: 0;
       color: var(--encre-2);
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: color 0.25s ease;
       z-index: 1;
     }
-    .compo-slot-remove svg { width: 10px; height: 10px; }
+    .compo-slot-remove svg { width: 22px; height: 22px; }
     .compo-slot-remove:hover { color: var(--encre); }
     .compo-slot-plus svg {
       width: 24px;
@@ -1687,11 +1698,8 @@
        identique à tous les paliers (1.1/1.2). Le premier enfant est un .compo-slot-name masqué
        (visibility:hidden) qui reproduit exactement la hauteur du titre au dessus de chaque
        emplacement, pour que l'icône se centre sur le milieu des cadres de la première rangée
-       plutôt que sur toute la colonne.
-       Couleur : var(--bronze-lien), seule variable du :root correspondant exactement à la
-       teinte demandée (voir diagnostic 0.5/0.6). Aucun transform/scale/rotate/keyframe sur cet
-       élément à aucun état (3.1/3.2) : seule la couleur (via currentColor sur le SVG, voir
-       COMPO_ADD_PLUS_SVG) transitionne au survol et au focus clavier. */
+       plutôt que sur toute la colonne. Aucun cadre autour du +, qui reste plus grand que ceux
+       des emplacements vides. */
     .compo-add {
       position: absolute;
       top: 0;
@@ -1704,29 +1712,21 @@
       border: none;
       padding: 0;
       cursor: pointer;
-      color: var(--bronze-lien);
-      transition: color 0.25s ease;
-    }
-    .compo-add:hover,
-    .compo-add:focus-visible {
-      color: var(--encre);
-    }
-    .compo-add:focus-visible {
-      outline: 1px solid var(--encre);
-      outline-offset: 4px;
     }
     .compo-add-icon {
-      width: clamp(150px, 17vw, 210px);
+      width: var(--compo-slot-width);
       aspect-ratio: 3 / 4;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .compo-add-icon svg {
-      width: 50px;
-      height: 50px;
-      fill: none;
+      width: 34px;
+      height: 34px;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
     }
+    .compo-add:hover .compo-add-icon svg { opacity: 1; }
 
     /* Récapitulatif */
     .compo-recap {
@@ -1955,17 +1955,14 @@
         width: auto;
         overflow-x: auto;
         overflow-y: visible;
-        grid-template-columns: repeat(2, minmax(130px, 42vw));
+        --compo-slot-width: max(130px, 42vw);
+        grid-template-columns: repeat(2, var(--compo-slot-width));
         --compo-gap: clamp(16px, 4vw, 32px);
         column-gap: var(--compo-gap);
         row-gap: clamp(44px, 10vw, 64px);
         margin: 0 -20px;
         padding: 4px 20px 30px;
       }
-      .compo-add-icon { width: 42vw; min-width: 130px; }
-      /* Réduction proportionnelle du bouton d'ajout, cohérente avec celle des rectangles
-         (150px→130px, soit environ 0.72 ; même ratio ici : 50px→36px). */
-      .compo-add-icon svg { width: 36px; height: 36px; }
       .compo-panel { padding: 40px 24px; width: 92vw; }
     }
 

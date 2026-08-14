@@ -51,11 +51,10 @@
     }
 
     const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-    // Cercle + croix, entierement en traits (fill:none en permanence, voir .compo-add en CSS
-    // pour la couleur/hover — currentColor ici pour que la transition CSS sur `color` anime le
-    // stroke, cf. le meme procede sur .compo-slot-remove).
-    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"/><path d="M8 12H16"/><path d="M12 16V8"/></svg>';
-    const COMPO_REMOVE_SVG = '<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4L10 10M10 4L4 10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>';
+    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M4 12H20" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    // viewBox a l'echelle du rendu (22 = 22px, voir .compo-slot-remove svg) pour que
+    // stroke-width soit un 1.5px reel a l'ecran, sans conversion.
+    const COMPO_REMOVE_SVG = '<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L16 16M16 6L6 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
 
     // Le titre de chaque emplacement ("L'un", "Le troisième"...) est derive uniquement de sa
     // position dans compoState.slots (COMPO_SLOT_NAMES[i]) : retirer un emplacement du milieu
