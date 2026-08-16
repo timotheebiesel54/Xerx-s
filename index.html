@@ -212,23 +212,27 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues et Bracelets : liens de nav, icône compte et icône panier passent en
-       --encre au lieu du --bronze-lien par défaut (voir .nav-groupe li / .nav-action /
+    /* Pages Bagues, Bracelets et Édition : liens de nav, icône compte et icône panier passent
+       en --encre au lieu du --bronze-lien par défaut (voir .nav-groupe li / .nav-action /
        .nav-pastille plus haut, qui s'appliquent sinon à toutes les routes hors accueil).
-       Scopé à body.view-bagues / body.view-bracelets (bascule dans navigate(),
-       js/main.js) pour ne pas affecter les autres pages. */
+       Scopé à body.view-bagues / body.view-bracelets / body.view-composition (bascule dans
+       navigate(), js/main.js) pour ne pas affecter les autres pages. */
     body.view-bagues .nav-groupe li,
     body.view-bracelets .nav-groupe li,
+    body.view-composition .nav-groupe li,
     body.view-bagues .nav-action,
-    body.view-bracelets .nav-action {
+    body.view-bracelets .nav-action,
+    body.view-composition .nav-action {
       color: var(--encre);
     }
     body.view-bagues .nav-groupe li::after,
-    body.view-bracelets .nav-groupe li::after {
+    body.view-bracelets .nav-groupe li::after,
+    body.view-composition .nav-groupe li::after {
       background: var(--encre);
     }
     body.view-bagues .nav-pastille,
-    body.view-bracelets .nav-pastille {
+    body.view-bracelets .nav-pastille,
+    body.view-composition .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -1517,21 +1521,14 @@
     .maison-closing-link:hover { opacity: 1; }
 
     /* ─── PAGE COMPOSITION (Éditions) ─── */
+    /* padding-top compense l'absence de surtitre (ex .compo-eyebrow, supprimé) : espace
+       jusqu'au H1 cohérent avec les pages Bagues/Bracelets (.collection-view, 120px). */
     .compo-view {
       min-height: 100vh;
-      padding: 130px 48px 140px;
+      padding: 160px 48px 140px;
       max-width: 1000px;
       margin: 0 auto;
       text-align: center;
-    }
-    .compo-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.55;
-      margin-bottom: 20px;
-      display: block;
     }
     .compo-title {
       font-family: 'Cormorant Garamond', serif;
@@ -1544,7 +1541,6 @@
     .compo-intro {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(15px, 1.7vw, 18px);
-      font-style: italic;
       font-weight: 300;
       line-height: 1.85;
       color: var(--encre);
@@ -1553,22 +1549,67 @@
       margin: 0 auto 64px;
     }
 
-    /* Rangée d'emplacements — reste une rangée horizontale sur mobile (scroll), ne bascule
-       jamais en liste verticale empilée. */
+    /* Grille 2 colonnes fixes : la paire "L'un"/"L'autre" forme la première rangée, un
+       troisième et un quatrième emplacement occupent une deuxième rangée en dessous, alignée
+       colonne pour colonne sur la première (voir 4.4). width:fit-content + margin:auto centre
+       la grille sur SA propre largeur (la paire de rectangles), sans jamais tenir compte du
+       bouton .compo-add : celui-ci est en position absolute (hors flux, voir plus bas), donc
+       ne participe pas au calcul de cette largeur ni du centrage. */
+    /* --compo-gap porte le gap entre les deux rectangles ; .compo-add (plus bas) reprend cette
+       meme variable pour son ecart au deuxieme rectangle, afin que les deux valeurs restent
+       strictement egales a tous les paliers (voir 1.2).
+       --compo-slot-width est l'unique source de la largeur d'un emplacement, reprise à la fois
+       par la piste de grille et par .compo-slot lui même : sans cette largeur explicite sur
+       .compo-slot, un emplacement seul sur la deuxième rangée (.compo-slot--lone, plus bas)
+       perd l'étirement automatique de la grille — justify-self:center le fait alors revenir à
+       sa taille de contenu, beaucoup plus étroite que les autres (cause du défaut corrigé ici). */
     .compo-slots {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: clamp(20px, 3.5vw, 44px);
+      position: relative;
+      display: grid;
+      --compo-slot-width: clamp(150px, 17vw, 210px);
+      grid-template-columns: repeat(2, var(--compo-slot-width));
+      --compo-gap: clamp(20px, 3.5vw, 44px);
+      column-gap: var(--compo-gap);
+      row-gap: clamp(56px, 7vw, 80px);
+      width: fit-content;
       margin: 0 auto;
     }
     .compo-slot {
       cursor: pointer;
-      width: clamp(150px, 17vw, 210px);
-      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      width: var(--compo-slot-width);
     }
+    /* Cas des 3 emplacements : le troisième, seul sur la deuxième rangée, s'étend sur les deux
+       colonnes puis se centre lui même dedans — il paraît alors centré sur la page. Dès qu'un
+       quatrième emplacement est ajouté, cette classe disparaît (voir compoRenderSlots) et le
+       troisième retombe naturellement en colonne 1, ce qui produit le décalage voulu (4.3). */
+    .compo-slot--lone {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
+    @keyframes compoSlotFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .compo-slot--enter { animation: compoSlotFadeIn 0.25s ease forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .compo-slot--enter { animation: none; }
+    }
+    /* margin-bottom relevé à 18px (au lieu de 14px) pour laisser respirer la croix de retrait
+       agrandie des emplacements 3/4, qui déborde désormais plus haut au dessus du cadre. */
+    .compo-slot-name {
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 2.8vw, 30px);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--encre);
+      margin-bottom: 18px;
+    }
+    /* Cadre — rectangle bordé, vide (fond var(--fond) + un + centré) tant qu'aucune pièce
+       n'est choisie, puis rempli (fond var(--fond-2)) une fois la sélection faite. La
+       bordure reste visible dans les deux états : c'est le même cadre tout du long. */
     .compo-slot-socle {
+      border: 1px solid var(--encre);
+      background: var(--fond);
       border-radius: 4px;
       padding: 28px 14px 24px;
       aspect-ratio: 3 / 4;
@@ -1595,22 +1636,37 @@
       color: var(--encre-2);
       opacity: 0.5;
     }
-    .compo-slot-name {
-      text-align: center;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(22px, 2.8vw, 30px);
-      font-weight: 300;
-      letter-spacing: 0.05em;
-      color: var(--encre);
+    /* Croix de retrait — emplacements 3 et 4 uniquement (voir compoSlotHTML), jamais sur
+       L'un/L'autre. Décalée hors du cadre (au dessus et à droite du coin supérieur droit) pour
+       ne plus se confondre avec la bordure : le tracé visuel (22px) reste nettement plus petit
+       que le + intérieur (24px), avec un espace visible entre les deux. La zone cliquable
+       (32px, hit box) dépasse le tracé pour rester atteignable au doigt. */
+    .compo-slot-remove {
+      position: absolute;
+      top: -26px;
+      right: -26px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--encre-2);
+      cursor: pointer;
+      transition: color 0.25s ease;
+      z-index: 1;
     }
-    .compo-slot-portrait {
-      flex: 1;
-      width: 100%;
-      min-height: 0;
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
+    .compo-slot-remove svg { width: 22px; height: 22px; }
+    .compo-slot-remove:hover { color: var(--encre); }
+    .compo-slot-plus svg {
+      width: 24px;
+      height: 24px;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
     }
+    .compo-slot:hover .compo-slot-plus svg { opacity: 1; }
     .compo-slot-icon {
       margin-top: 30px;
       width: 40px;
@@ -1635,20 +1691,42 @@
       opacity: 0.65;
     }
 
-    .compo-expand-wrap {
-      margin-top: 44px;
-      text-align: center;
-    }
-    .compo-expand-link {
-      font-size: 8px;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--encre-2);
-      opacity: 0.5;
+    /* Bouton d'ajout — position absolute par rapport à .compo-slots (hors flux, voir plus
+       haut) : ancré au coin supérieur droit de la grille, donc toujours au niveau de la
+       PREMIÈRE rangée, quel que soit le nombre de rangées en dessous (4.6). margin-left reprend
+       var(--compo-gap), le même gap que celui séparant les deux rectangles, pour un écart
+       identique à tous les paliers (1.1/1.2). Le premier enfant est un .compo-slot-name masqué
+       (visibility:hidden) qui reproduit exactement la hauteur du titre au dessus de chaque
+       emplacement, pour que l'icône se centre sur le milieu des cadres de la première rangée
+       plutôt que sur toute la colonne. Aucun cadre autour du +, qui reste plus grand que ceux
+       des emplacements vides. */
+    .compo-add {
+      position: absolute;
+      top: 0;
+      left: 100%;
+      margin-left: var(--compo-gap);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: none;
+      border: none;
+      padding: 0;
       cursor: pointer;
+    }
+    .compo-add-icon {
+      width: var(--compo-slot-width);
+      aspect-ratio: 3 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .compo-add-icon svg {
+      width: 34px;
+      height: 34px;
+      opacity: 0.55;
       transition: opacity 0.25s ease;
     }
-    .compo-expand-link:hover { opacity: 0.9; color: var(--encre); }
+    .compo-add:hover .compo-add-icon svg { opacity: 1; }
 
     /* Récapitulatif */
     .compo-recap {
@@ -1868,18 +1946,23 @@
     .compo-panel-back:hover { opacity: 0.9; }
 
     @media (max-width: 700px) {
-      .compo-view { padding: 110px 20px 100px; }
+      .compo-view { padding: 140px 20px 100px; }
+      /* La grille (deux colonnes, toujours) tient seule dans le viewport ; seul le bouton
+         d'ajout, ancré plus loin à droite (voir .compo-add), peut dépasser sa largeur propre —
+         d'où le défilement horizontal local (jamais toute la page, voir overflow-x:hidden du
+         body, non modifié ici) pour rester atteignable au doigt. */
       .compo-slots {
-        flex-wrap: nowrap;
-        justify-content: flex-start;
+        width: auto;
         overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        padding: 4px 8px 14px;
+        overflow-y: visible;
+        --compo-slot-width: max(130px, 42vw);
+        grid-template-columns: repeat(2, var(--compo-slot-width));
+        --compo-gap: clamp(16px, 4vw, 32px);
+        column-gap: var(--compo-gap);
+        row-gap: clamp(44px, 10vw, 64px);
         margin: 0 -20px;
-        padding-left: 20px;
-        padding-right: 20px;
+        padding: 4px 20px 30px;
       }
-      .compo-slot { scroll-snap-align: center; width: 42vw; min-width: 150px; }
       .compo-panel { padding: 40px 24px; width: 92vw; }
     }
 

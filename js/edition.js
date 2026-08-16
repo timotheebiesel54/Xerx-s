@@ -20,6 +20,7 @@
         step: 1,
         draftType: null,
         draftModele: null,
+        justAdded: null,
       };
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
@@ -29,15 +30,10 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="compo-view animate-in">
-          <span class="compo-eyebrow">Le rituel de sélection</span>
           <h1 class="compo-title">Composer une édition</h1>
           <p class="compo-intro">Le duo reste le socle du modèle Xerxès; chaque emplacement reçoit une pièce, une matière, un même numéro gravé pour tous.</p>
 
           <div class="compo-slots" id="compo-slots"></div>
-
-          <div class="compo-expand-wrap" id="compo-expand-wrap">
-            <span class="compo-expand-link" id="compo-expand-link" onclick="compoExpand()">Élargir l'édition, jusqu'à quatre pièces</span>
-          </div>
 
           <div class="compo-recap" id="compo-recap"></div>
         </div>
@@ -54,19 +50,31 @@
       compoRenderRecap();
     }
 
-    function compoSlotHTML(slot, i) {
+    const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M4 12H20" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    // viewBox a l'echelle du rendu (22 = 22px, voir .compo-slot-remove svg) pour que
+    // stroke-width soit un 1.5px reel a l'ecran, sans conversion.
+    const COMPO_REMOVE_SVG = '<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L16 16M16 6L6 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+
+    // Le titre de chaque emplacement ("L'un", "Le troisième"...) est derive uniquement de sa
+    // position dans compoState.slots (COMPO_SLOT_NAMES[i]) : retirer un emplacement du milieu
+    // decale automatiquement titre et piece des suivants, sans code dedie (voir compoRemoveSlot).
+    function compoSlotHTML(slot, i, opts) {
+      opts = opts || {};
       const filled = !!slot.matiere;
       const icon = slot.type === 'bracelet' ? COMPO_ICON_BRACELET : COMPO_ICON_BAGUE;
-      const portrait = COMPO_SLOT_IMAGES[i];
       const name = COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0');
+      const removable = i >= 2;
+      const removeBtn = removable
+        ? `<button type="button" class="compo-slot-remove" onclick="compoRemoveSlot(${i}, event)" aria-label="Retirer cet emplacement">${COMPO_REMOVE_SVG}</button>`
+        : '';
+      const stateClass = (opts.lone ? ' compo-slot--lone' : '') + (opts.entering ? ' compo-slot--enter' : '');
 
       if (filled) {
-        const filledStyle = portrait
-          ? `style="background-image: linear-gradient(180deg, rgba(10,10,10,.2) 0%, rgba(10,10,10,.55) 55%, rgba(10,10,10,.85) 100%), url(${portrait}); background-size: auto, 96%; background-position: center, center; background-repeat: no-repeat, no-repeat;"`
-          : '';
         return `
-          <div class="compo-slot is-filled" onclick="compoOpenSlot(${i})">
-            <div class="compo-slot-socle" ${filledStyle}>
+          <div class="compo-slot is-filled${stateClass}" onclick="compoOpenSlot(${i})">
+            <div class="compo-slot-socle">
+              ${removeBtn}
               <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
               <span class="compo-slot-modele">${slot.modele}</span>
@@ -77,54 +85,69 @@
       }
 
       return `
-        <div class="compo-slot" onclick="compoOpenSlot(${i})">
-          <div class="compo-slot-socle${portrait ? '' : ' compo-slot-socle--center'}">
-            <span class="compo-slot-name">${name}</span>
-            ${portrait ? `<div class="compo-slot-portrait" style="background-image: url(${portrait})"></div>` : ''}
+        <div class="compo-slot${stateClass}" onclick="compoOpenSlot(${i})">
+          <span class="compo-slot-name">${name}</span>
+          <div class="compo-slot-socle compo-slot-socle--center">
+            ${removeBtn}
+            <span class="compo-slot-plus" aria-hidden="true">${COMPO_PLUS_SVG}</span>
           </div>
         </div>
+      `;
+    }
+
+    function compoAddHTML() {
+      return `
+        <button type="button" class="compo-add" id="compo-add" onclick="compoExpand()" aria-label="Ajouter une pièce à l'édition">
+          <span class="compo-slot-name" aria-hidden="true" style="visibility:hidden">.</span>
+          <span class="compo-add-icon">${COMPO_ADD_PLUS_SVG}</span>
+        </button>
       `;
     }
 
     function compoRenderSlots() {
       const grid = document.getElementById('compo-slots');
       if (!grid) return;
-      grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i)).join('');
-      const link = document.getElementById('compo-expand-link');
-      if (link) link.style.display = compoState.slots.length >= 4 ? 'none' : '';
+      const n = compoState.slots.length;
+      const justAdded = compoState.justAdded;
+      grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i, {
+        lone: n === 3 && i === 2,
+        entering: justAdded === i,
+      })).join('') + compoAddHTML();
+      compoState.justAdded = null;
+      const addBtn = document.getElementById('compo-add');
+      if (addBtn) addBtn.style.display = n >= 4 ? 'none' : '';
     }
 
+    // Ajout : simple fade en opacite sur le nouvel emplacement (voir .compo-slot--enter),
+    // aucune reanimation des emplacements existants — la grille CSS fixe leurs colonnes,
+    // ajouter une rangee ne deplace jamais la premiere.
     function compoExpand() {
       if (!compoState || compoState.slots.length >= 4) return;
-      const grid = document.getElementById('compo-slots');
-      if (!grid) return;
-      const existing = Array.from(grid.querySelectorAll('.compo-slot'));
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const firstRects = existing.map(el => el.getBoundingClientRect());
-
       compoState.slots.push({ type: null, modele: null, matiere: null });
+      compoState.justAdded = compoState.slots.length - 1;
       compoRenderSlots();
       compoRenderRecap();
+    }
 
-      if (reduceMotion) return;
-
-      const all = Array.from(grid.querySelectorAll('.compo-slot'));
-      all.forEach((el, i) => {
-        if (i < firstRects.length) {
-          const first = firstRects[i];
-          const last = el.getBoundingClientRect();
-          gsap.fromTo(el,
-            { x: first.left - last.left, y: first.top - last.top, width: first.width, height: first.height },
-            {
-              x: 0, y: 0, width: last.width, height: last.height,
-              duration: 0.7, ease: 'power3.inOut',
-              onComplete: () => gsap.set(el, { clearProps: 'x,y,width,height' }),
-            }
-          );
-        } else {
-          gsap.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.55, delay: 0.3, ease: 'power2.out' });
-        }
-      });
+    // Retrait (emplacements 3 et 4 uniquement, voir compoSlotHTML) : fondu en opacite sur
+    // l'element existant avant de le retirer du tableau, pour laisser le temps a la
+    // transition de jouer. Le splice reassigne automatiquement titre et piece des emplacements
+    // suivants (COMPO_SLOT_NAMES[i] etant purement positionnel, voir 0.5).
+    function compoRemoveSlot(i, evt) {
+      if (evt) evt.stopPropagation();
+      if (!compoState) return;
+      const grid = document.getElementById('compo-slots');
+      const el = grid ? grid.querySelectorAll('.compo-slot')[i] : null;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const doRemove = () => {
+        compoState.slots.splice(i, 1);
+        compoRenderSlots();
+        compoRenderRecap();
+      };
+      if (!el || reduceMotion) { doRemove(); return; }
+      el.style.transition = 'opacity 0.25s ease';
+      el.style.opacity = '0';
+      el.addEventListener('transitionend', doRemove, { once: true });
     }
 
     function compoOpenSlot(i) {
