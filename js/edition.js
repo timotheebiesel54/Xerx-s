@@ -35,6 +35,8 @@
 
           <div class="compo-slots" id="compo-slots"></div>
 
+          <button type="button" class="compo-add-lien" id="compo-add-lien" onclick="compoExpand()">Ajouter un autre membre</button>
+
           <div class="compo-recap" id="compo-recap"></div>
         </div>
 
@@ -51,7 +53,6 @@
     }
 
     const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M4 12H20" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
     // viewBox a l'echelle du rendu (22 = 22px, voir .compo-slot-remove svg) pour que
     // stroke-width soit un 1.5px reel a l'ecran, sans conversion.
     const COMPO_REMOVE_SVG = '<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L16 16M16 6L6 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
@@ -95,15 +96,6 @@
       `;
     }
 
-    function compoAddHTML() {
-      return `
-        <button type="button" class="compo-add" id="compo-add" onclick="compoExpand()" aria-label="Ajouter une pièce à l'édition">
-          <span class="compo-slot-name" aria-hidden="true" style="visibility:hidden">.</span>
-          <span class="compo-add-icon">${COMPO_ADD_PLUS_SVG}</span>
-        </button>
-      `;
-    }
-
     function compoRenderSlots() {
       const grid = document.getElementById('compo-slots');
       if (!grid) return;
@@ -112,10 +104,10 @@
       grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i, {
         lone: n === 3 && i === 2,
         entering: justAdded === i,
-      })).join('') + compoAddHTML();
+      })).join('');
       compoState.justAdded = null;
-      const addBtn = document.getElementById('compo-add');
-      if (addBtn) addBtn.style.display = n >= 4 ? 'none' : '';
+      const addLien = document.getElementById('compo-add-lien');
+      if (addLien) addLien.style.display = n >= 4 ? 'none' : '';
     }
 
     // Ajout : simple fade en opacite sur le nouvel emplacement (voir .compo-slot--enter),

@@ -1552,12 +1552,8 @@
     /* Grille 2 colonnes fixes : la paire "L'un"/"L'autre" forme la première rangée, un
        troisième et un quatrième emplacement occupent une deuxième rangée en dessous, alignée
        colonne pour colonne sur la première (voir 4.4). width:fit-content + margin:auto centre
-       la grille sur SA propre largeur (la paire de rectangles), sans jamais tenir compte du
-       bouton .compo-add : celui-ci est en position absolute (hors flux, voir plus bas), donc
-       ne participe pas au calcul de cette largeur ni du centrage. */
-    /* --compo-gap porte le gap entre les deux rectangles ; .compo-add (plus bas) reprend cette
-       meme variable pour son ecart au deuxieme rectangle, afin que les deux valeurs restent
-       strictement egales a tous les paliers (voir 1.2).
+       la grille sur SA propre largeur (la paire de rectangles). */
+    /* --compo-gap porte le gap entre les deux rectangles.
        --compo-slot-width est l'unique source de la largeur d'un emplacement, reprise à la fois
        par la piste de grille et par .compo-slot lui même : sans cette largeur explicite sur
        .compo-slot, un emplacement seul sur la deuxième rangée (.compo-slot--lone, plus bas)
@@ -1691,42 +1687,44 @@
       opacity: 0.65;
     }
 
-    /* Bouton d'ajout — position absolute par rapport à .compo-slots (hors flux, voir plus
-       haut) : ancré au coin supérieur droit de la grille, donc toujours au niveau de la
-       PREMIÈRE rangée, quel que soit le nombre de rangées en dessous (4.6). margin-left reprend
-       var(--compo-gap), le même gap que celui séparant les deux rectangles, pour un écart
-       identique à tous les paliers (1.1/1.2). Le premier enfant est un .compo-slot-name masqué
-       (visibility:hidden) qui reproduit exactement la hauteur du titre au dessus de chaque
-       emplacement, pour que l'icône se centre sur le milieu des cadres de la première rangée
-       plutôt que sur toute la colonne. Aucun cadre autour du +, qui reste plus grand que ceux
-       des emplacements vides. */
-    .compo-add {
-      position: absolute;
-      top: 0;
-      left: 100%;
-      margin-left: var(--compo-gap);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    /* Lien texte "Ajouter un autre membre" — remplace l'ancien bouton rond .compo-add.
+       Élément de flux ordinaire, sous la grille (voir markup dans renderComposition,
+       js/edition.js) : aucun position absolute, il descend donc de lui même sous la grille
+       agrandie sans recalcul. width:fit-content + margin:auto le centre sur la largeur de
+       .compo-view exactement comme .compo-slots se centre lui même, ce qui aligne les deux.
+       Repris de la typographie des libellés de nav (.nav-groupe li) mais en --encre-2 et
+       sans le trait animé au survol : volontairement isolé de .xs-lien (voir js/main.js,
+       xsInitLiensDiscrets), soulignement statique via text-decoration, seul cursor:pointer
+       change au survol. Masqué (display:none, sans transition) dès le 4e emplacement,
+       recalculé à chaque render par compoRenderSlots — jamais de réapparition tant que
+       n >= 4. */
+    .compo-add-lien {
+      display: block;
+      width: fit-content;
+      margin: 56px auto 0;
       background: none;
       border: none;
       padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      color: var(--encre-2);
       cursor: pointer;
     }
-    .compo-add-icon {
-      width: var(--compo-slot-width);
-      aspect-ratio: 3 / 4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Enfant direct de .compo-view.animate-in : sans cette regle il heriterait de
+       .animate-in > * (opacity:0 + fadeUp translateY, l'entree de page commune a toutes
+       les vues, voir .xs-savoir-faire plus haut pour le meme cas). Neutralise pour rester
+       strictement statique, sans aucun mouvement ni animation, y compris au premier rendu. */
+    .compo-view.animate-in > .compo-add-lien {
+      opacity: 1;
+      animation: none;
     }
-    .compo-add-icon svg {
-      width: 34px;
-      height: 34px;
-      opacity: 0.55;
-      transition: opacity 0.25s ease;
-    }
-    .compo-add:hover .compo-add-icon svg { opacity: 1; }
 
     /* Récapitulatif */
     .compo-recap {
@@ -1947,22 +1945,17 @@
 
     @media (max-width: 700px) {
       .compo-view { padding: 140px 20px 100px; }
-      /* La grille (deux colonnes, toujours) tient seule dans le viewport ; seul le bouton
-         d'ajout, ancré plus loin à droite (voir .compo-add), peut dépasser sa largeur propre —
-         d'où le défilement horizontal local (jamais toute la page, voir overflow-x:hidden du
-         body, non modifié ici) pour rester atteignable au doigt. */
+      /* La grille (deux colonnes, toujours) tient seule dans le viewport : plus de bouton
+         hors flux à faire dépasser, donc plus besoin du défilement horizontal local — elle
+         garde le même centrage (width:fit-content + margin:auto) que sur desktop. */
       .compo-slots {
-        width: auto;
-        overflow-x: auto;
-        overflow-y: visible;
         --compo-slot-width: max(130px, 42vw);
         grid-template-columns: repeat(2, var(--compo-slot-width));
         --compo-gap: clamp(16px, 4vw, 32px);
         column-gap: var(--compo-gap);
         row-gap: clamp(44px, 10vw, 64px);
-        margin: 0 -20px;
-        padding: 4px 20px 30px;
       }
+      .compo-add-lien { margin-top: 44px; }
       .compo-panel { padding: 40px 24px; width: 92vw; }
     }
 
