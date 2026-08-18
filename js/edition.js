@@ -59,10 +59,10 @@
     // sinon jamais retirables ; "Retirer" seulement sur un 3e/4e emplacement encore vide.
     function compoSlotActionHTML(i, filled) {
       if (filled) {
-        return `<button type="button" class="compo-slot-action" onclick="compoClearSlot(${i}, event)">Vider l'emplacement</button>`;
+        return `<button type="button" class="compo-slot-action" onclick="compoClearSlot(${i}, event)" aria-label="Vider cet emplacement">Vider</button>`;
       }
       if (i >= 2) {
-        return `<button type="button" class="compo-slot-action" onclick="compoRemoveSlot(${i}, event)">Retirer l'emplacement</button>`;
+        return `<button type="button" class="compo-slot-action" onclick="compoRemoveSlot(${i}, event)" aria-label="Retirer cet emplacement">Retirer</button>`;
       }
       return '';
     }
@@ -81,10 +81,16 @@
       // socle qui n'affiche aucun libelle (emplacements 1/2 vides).
       const socleActionClass = actionHTML ? ' compo-slot-socle--with-action' : '';
       const stateClass = (opts.lone ? ' compo-slot--lone' : '') + (opts.entering ? ' compo-slot--enter' : '');
+      // Genere dans les deux etats (voir .compo-slot.is-filled .compo-slot-name, index.html) :
+      // rendu invisible mais toujours dans le flux une fois rempli, pour reserver exactement
+      // la meme hauteur qu'a l'etat vide — cette hauteur suit le clamp() du font-size, donc
+      // seul l'element reel (pas une valeur calculee a la main) reste juste a tous les viewports.
+      const nameHTML = `<span class="compo-slot-name">${name}</span>`;
 
       if (filled) {
         return `
           <div class="compo-slot is-filled${stateClass}" onclick="compoOpenSlot(${i})">
+            ${nameHTML}
             <div class="compo-slot-socle${socleActionClass}">
               <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
@@ -98,7 +104,7 @@
 
       return `
         <div class="compo-slot${stateClass}" onclick="compoOpenSlot(${i})">
-          <span class="compo-slot-name">${name}</span>
+          ${nameHTML}
           <div class="compo-slot-socle compo-slot-socle--center${socleActionClass}">
             <span class="compo-slot-plus" aria-hidden="true">${COMPO_PLUS_SVG}</span>
             ${actionHTML}
