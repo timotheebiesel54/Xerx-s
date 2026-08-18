@@ -35,6 +35,8 @@
 
           <div class="compo-slots" id="compo-slots"></div>
 
+          <button type="button" class="compo-add-lien" id="compo-add-lien" onclick="compoAddLienClick()">Ajouter un autre membre</button>
+
           <div class="compo-recap" id="compo-recap"></div>
         </div>
 
@@ -51,10 +53,19 @@
     }
 
     const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-    const COMPO_ADD_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M4 12H20" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-    // viewBox a l'echelle du rendu (22 = 22px, voir .compo-slot-remove svg) pour que
-    // stroke-width soit un 1.5px reel a l'ecran, sans conversion.
-    const COMPO_REMOVE_SVG = '<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6L16 16M16 6L6 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+
+    // Libelle unique par emplacement (jamais les deux a la fois, voir 3.5) : "Vider" des qu'une
+    // piece est choisie (matiere non nulle), y compris sur les emplacements 1/2 qui ne sont
+    // sinon jamais retirables ; "Retirer" seulement sur un 3e/4e emplacement encore vide.
+    function compoSlotActionHTML(i, filled) {
+      if (filled) {
+        return `<button type="button" class="compo-slot-action" onclick="compoClearSlot(${i}, event)" aria-label="Vider cet emplacement">Vider</button>`;
+      }
+      if (i >= 2) {
+        return `<button type="button" class="compo-slot-action" onclick="compoRemoveSlot(${i}, event)" aria-label="Retirer cet emplacement">Retirer</button>`;
+      }
+      return '';
+    }
 
     // Le titre de chaque emplacement ("L'un", "Le troisième"...) est derive uniquement de sa
     // position dans compoState.slots (COMPO_SLOT_NAMES[i]) : retirer un emplacement du milieu
@@ -64,21 +75,28 @@
       const filled = !!slot.matiere;
       const icon = slot.type === 'bracelet' ? COMPO_ICON_BRACELET : COMPO_ICON_BAGUE;
       const name = COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0');
-      const removable = i >= 2;
-      const removeBtn = removable
-        ? `<button type="button" class="compo-slot-remove" onclick="compoRemoveSlot(${i}, event)" aria-label="Retirer cet emplacement">${COMPO_REMOVE_SVG}</button>`
-        : '';
+      const actionHTML = compoSlotActionHTML(i, filled);
+      // Reserve la place du libelle en bas du socle (voir .compo-slot-socle--with-action) :
+      // sans ce modificateur, rien ne distingue un socle qui doit degager cet espace d'un
+      // socle qui n'affiche aucun libelle (emplacements 1/2 vides).
+      const socleActionClass = actionHTML ? ' compo-slot-socle--with-action' : '';
       const stateClass = (opts.lone ? ' compo-slot--lone' : '') + (opts.entering ? ' compo-slot--enter' : '');
+      // Genere dans les deux etats (voir .compo-slot.is-filled .compo-slot-name, index.html) :
+      // rendu invisible mais toujours dans le flux une fois rempli, pour reserver exactement
+      // la meme hauteur qu'a l'etat vide — cette hauteur suit le clamp() du font-size, donc
+      // seul l'element reel (pas une valeur calculee a la main) reste juste a tous les viewports.
+      const nameHTML = `<span class="compo-slot-name">${name}</span>`;
 
       if (filled) {
         return `
           <div class="compo-slot is-filled${stateClass}" onclick="compoOpenSlot(${i})">
-            <div class="compo-slot-socle">
-              ${removeBtn}
+            ${nameHTML}
+            <div class="compo-slot-socle${socleActionClass}">
               <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
               <span class="compo-slot-modele">${slot.modele}</span>
               <span class="compo-slot-matiere">${compoMatiereLabel(slot.matiere)}</span>
+              ${actionHTML}
             </div>
           </div>
         `;
@@ -86,21 +104,12 @@
 
       return `
         <div class="compo-slot${stateClass}" onclick="compoOpenSlot(${i})">
-          <span class="compo-slot-name">${name}</span>
-          <div class="compo-slot-socle compo-slot-socle--center">
-            ${removeBtn}
+          ${nameHTML}
+          <div class="compo-slot-socle compo-slot-socle--center${socleActionClass}">
             <span class="compo-slot-plus" aria-hidden="true">${COMPO_PLUS_SVG}</span>
+            ${actionHTML}
           </div>
         </div>
-      `;
-    }
-
-    function compoAddHTML() {
-      return `
-        <button type="button" class="compo-add" id="compo-add" onclick="compoExpand()" aria-label="Ajouter une pièce à l'édition">
-          <span class="compo-slot-name" aria-hidden="true" style="visibility:hidden">.</span>
-          <span class="compo-add-icon">${COMPO_ADD_PLUS_SVG}</span>
-        </button>
       `;
     }
 
@@ -112,10 +121,10 @@
       grid.innerHTML = compoState.slots.map((s, i) => compoSlotHTML(s, i, {
         lone: n === 3 && i === 2,
         entering: justAdded === i,
-      })).join('') + compoAddHTML();
+      })).join('');
       compoState.justAdded = null;
-      const addBtn = document.getElementById('compo-add');
-      if (addBtn) addBtn.style.display = n >= 4 ? 'none' : '';
+      const addLien = document.getElementById('compo-add-lien');
+      if (addLien) addLien.style.display = n >= 4 ? 'none' : '';
     }
 
     // Ajout : simple fade en opacite sur le nouvel emplacement (voir .compo-slot--enter),
@@ -127,6 +136,31 @@
       compoState.justAdded = compoState.slots.length - 1;
       compoRenderSlots();
       compoRenderRecap();
+    }
+
+    // Clic sur "Ajouter un autre membre" (voir .compo-add-lien::after) : rétracte d'abord le
+    // soulignement (scaleX 1→0, transition CSS déjà posée sur le pseudo-élément), puis une fois
+    // la transition finie déclenche compoExpand() — le lien, élément de flux ordinaire, se
+    // retrouve alors déjà repositionné sous la grille agrandie — et enfin retire la classe au
+    // frame suivant pour rejouer scaleX 0→1 (même transition, donc même durée dans les deux
+    // sens). Si ce clic fait apparaître le 4e emplacement, compoRenderSlots masque le lien
+    // (display:none) : la classe est simplement nettoyée sans navigateur, aucune 2e phase ne
+    // joue puisque l'élément est déjà invisible à ce moment.
+    function compoAddLienClick() {
+      const link = document.getElementById('compo-add-lien');
+      if (!link || !compoState || compoState.slots.length >= 4) return;
+      if (link.classList.contains('compo-add-lien--retract')) return;
+      const proceed = () => {
+        compoExpand();
+        if (compoState.slots.length >= 4) {
+          link.classList.remove('compo-add-lien--retract');
+        } else {
+          requestAnimationFrame(() => link.classList.remove('compo-add-lien--retract'));
+        }
+      };
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { proceed(); return; }
+      link.classList.add('compo-add-lien--retract');
+      link.addEventListener('transitionend', proceed, { once: true });
     }
 
     // Retrait (emplacements 3 et 4 uniquement, voir compoSlotHTML) : fondu en opacite sur
@@ -148,6 +182,17 @@
       el.style.transition = 'opacity 0.25s ease';
       el.style.opacity = '0';
       el.addEventListener('transitionend', doRemove, { once: true });
+    }
+
+    // Vidage (tout emplacement rempli, y compris 1/2, voir compoSlotActionHTML) : remet le
+    // slot a son etat vide sans toucher au tableau (pas de splice), donc sans renumeroter les
+    // emplacements suivants. Rendu instantane, aucune transition (voir 3.10).
+    function compoClearSlot(i, evt) {
+      if (evt) evt.stopPropagation();
+      if (!compoState) return;
+      compoState.slots[i] = { type: null, modele: null, matiere: null };
+      compoRenderSlots();
+      compoRenderRecap();
     }
 
     function compoOpenSlot(i) {
