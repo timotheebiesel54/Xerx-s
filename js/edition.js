@@ -205,6 +205,7 @@
       compoRenderPanel();
       document.getElementById('compo-veil').classList.add('is-open');
       document.getElementById('compo-panel').classList.add('is-open');
+      document.body.classList.add('compo-scroll-lock');
     }
 
     function compoCloseSlot() {
@@ -213,6 +214,7 @@
       if (veil) veil.classList.remove('is-open');
       if (panel) panel.classList.remove('is-open');
       if (compoState) compoState.activeSlot = null;
+      document.body.classList.remove('compo-scroll-lock');
     }
 
     function compoStepBack() {
