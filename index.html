@@ -1623,6 +1623,17 @@
     .compo-slot-socle--center {
       justify-content: center;
     }
+    /* Reserve la bande basse du socle pour .compo-slot-action (voir plus bas), sans jamais
+       toucher au padding-top d'un socle rempli (justify-content:flex-start, ancré en haut :
+       degager le bas ne le decale pas). Pour un socle vide (--center), le "+" doit rester
+       optiquement a sa place : padding-top augmente du meme delta (28→60, soit +32) que
+       padding-bottom (24→56), pour que le centre du content-box ne bouge pas (voir 3.4). */
+    .compo-slot-socle--with-action {
+      padding-bottom: 56px;
+    }
+    .compo-slot-socle--center.compo-slot-socle--with-action {
+      padding-top: 60px;
+    }
     .compo-slot-index {
       position: absolute;
       top: 12px;
@@ -1632,30 +1643,35 @@
       color: var(--encre-2);
       opacity: 0.5;
     }
-    /* Croix de retrait — emplacements 3 et 4 uniquement (voir compoSlotHTML), jamais sur
-       L'un/L'autre. Décalée hors du cadre (au dessus et à droite du coin supérieur droit) pour
-       ne plus se confondre avec la bordure : le tracé visuel (22px) reste nettement plus petit
-       que le + intérieur (24px), avec un espace visible entre les deux. La zone cliquable
-       (32px, hit box) dépasse le tracé pour rester atteignable au doigt. */
-    .compo-slot-remove {
+    /* Libellé de retrait/vidage — un seul par emplacement (voir compoSlotActionHTML),
+       toujours dans la bande reservee par .compo-slot-socle--with-action ci dessus. left/right:0
+       etire le bouton sur toute la largeur du socle pour que text-align:center le centre
+       vraiment, y compris si le texte passe sur deux lignes ("Retirer l'emplacement" a 0.16em
+       d'interlettrage est plus large que le cadre). Aucune transition, aucun :hover : voir 3.10.
+       Meme traitement typographique que .compo-add-lien (voir 2.5), volontairement dupliqué
+       plutôt que factorisé en variable pour ne pas coupler deux composants a des contextes
+       de layout différents (flux vs absolute). */
+    .compo-slot-action {
       position: absolute;
-      top: -26px;
-      right: -26px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      left: 0;
+      right: 0;
+      bottom: 14px;
+      margin: 0;
+      padding: 0 10px;
       background: none;
       border: none;
-      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--encre-2);
       cursor: pointer;
-      transition: color 0.25s ease;
       z-index: 1;
     }
-    .compo-slot-remove svg { width: 22px; height: 22px; }
-    .compo-slot-remove:hover { color: var(--encre); }
     .compo-slot-plus svg {
       width: 24px;
       height: 24px;
@@ -1692,13 +1708,13 @@
        js/edition.js) : aucun position absolute, il descend donc de lui même sous la grille
        agrandie sans recalcul. width:fit-content + margin:auto le centre sur la largeur de
        .compo-view exactement comme .compo-slots se centre lui même, ce qui aligne les deux.
-       Repris de la typographie des libellés de nav (.nav-groupe li) mais en --encre-2 et
-       sans le trait animé au survol : volontairement isolé de .xs-lien (voir js/main.js,
-       xsInitLiensDiscrets), soulignement statique via text-decoration, seul cursor:pointer
-       change au survol. Masqué (display:none, sans transition) dès le 4e emplacement,
-       recalculé à chaque render par compoRenderSlots — jamais de réapparition tant que
-       n >= 4. */
+       Repris de la typographie des libellés de nav (.nav-groupe li) mais en --encre-2, corps et
+       graisse relevés (2.2/2.3, --encre-2 sur fond clair reste sinon trop proche de --encre a
+       12px/400) : volontairement isolé de .xs-lien (voir js/main.js, xsInitLiensDiscrets), aucun
+       :hover. Masqué (display:none, sans transition) dès le 4e emplacement, recalculé à chaque
+       render par compoRenderSlots — jamais de réapparition tant que n >= 4. */
     .compo-add-lien {
+      position: relative;
       display: block;
       width: fit-content;
       margin: 56px auto 0;
@@ -1708,19 +1724,43 @@
       appearance: none;
       -webkit-appearance: none;
       font-family: 'Montserrat', sans-serif;
-      font-weight: 400;
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 4px;
       color: var(--encre-2);
       cursor: pointer;
+    }
+    /* Soulignement en pseudo-élément (et non text-decoration) : seul moyen d'animer le trait
+       indépendamment du libellé (voir 1.4/1.5). bottom:-4px reproduit visuellement l'ancien
+       text-underline-offset:4px. Au repos (scaleX(1)), rendu identique à l'ancien soulignement
+       natif. transform-origin:center + la modificatrice --retract (posée/retirée par
+       compoAddLienClick, js/edition.js) jouent la même transition dans les deux sens : rétraction
+       au clic, redessin une fois le lien repositionné sous la grille agrandie (même durée, même
+       courbe, donc symétrique sans code dédié pour le sens retour). Rien ici ne réagit à :hover. */
+    .compo-add-lien::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -4px;
+      height: 1px;
+      background: currentColor;
+      transform-origin: center;
+      transform: scaleX(1);
+      transition: transform 0.2s ease-out;
+    }
+    .compo-add-lien.compo-add-lien--retract::after {
+      transform: scaleX(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .compo-add-lien::after { transition: none; }
     }
     /* Enfant direct de .compo-view.animate-in : sans cette regle il heriterait de
        .animate-in > * (opacity:0 + fadeUp translateY, l'entree de page commune a toutes
        les vues, voir .xs-savoir-faire plus haut pour le meme cas). Neutralise pour rester
-       strictement statique, sans aucun mouvement ni animation, y compris au premier rendu. */
+       strictement statique au premier rendu ; le pseudo-élément ::after garde ainsi la
+       seule animation jamais jouée sur cet élément (voir 1.6). */
     .compo-view.animate-in > .compo-add-lien {
       opacity: 1;
       animation: none;
