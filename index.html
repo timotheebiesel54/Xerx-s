@@ -1881,8 +1881,13 @@
       left: 50%;
       transform: translate(-50%, -50%) translateY(12px);
       width: min(84vw, 1160px);
+      min-height: 74vh;
       max-height: 80vh;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      justify-content: safe center;
       background: var(--fond);
       border: 1px solid var(--accent);
       padding: 58px 48px;
@@ -2023,7 +2028,7 @@
         row-gap: clamp(44px, 10vw, 64px);
       }
       .compo-add-lien { margin-top: 44px; }
-      .compo-panel { padding: 40px 24px; width: 94vw; max-height: 88vh; }
+      .compo-panel { padding: 40px 24px; width: 94vw; min-height: 70vh; max-height: 88vh; }
     }
 
     /* ─── NEWSLETTER HOME ─── */
