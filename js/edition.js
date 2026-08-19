@@ -277,7 +277,7 @@
         cardsHTML = `
           <div class="compo-cards">
             ${COMPO_MODELES[compoState.draftType].map(m => `
-              <div class="compo-card" onclick="compoChooseModele('${m}')">
+              <div class="compo-card compo-card--modele" onclick="compoChooseModele('${m}')">
                 <span class="compo-card-modele">${m}</span>
               </div>
             `).join('')}
