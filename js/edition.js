@@ -205,6 +205,7 @@
       compoRenderPanel();
       document.getElementById('compo-veil').classList.add('is-open');
       document.getElementById('compo-panel').classList.add('is-open');
+      document.body.classList.add('compo-scroll-lock');
     }
 
     function compoCloseSlot() {
@@ -213,6 +214,7 @@
       if (veil) veil.classList.remove('is-open');
       if (panel) panel.classList.remove('is-open');
       if (compoState) compoState.activeSlot = null;
+      document.body.classList.remove('compo-scroll-lock');
     }
 
     function compoStepBack() {
@@ -258,11 +260,13 @@
         stepLabel = 'Type de pièce';
         cardsHTML = `
           <div class="compo-cards">
-            <div class="compo-card" onclick="compoChooseType('bague')">
+            <div class="compo-card compo-card--type" onclick="compoChooseType('bague')">
+              <div class="compo-card-image" aria-hidden="true"></div>
               <div class="compo-card-icon">${COMPO_ICON_BAGUE}</div>
               <span class="compo-card-label">Bague</span>
             </div>
-            <div class="compo-card" onclick="compoChooseType('bracelet')">
+            <div class="compo-card compo-card--type" onclick="compoChooseType('bracelet')">
+              <div class="compo-card-image" aria-hidden="true"></div>
               <div class="compo-card-icon">${COMPO_ICON_BRACELET}</div>
               <span class="compo-card-label">Bracelet</span>
             </div>
@@ -273,7 +277,7 @@
         cardsHTML = `
           <div class="compo-cards">
             ${COMPO_MODELES[compoState.draftType].map(m => `
-              <div class="compo-card" onclick="compoChooseModele('${m}')">
+              <div class="compo-card compo-card--modele" onclick="compoChooseModele('${m}')">
                 <span class="compo-card-modele">${m}</span>
               </div>
             `).join('')}
@@ -294,14 +298,16 @@
       }
 
       body.innerHTML = `
-        <span class="compo-panel-eyebrow">${COMPO_SLOT_NAMES[i] || `Emplacement ${i + 1}`}</span>
-        <div class="compo-panel-steps">
-          <span class="compo-panel-step${step >= 1 ? ' is-active' : ''}">Type</span>
-          <span class="compo-panel-step${step >= 2 ? ' is-active' : ''}">Modèle</span>
-          <span class="compo-panel-step${step >= 3 ? ' is-active' : ''}">Matière</span>
-        </div>
         <h2 class="compo-panel-title">${stepLabel}</h2>
         ${cardsHTML}
+        <div class="compo-panel-footer">
+          <span class="compo-panel-eyebrow">${COMPO_SLOT_NAMES[i] || `Emplacement ${i + 1}`}</span>
+          <div class="compo-panel-steps">
+            <span class="compo-panel-step${step >= 1 ? ' is-active' : ''}">Type</span>
+            <span class="compo-panel-step${step >= 2 ? ' is-active' : ''}">Modèle</span>
+            <span class="compo-panel-step${step >= 3 ? ' is-active' : ''}">Matière</span>
+          </div>
+        </div>
         ${step > 1 ? `<span class="compo-panel-back" onclick="compoStepBack()">Revenir</span>` : ''}
       `;
     }

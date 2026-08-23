@@ -1615,7 +1615,7 @@
     .compo-slot-socle {
       border: 1px solid var(--encre);
       background: var(--fond);
-      border-radius: 4px;
+      border-radius: 0;
       padding: 28px 14px 24px;
       aspect-ratio: 3 / 4;
       /* En dessous d'environ 345px de largeur de socle, le contenu d'un cadre rempli (icone,
@@ -1873,18 +1873,24 @@
       transition: opacity 0.4s ease;
     }
     .compo-veil.is-open { opacity: 0.9; pointer-events: auto; }
+    body.compo-scroll-lock { overflow-y: hidden; }
     .compo-panel {
       position: fixed;
       z-index: 901;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) translateY(12px);
-      width: min(480px, 88vw);
-      max-height: 82vh;
+      width: min(84vw, 1160px);
+      min-height: 74vh;
+      max-height: 80vh;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      justify-content: safe center;
       background: var(--fond);
       border: 1px solid var(--accent);
-      padding: 48px 40px;
+      padding: 58px 48px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
@@ -1903,13 +1909,14 @@
       color: var(--accent);
       opacity: 0.6;
       cursor: pointer;
-      padding: 6px;
+      padding: 8px;
       transition: opacity 0.2s ease;
     }
     .compo-panel-close:hover { opacity: 1; }
-    .compo-panel-close svg { width: 18px; height: 18px; }
+    .compo-panel-close svg { width: 25px; height: 25px; }
+    .compo-panel-footer { margin-top: 32px; }
     .compo-panel-eyebrow {
-      font-size: 7.5px;
+      font-size: 10.5px;
       letter-spacing: 0.45em;
       text-transform: uppercase;
       color: var(--encre);
@@ -1926,7 +1933,7 @@
       margin-bottom: 28px;
     }
     .compo-panel-step {
-      font-size: 7px;
+      font-size: 9.8px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--encre-2);
@@ -1944,7 +1951,7 @@
     }
     .compo-panel-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(20px, 2.6vw, 26px);
+      font-size: clamp(28px, 3.64vw, 36px);
       font-weight: 300;
       letter-spacing: 0.1em;
       color: var(--encre);
@@ -1955,51 +1962,59 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 14px;
+      gap: 25px;
     }
     .compo-card {
       cursor: pointer;
       border: 1px solid var(--accent);
-      border-radius: 4px;
-      padding: 20px 16px;
-      min-width: 108px;
+      border-radius: 0;
+      padding: 36px 29px;
+      min-width: 194px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 18px;
       transition: border-color 0.25s ease, background 0.25s ease;
     }
     .compo-card:hover, .compo-card:active {
       border-color: var(--accent);
       background: var(--fond-2);
     }
-    .compo-card-icon { width: 30px; height: 30px; color: var(--accent); }
+    .compo-card--type { min-width: 300px; }
+    .compo-card-image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border: 1px solid var(--trait);
+      border-radius: 0;
+    }
+    .compo-card-icon { width: 54px; height: 54px; color: var(--accent); }
     .compo-card-icon svg { width: 100%; height: 100%; }
     .compo-card-label {
-      font-size: 9px;
+      font-size: 12.6px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--encre);
     }
     .compo-card-modele {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
+      font-size: 24px;
       font-weight: 300;
       letter-spacing: 0.06em;
       color: var(--encre);
-      padding: 4px 6px;
+      padding: 7px 11px;
     }
-    .compo-card--matiere { min-width: 96px; }
+    .compo-card--modele { min-width: 300px; min-height: 300px; justify-content: center; }
+    .compo-card--matiere { min-width: 173px; }
     .compo-card-swatch {
-      width: 30px;
-      height: 30px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
     }
     .compo-panel-back {
       display: block;
       text-align: center;
       margin-top: 32px;
-      font-size: 8px;
+      font-size: 11.2px;
       letter-spacing: 0.3em;
       text-transform: uppercase;
       color: var(--encre-2);
@@ -2022,7 +2037,7 @@
         row-gap: clamp(44px, 10vw, 64px);
       }
       .compo-add-lien { margin-top: 44px; }
-      .compo-panel { padding: 40px 24px; width: 92vw; }
+      .compo-panel { padding: 40px 24px; width: 94vw; min-height: 70vh; max-height: 88vh; }
     }
 
     /* ─── NEWSLETTER HOME ─── */
