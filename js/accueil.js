@@ -85,6 +85,7 @@
     }
 
     function renderHome() {
+      const mobile = estMobile();
       const nSlides = XS_HERO_SLIDES.length;
       const stageHeight = Math.max(1, nSlides - 1) * XS_STAGE_VH_PAR_TRANSITION;
 
@@ -98,7 +99,32 @@
             </div>`;
       }).join('');
 
-      const layersHTML = XS_HERO_SLIDES.map((slide, i) => `
+      // ─── Hero : sur ordinateur, sequence a lames SVG pilotee au scroll
+      // (inchangee). Sur mobile (estMobile()), une seule image statique,
+      // sans SVG ni mask ni blinds : la seconde slide n'est ni construite
+      // ni inseree dans le DOM, donc jamais requetee. Voir Correction B/D
+      // de la serie mobile et le bloc @media dedie (section Accueil). ───
+      let heroHTML;
+      if (mobile) {
+        const slide = XS_HERO_SLIDES[0];
+        heroHTML = `
+        <section class="xs-stage">
+          <div class="xs-layers">
+            <img class="xs-hero-mobile-img" src="${slide.src}" alt="" />
+            <div class="xs-texts">
+              <div class="xs-txt xs-txt--static">
+                <div class="xs-txt-inner">
+                  <h1>${slide.titre}</h1>
+                  <h2>${slide.sousTitre}</h2>
+                  <span>${slide.texte}</span>
+                  <button class="xs-lien xs-lien--clair" onclick="navigate('${slide.route}')">${slide.bouton}<span class="xs-lien-trait"></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>`;
+      } else {
+        const layersHTML = XS_HERO_SLIDES.map((slide, i) => `
             <svg class="xs-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <mask id="xs-mask${i}" maskUnits="userSpaceOnUse">
@@ -112,13 +138,13 @@
                      mask="url(#xs-mask${i})" />
             </svg>`).join('');
 
-      const indicateurHTML = `
+        const indicateurHTML = `
             <div class="xs-indicateur" id="xs-indicateur">
               <span class="xs-indic-num" id="xs-indic-num"></span>
               ${XS_HERO_SLIDES.map((_, i) => `<div class="xs-indic-bar" onclick="xsHeroGoTo(${i})"></div>`).join('')}
             </div>`;
 
-      const textsHTML = `
+        const textsHTML = `
             <div class="xs-texts">
               ${XS_HERO_SLIDES.map((slide) => `
               <div class="xs-txt">
@@ -131,16 +157,20 @@
               </div>`).join('')}
             </div>`;
 
-      xsGenreEtat = 'femme';
-
-      app.innerHTML = `
+        heroHTML = `
         <section class="xs-stage" style="height:${stageHeight}vh">
           <div class="xs-layers">
             ${layersHTML}
             ${indicateurHTML}
             ${textsHTML}
           </div>
-        </section>
+        </section>`;
+      }
+
+      xsGenreEtat = 'femme';
+
+      app.innerHTML = `
+        ${heroHTML}
 
         <section class="xs-genre-section">
           <div class="xs-genre-toggle" id="xs-genre-toggle">
@@ -221,7 +251,7 @@
       ScrollTrigger.getAll().forEach(st => st.kill());
 
       xsUpdateLayout();
-      xsInitHeroIndicator();
+      if (!estMobile()) xsInitHeroIndicator();
       xsInitNavOpacity();
       dgInit();
     }

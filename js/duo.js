@@ -113,7 +113,7 @@
     // fenetre, sans qu'un debut de carte suivante ne deborde a l'etat initial.
     function dgGridApplyItemWidth(pageWidth) {
       const nav = dgGridNav;
-      if (window.innerWidth < 900) {
+      if (estMobile()) {
         nav.viewport.style.removeProperty('--dg-grid-item-w');
         return;
       }

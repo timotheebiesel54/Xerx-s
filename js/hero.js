@@ -70,6 +70,7 @@
 
     function xsBuildMasterTimeline() {
       if (xsMaster) xsMaster.kill();
+      if (estMobile()) return;
       if (!document.querySelector('.xs-stage')) return;
 
       const texts = gsap.utils.toArray('.xs-txt');

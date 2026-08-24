@@ -2710,6 +2710,64 @@
       .xs-edition-titre { white-space: normal; }
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       BLOC MOBILE DEDIE — regles ajoutees pour la serie de modifications
+       mobile (voir estMobile() dans js/mobile.js, meme breakpoint : 900px).
+       Ne jamais deplacer, fusionner ni modifier les @media existants
+       plus haut dans cette feuille : toute regle mobile nouvelle vient ICI,
+       en fin de feuille, pour beneficier du dernier mot dans la cascade.
+       Sous-sections vides ci-dessous, a remplir session apres session. ═══ */
+    @media (max-width: 900px) {
+
+      /* ─── Global (en-tete, elements partages entre toutes les pages) ───
+         Logo agrandi (50px -> 96px) : marges verticales recalculees a la
+         meme proportion que la regle desktop (180px / -54px / -44px) pour
+         conserver le meme cadrage du monogramme et du mot Genève.
+         padding-top des pages hors accueil ajuste en consequence : cette
+         valeur doit toujours correspondre a la hauteur reelle de la
+         nav-bar mobile (8px + hauteur visible du logo + 4px), voir le
+         diagnostic. Barres du burger decalees de 6px vers le bas ;
+         epaisseur des 3 barres non modifiee (deja identique). ─── */
+      .nav-logo img { height: 96px; margin: -29px 0 -23px; }
+      body:not(.view-home) #app { padding-top: 56px; }
+      .nav-burger { top: calc(50% + 6px); }
+
+      /* ─── Accueil ───
+         Hero : sur mobile, renderHome() (accueil.js) ne genere qu'une
+         <img> statique (premiere slide), sans SVG/mask/blinds. .xs-layers
+         garde son role de calque plein ecran (voir CSS desktop), seule sa
+         hauteur est corrigee ici : 100svh evite le debordement/scroll
+         parasite de 100vh sous Safari iOS (barres d'navigateur ignorees
+         par vh), avec 100vh en repli pour les navigateurs sans support de
+         svh (declare avant, ecrase par la ligne svh quand supportee).
+         .xs-txt--static annule le clip-path/translateY d'entree normalement
+         pilotes par GSAP (non initialise sur mobile) pour afficher le texte
+         et le bouton directement, sans animation. ─── */
+      .xs-layers { height: 100vh; height: 100svh; }
+      .xs-hero-mobile-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.5) contrast(1.04) saturate(0.85);
+      }
+      .xs-txt--static { clip-path: inset(0% 0% 0% 0%); transform: none; }
+
+      /* ─── Fiche ─── */
+
+      /* ─── Edition ─── */
+
+      /* ─── Composition ─── */
+
+      /* ─── Galerie ─── */
+
+      /* ─── Duo ─── */
+
+      /* ─── A propos ─── */
+
+    }
+
   </style>
 </head>
 <body class="view-home">
@@ -2799,6 +2857,7 @@
   <script src="js/vendor/gsap.min.js"></script>
   <script src="js/vendor/scrolltrigger.min.js"></script>
   <script src="js/donnees.js"></script>
+  <script src="js/mobile.js"></script>
   <script src="js/pages.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/edition.js"></script>
