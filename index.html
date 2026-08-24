@@ -2719,7 +2719,18 @@
        Sous-sections vides ci-dessous, a remplir session apres session. ═══ */
     @media (max-width: 900px) {
 
-      /* ─── Global (en-tete, elements partages entre toutes les pages) ─── */
+      /* ─── Global (en-tete, elements partages entre toutes les pages) ───
+         Logo agrandi (50px -> 96px) : marges verticales recalculees a la
+         meme proportion que la regle desktop (180px / -54px / -44px) pour
+         conserver le meme cadrage du monogramme et du mot Genève.
+         padding-top des pages hors accueil ajuste en consequence : cette
+         valeur doit toujours correspondre a la hauteur reelle de la
+         nav-bar mobile (8px + hauteur visible du logo + 4px), voir le
+         diagnostic. Barres du burger decalees de 6px vers le bas ;
+         epaisseur des 3 barres non modifiee (deja identique). ─── */
+      .nav-logo img { height: 96px; margin: -29px 0 -23px; }
+      body:not(.view-home) #app { padding-top: 56px; }
+      .nav-burger { top: calc(50% + 6px); }
 
       /* ─── Accueil ─── */
 
