@@ -2710,6 +2710,33 @@
       .xs-edition-titre { white-space: normal; }
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       BLOC MOBILE DEDIE — regles ajoutees pour la serie de modifications
+       mobile (voir estMobile() dans js/mobile.js, meme breakpoint : 900px).
+       Ne jamais deplacer, fusionner ni modifier les @media existants
+       plus haut dans cette feuille : toute regle mobile nouvelle vient ICI,
+       en fin de feuille, pour beneficier du dernier mot dans la cascade.
+       Sous-sections vides ci-dessous, a remplir session apres session. ═══ */
+    @media (max-width: 900px) {
+
+      /* ─── Global (en-tete, elements partages entre toutes les pages) ─── */
+
+      /* ─── Accueil ─── */
+
+      /* ─── Fiche ─── */
+
+      /* ─── Edition ─── */
+
+      /* ─── Composition ─── */
+
+      /* ─── Galerie ─── */
+
+      /* ─── Duo ─── */
+
+      /* ─── A propos ─── */
+
+    }
+
   </style>
 </head>
 <body class="view-home">
@@ -2799,6 +2826,7 @@
   <script src="js/vendor/gsap.min.js"></script>
   <script src="js/vendor/scrolltrigger.min.js"></script>
   <script src="js/donnees.js"></script>
+  <script src="js/mobile.js"></script>
   <script src="js/pages.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/edition.js"></script>
