@@ -306,30 +306,64 @@
       `;
     }
 
-    function compoNarrative(n) {
-      if (n <= 2) return "Hérodote racontait que les Perses ne scellaient rien seuls; un serment se prêtait à deux, jamais à un.";
-      return `Hérodote racontait que les Perses ne scellaient rien seuls; ce serment s'étend ici à ${n}, gravé d'un même geste pour chacun.`;
+    function compoNarrative() {
+      return "Hérodote rapporte qu'un Perse offrant un sacrifice ne pouvait prier pour lui seul; sa prière devait comprendre tous les autres.";
     }
 
+    // Une ligne de recap = un seul gabarit (voir .compo-recap-list li, index.html) : le
+    // libellé (compo-recap-num) est toujours rendu, la zone valeur (compo-recap-value) est
+    // vide tant que l'emplacement ne l'est pas, seule cette derniere change de contenu.
+    function compoRecapLineHTML(s, i) {
+      const name = COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0');
+      const value = s.matiere ? `${s.modele}, ${compoMatiereLabel(s.matiere)}` : '';
+      return `<li><span class="compo-recap-num">${name}</span><span class="compo-recap-value">${value}</span></li>`;
+    }
+
+    // Deux etats du bloc recap, sous la grille de selection : tant que tous les emplacements
+    // actifs ne sont pas remplis, le panneau (surtitre + liste des emplacements) reste affiche
+    // aux cotes de la citation et du lien de demande d'acces ; une fois complet, ce panneau et
+    // le surtitre disparaissent, ne laissant que le titre, le lien d'ajout au panier et la
+    // citation (voir compoAddToCart plus bas). Le bloc lui meme (#compo-recap) reste toujours
+    // dans le flux, is-visible passant simplement d'un contenu a l'autre : aucun saut de mise
+    // en page, aucun retrait/reinsertion de son propre conteneur.
     function compoRenderRecap() {
       const el = document.getElementById('compo-recap');
       if (!el || !compoState) return;
       const slots = compoState.slots;
-      const allFilled = slots.length > 0 && slots.every(s => s.matiere);
-      if (!allFilled) { el.classList.remove('is-visible'); el.innerHTML = ''; return; }
+      if (!slots.length) { el.classList.remove('is-visible'); el.innerHTML = ''; return; }
 
       const n = slots.length;
-      el.innerHTML = `
-        <div class="compo-recap-divider"></div>
-        <span class="compo-recap-eyebrow">Votre édition</span>
-        <h2 class="compo-recap-title">${n} pièce${n > 1 ? 's' : ''}</h2>
-        <ul class="compo-recap-list">
-          ${slots.map((s, i) => `<li><span class="compo-recap-num">${COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0')}</span><span>${s.modele}, ${compoMatiereLabel(s.matiere)}</span></li>`).join('')}
-        </ul>
-        <p class="compo-recap-narrative">${compoNarrative(n)}</p>
-        <span class="xs-lien" onclick="compoRequestAccess()">Demander l'accès<span class="xs-lien-trait"></span></span>
-      `;
+      const allFilled = slots.every(s => s.matiere);
+      const titleHTML = `<h2 class="compo-recap-title">${n} pièce${n > 1 ? 's' : ''}</h2>`;
+      const narrativeHTML = `<p class="compo-recap-narrative">${compoNarrative()}</p>`;
+
+      // <button>, jamais <span> : seul element natif focalisable/activable au clavier sans
+      // attribut supplementaire, meme convention que les autres .xs-lien cliquables du site
+      // (js/accueil.js, js/fiche.js).
+      if (allFilled) {
+        el.innerHTML = `
+          ${titleHTML}
+          <button type="button" class="xs-lien compo-recap-cta" onclick="compoAddToCart()">Ajouter au panier<span class="xs-lien-trait"></span></button>
+          ${narrativeHTML}
+        `;
+      } else {
+        el.innerHTML = `
+          <div class="compo-recap-divider"></div>
+          <span class="compo-recap-eyebrow">Votre édition</span>
+          ${titleHTML}
+          <ul class="compo-recap-list">
+            ${slots.map(compoRecapLineHTML).join('')}
+          </ul>
+          ${narrativeHTML}
+          <button type="button" class="xs-lien" onclick="compoRequestAccess()">Demander l'accès<span class="xs-lien-trait"></span></button>
+        `;
+      }
       el.classList.add('is-visible');
+      // Le lien (.xs-lien) est recree a chaque rendu : reattache son animation de survol,
+      // sinon perdue puisque xsInitLiensDiscrets() n'est sinon appelee qu'au changement de
+      // route (voir js/main.js). Sans effet sur les autres liens de la page (deja attaches,
+      // et remplaces au meme rythme que leur propre vue).
+      if (typeof xsInitLiensDiscrets === 'function') xsInitLiensDiscrets();
     }
 
     function compoRequestAccess() {
@@ -337,4 +371,23 @@
       const lines = compoState.slots.map((s, i) => `${COMPO_SLOT_NAMES[i] || (i + 1)} : ${s.modele}, ${compoMatiereLabel(s.matiere)}`).join('\n');
       window.__compoPrefill = `Je souhaite demander l'accès à l'édition suivante :\n${lines}\n\nMerci de me recontacter.`;
       navigate('contact');
+    }
+
+    // Reutilise le panier partage du site (dgPanier/dgSavePanier/dgPulseCompteur, js/duo.js) :
+    // seule la forme de l'item differe de celle du duo (n emplacements types/modeles/matieres,
+    // pas de prix, cette gamme n'en ayant pas dans COMPO_MATIERES/COMPO_MODELES).
+    function compoAddToCart() {
+      if (!compoState) return;
+      const item = {
+        type: 'edition',
+        slots: compoState.slots.map((s, i) => ({
+          nom: COMPO_SLOT_NAMES[i] || String(i + 1),
+          type: s.type,
+          modele: s.modele,
+          matiere: s.matiere,
+        })),
+      };
+      dgPanier.push(item);
+      dgSavePanier();
+      dgPulseCompteur();
     }
