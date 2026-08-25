@@ -1990,18 +1990,9 @@
       max-width: 540px;
       margin: 0 auto;
       text-align: center;
-      background: rgba(10,10,10,0.55);
+      background: var(--fond);
       position: relative;
       z-index: 2;
-    }
-    .newsletter-label {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre-inverse);
-      opacity: 0.45;
-      margin-bottom: 20px;
-      display: block;
     }
     .newsletter-title {
       font-family: 'Cormorant Garamond', serif;
@@ -2012,17 +2003,17 @@
       margin-bottom: 12px;
     }
     .newsletter-sub {
-      font-size: 8.5px;
-      letter-spacing: 0.22em;
-      color: var(--encre-2);
-      opacity: 0.5;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--encre);
+      opacity: 1;
       margin-bottom: 36px;
       line-height: 1.8;
     }
     .newsletter-form {
       display: flex;
       gap: 0;
-      border-bottom: 1px solid var(--accent-clair);
+      border-bottom: 1px solid var(--accent);
       margin-bottom: 16px;
     }
     .newsletter-input {
@@ -2031,31 +2022,32 @@
       border: none;
       padding: 12px 0;
       font-family: 'Montserrat', sans-serif;
-      font-size: 9px;
-      font-weight: 300;
-      letter-spacing: 0.18em;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
       color: var(--encre);
       outline: none;
     }
-    .newsletter-input::placeholder { color: var(--encre-2); opacity: 0.4; }
+    .newsletter-input::placeholder { color: var(--encre); opacity: 0.9; }
     .newsletter-submit {
       background: transparent;
       border: none;
-      color: var(--encre-inverse);
+      color: var(--accent);
       font-family: 'Montserrat', sans-serif;
-      font-size: 7px;
-      letter-spacing: 0.4em;
+      font-weight: 600;
+      font-size: 10px;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
       cursor: pointer;
       padding: 12px 0 12px 20px;
       transition: opacity 0.2s;
-      opacity: 0.65;
+      opacity: 1;
     }
-    .newsletter-submit:hover { opacity: 1; }
+    .newsletter-submit:hover { opacity: 0.7; }
     .newsletter-success {
       font-size: 8px;
       letter-spacing: 0.25em;
-      color: var(--encre-inverse);
+      color: var(--encre);
       opacity: 0;
       transition: opacity 0.4s;
       text-transform: uppercase;
