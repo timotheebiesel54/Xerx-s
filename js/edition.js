@@ -309,8 +309,8 @@
       `;
     }
 
-    // Resume, affiche une fois tous les emplacements remplis : nombre de pieces, lien
-    // "Ajouter au panier", puis un menu deroulant listant type/matiere de chaque piece.
+    // Resume, affiche une fois tous les emplacements remplis : nombre de pieces et lien
+    // "Ajouter au panier".
     function compoRenderSummary() {
       const el = document.getElementById('compo-summary');
       if (!el || !compoState) return;
@@ -323,41 +323,8 @@
         <div class="compo-summary-divider"></div>
         <h2 class="compo-summary-title">${n} pièce${n > 1 ? 's' : ''}</h2>
         <span class="xs-lien compo-summary-cart" onclick="compoAddToCart()">Ajouter au panier<span class="xs-lien-trait"></span></span>
-        <div class="compo-summary-accordion">
-          <button type="button" class="compo-summary-toggle" id="compo-summary-toggle" onclick="compoToggleDetails()" aria-expanded="false" aria-controls="compo-summary-panel">
-            <span>Composants de l'édition</span>
-            <svg class="compo-summary-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="compo-summary-panel" id="compo-summary-panel">
-            <ul class="compo-summary-list">
-              ${slots.map((s, i) => `
-                <li class="compo-summary-item">
-                  <div class="compo-summary-item-head">
-                    <span class="compo-summary-item-num">${COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0')}</span>
-                    <span class="compo-summary-item-name">${s.modele}</span>
-                  </div>
-                  <ul class="compo-summary-item-details">
-                    <li>Type<span>${s.type === 'bracelet' ? 'Bracelet' : 'Bague'}</span></li>
-                    <li>Matière<span>${compoMatiereLabel(s.matiere)}</span></li>
-                  </ul>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-        </div>
       `;
       el.classList.add('is-visible');
-    }
-
-    function compoToggleDetails() {
-      const toggle = document.getElementById('compo-summary-toggle');
-      const panel = document.getElementById('compo-summary-panel');
-      if (!toggle || !panel) return;
-      const isOpen = panel.classList.toggle('is-open');
-      toggle.classList.toggle('is-open', isOpen);
-      toggle.setAttribute('aria-expanded', String(isOpen));
     }
 
     function compoAddToCart() {
