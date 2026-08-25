@@ -229,8 +229,7 @@
           </div>
         </section>
 
-        <!-- LA MAISON / USINE : teaser à venir, attend les vraies photos -->
-        <section></section>
+        ${xsSavoirFaireHTML()}
 
         <!-- NEWSLETTER -->
         <div class="newsletter-section">

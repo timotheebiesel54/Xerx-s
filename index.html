@@ -788,6 +788,14 @@
       opacity: 1;
       animation: none;
     }
+    /* Sur l'accueil, .xs-savoir-faire suit .dg-section ("Le duo Xerxès"), qui a deja
+       110px de padding-bottom : le margin-top par defaut (100px, pense pour suivre une
+       grille de produits sans padding) doublerait l'espace. Reduit ici pour retrouver
+       l'ecart standard de la page (~120px, voir .xs-genre-section) avant "Rejoindre la
+       liste privee". */
+    body.view-home .xs-savoir-faire {
+      margin-top: 10px;
+    }
 
     /* ─── LISTE PRIVÉE ─── */
     .liste-privee {
