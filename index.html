@@ -744,6 +744,13 @@
       width: 100%;
       max-width: 1100px;
       margin: 100px auto 0;
+      /* Le trait sous "Découvrir" (.xs-lien-trait) est en position absolute, bottom:-10px :
+         il deborde donc de 10px sous la derniere ligne en flux normal (le bouton), sans
+         agrandir la hauteur de ce bloc. Sans ce padding, une section suivante avec son
+         propre fond (ex. .newsletter-section sur l'accueil) demarre juste apres et peint
+         par-dessus ce debord — le trait semble alors coupe ou disparu sous certains volets
+         selon que la largeur de la section suivante recouvre ou non leur colonne. */
+      padding-bottom: 16px;
     }
     .xs-savoir-grille {
       display: grid;
@@ -1192,9 +1199,15 @@
        fond, aucun rayon, aucune ombre, aucun padding horizontal : seul un trait sous le
        texte (.xs-lien-trait), de la largeur exacte du texte puisque l'élément est en
        inline-block sans largeur forcée. Au survol, le trait se rétracte puis se redéploie
-       (xsInitLiensDiscrets() dans main.js, transform: scaleX animé en GSAP, origine fixée
-       à gauche) ; aucun changement de couleur, aucun déplacement du texte. Variante
-       --clair pour un lien posé sur une photo (hero, vue focus de la galerie). */
+       (animation CSS pure, voir @keyframes xs-lien-flourish plus bas) ; aucun changement
+       de couleur, aucun déplacement du texte. Variante --clair pour un lien posé sur une
+       photo (hero, vue focus de la galerie).
+       Ancienne version en GSAP (mouseenter/mouseleave, js/main.js) : un survol interrompu
+       avant la fin du timeline (souris qui quitte vite, ou qui repasse sans re-declencher
+       d'evenement pendant un scroll Lenis) pouvait laisser le trait fige a mi-course, voire
+       invisible. Une animation CSS declenchee par :hover n'a pas ce probleme : la sortie de
+       :hover restaure immediatement le style hors-survol (scaleX(1)) quel que soit l'instant
+       de l'interruption, sans etat JS a resynchroniser. */
     .xs-lien {
       position: relative;
       display: inline-block;
@@ -1218,6 +1231,12 @@
     .xs-lien--clair {
       color: var(--accent-clair);
     }
+    /* Pas de transform au repos (uniquement pendant l'animation :hover, plus bas) : un
+       scaleX(1) permanent sur ce trait de 1px force un calque compose sur GPU, qui a une
+       largeur en pixels fractionnaires (heritee du texte) et un decalage horizontal lui
+       aussi fractionnaire selon la colonne — Chromium peut alors rendre le trait flou,
+       partiel voire invisible. Un simple fond au repos, sans transform, evite ce calque et
+       se peint comme un rectangle CSS ordinaire, sans cet artefact. */
     .xs-lien-trait {
       position: absolute;
       left: 0;
@@ -1226,7 +1245,14 @@
       height: 1px;
       background: currentColor;
       transform-origin: left;
-      transform: scaleX(1);
+    }
+    @keyframes xs-lien-flourish {
+      0% { transform: scaleX(1); }
+      50% { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+    .xs-lien:hover .xs-lien-trait {
+      animation: xs-lien-flourish 0.35s ease;
     }
 
     @media (max-width: 768px) {
@@ -1717,7 +1743,7 @@
        .compo-view exactement comme .compo-slots se centre lui même, ce qui aligne les deux.
        Repris de la typographie des libellés de nav (.nav-groupe li) mais en --encre-2, corps et
        graisse relevés (2.2/2.3, --encre-2 sur fond clair reste sinon trop proche de --encre a
-       12px/400) : volontairement isolé de .xs-lien (voir js/main.js, xsInitLiensDiscrets), aucun
+       12px/400) : volontairement isolé de .xs-lien (voir @keyframes xs-lien-flourish plus haut), aucun
        :hover. Masqué (display:none, sans transition) dès le 4e emplacement, recalculé à chaque
        render par compoRenderSlots — jamais de réapparition tant que n >= 4. */
     .compo-add-lien {

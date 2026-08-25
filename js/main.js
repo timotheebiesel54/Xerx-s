@@ -18,30 +18,6 @@
       });
     }
 
-    // ─── LIENS DISCRETS (voir .xs-lien dans index.html) ───
-    // Attache l'animation de survol du trait sous le texte a chaque lien fraichement
-    // rendu. Appelee apres chaque render() : les elements sont toujours neufs (innerHTML
-    // remplace a chaque navigation), donc jamais de doublon d'ecouteur ni de tween.
-    function xsInitLiensDiscrets() {
-      document.querySelectorAll('.xs-lien').forEach(el => {
-        const trait = el.querySelector('.xs-lien-trait');
-        if (!trait) return;
-        el.addEventListener('mouseenter', () => {
-          gsap.killTweensOf(trait);
-          gsap.timeline()
-            .to(trait, { scaleX: 0, duration: 0.175, ease: 'power2.out' })
-            .to(trait, { scaleX: 1, duration: 0.175, ease: 'power2.out' });
-        });
-        // Si la souris quitte le lien avant la fin du timeline ci-dessus (survol rapide),
-        // rien ne le relancait : le trait restait fige a mi-retraction, voire invisible
-        // (scaleX proche de 0). Force son retour au complet des la sortie.
-        el.addEventListener('mouseleave', () => {
-          gsap.killTweensOf(trait);
-          gsap.to(trait, { scaleX: 1, duration: 0.15, ease: 'power2.out' });
-        });
-      });
-    }
-
     // La route /duo/{id} est la seule vue synchronisee avec l'URL : navigate() y pousse une
     // entree d'historique dediee, et la remet a '/' des qu'on la quitte ; aucune autre vue de
     // ce routeur n'a jamais eu d'URL propre, ce narrow scope n'y change rien.
@@ -79,7 +55,6 @@
         document.body.classList.toggle('view-composition', view === 'composition');
         updateActiveNav(view);
         render(view);
-        xsInitLiensDiscrets();
         app.classList.remove('fade-out');
         // window.scrollTo seul ne suffit pas : Lenis garde sa propre position cible et la
         // reimpose au prochain frame (voir js/vendor/lenis.min.js, setScroll). lenis.scrollTo
@@ -229,6 +204,5 @@
     document.body.classList.toggle('view-home', bootView === 'home');
     updateActiveNav(bootView);
     render(bootView);
-    xsInitLiensDiscrets();
     xsNavScrollCheck();
     majPanier(dgPanier.length);
