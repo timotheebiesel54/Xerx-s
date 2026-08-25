@@ -778,6 +778,10 @@
       color: var(--bronze-lien);
       margin: 0;
     }
+    /* "Les matériaux" (3e volet) se distingue des deux autres titres, restés en --bronze-lien. */
+    .xs-savoir-titre--noir {
+      color: var(--encre);
+    }
     .xs-savoir-texte {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
@@ -1807,6 +1811,12 @@
     }
     .compo-summary-cart {
       display: inline-block;
+    }
+    /* Plus d'air qu'entre les autres blocs de la page (100px, voir .xs-savoir-faire) : sur
+       Édition, ce bloc suit directement le lien "Ajouter au panier", pas une grille de
+       produits comme sur Bagues/Bracelets — un espacement plus large l'en détache mieux. */
+    .compo-view .xs-savoir-faire {
+      margin-top: 220px;
     }
     /* Panneau de sélection (par emplacement) */
     .compo-veil {

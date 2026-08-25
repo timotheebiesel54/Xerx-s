@@ -189,7 +189,7 @@
     // trois volets sont statiques, visibles des le chargement, meme ratio d'image et meme
     // alignement. Images pas encore livrees : blocs de remplacement --fond-2, convention
     // de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
-    // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
+    // images/site/materiaux.webp, coherente avec images/site/edition-gravure.webp deja
     // utilisee sur le site.
     function xsSavoirFaireHTML() {
       return `
@@ -207,8 +207,8 @@
           </div>
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
-            <h3 class="xs-savoir-titre">La gravure</h3>
-            <p class="xs-savoir-texte">Un numéro, porté à deux.</p>
+            <h3 class="xs-savoir-titre xs-savoir-titre--noir">Les matériaux</h3>
+            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
         </div>
       </section>
