@@ -32,6 +32,13 @@
             .to(trait, { scaleX: 0, duration: 0.175, ease: 'power2.out' })
             .to(trait, { scaleX: 1, duration: 0.175, ease: 'power2.out' });
         });
+        // Si la souris quitte le lien avant la fin du timeline ci-dessus (survol rapide),
+        // rien ne le relancait : le trait restait fige a mi-retraction, voire invisible
+        // (scaleX proche de 0). Force son retour au complet des la sortie.
+        el.addEventListener('mouseleave', () => {
+          gsap.killTweensOf(trait);
+          gsap.to(trait, { scaleX: 1, duration: 0.15, ease: 'power2.out' });
+        });
       });
     }
 
