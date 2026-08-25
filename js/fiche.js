@@ -198,16 +198,16 @@
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’atelier</h3>
-            <p class="xs-savoir-texte">Portugal, quelques mains, série courte.</p>
+            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’écrin</h3>
-            <p class="xs-savoir-texte">Un coffret, deux pièces, un cachet de cire.</p>
+            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
-            <h3 class="xs-savoir-titre xs-savoir-titre--noir">Les matériaux</h3>
+            <h3 class="xs-savoir-titre">Les matériaux</h3>
             <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
         </div>
