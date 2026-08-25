@@ -38,6 +38,8 @@
           <button type="button" class="compo-add-lien" id="compo-add-lien" onclick="compoAddLienClick()">Ajouter un autre membre</button>
 
           <div class="compo-summary" id="compo-summary"></div>
+
+          ${xsSavoirFaireHTML()}
         </div>
 
         <div class="compo-veil" id="compo-veil" onclick="compoCloseSlot()"></div>

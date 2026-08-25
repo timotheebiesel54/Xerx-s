@@ -791,7 +791,8 @@
        page commune a toutes les vues), ce qui la laisserait invisible jusqu'a la fin du
        delai/de l'animation. Neutralise ici pour qu'elle soit opaque des le rendu, sans
        dependre du scroll ni d'aucun effet. */
-    .collection-view.animate-in > .xs-savoir-faire {
+    .collection-view.animate-in > .xs-savoir-faire,
+    .compo-view.animate-in > .xs-savoir-faire {
       opacity: 1;
       animation: none;
     }

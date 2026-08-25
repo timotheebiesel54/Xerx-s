@@ -183,6 +183,38 @@
       return CATALOGUE[slug] ? 'fiche-' + slug : null;
     }
 
+    // Bloc "savoir faire" : section fixe apres la derniere vague, hors de .xs-scenes-wrap
+    // (aucun rapport avec le tambour). Commune a Bagues, Bracelets et Editions (contenu
+    // identique, aucune donnee produit). Purement informative, sans navigation ni effet : les
+    // trois volets sont statiques, visibles des le chargement, meme ratio d'image et meme
+    // alignement. Images pas encore livrees : blocs de remplacement --fond-2, convention
+    // de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
+    // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
+    // utilisee sur le site.
+    function xsSavoirFaireHTML() {
+      return `
+      <section class="xs-savoir-faire">
+        <div class="xs-savoir-grille">
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">L’atelier</h3>
+            <p class="xs-savoir-texte">Portugal, quelques mains, série courte.</p>
+          </div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">L’écrin</h3>
+            <p class="xs-savoir-texte">Un coffret, deux pièces, un cachet de cire.</p>
+          </div>
+          <div class="xs-savoir-volet">
+            <div class="xs-savoir-image"></div>
+            <h3 class="xs-savoir-titre">La gravure</h3>
+            <p class="xs-savoir-texte">Un numéro, porté à deux.</p>
+          </div>
+        </div>
+      </section>
+      `;
+    }
+
     function renderCollection(type) {
       const isBagues = type === 'bagues';
       const titre = isBagues ? 'Bagues' : 'Bracelets';
@@ -505,35 +537,7 @@
       </div>
       `;
 
-      // Bloc "savoir faire" : section fixe apres la derniere vague, hors de .xs-scenes-wrap
-      // (aucun rapport avec le tambour). Commune a Bagues et Bracelets (contenu identique,
-      // aucune donnee produit). Purement informative, sans navigation ni effet : les trois
-      // volets sont statiques, visibles des le chargement, meme ratio d'image et meme
-      // alignement. Images pas encore livrees : blocs de remplacement --fond-2, convention
-      // de nom prevue en images/site/atelier.webp, images/site/ecrin.webp,
-      // images/site/gravure.webp, coherente avec images/site/edition-gravure.webp deja
-      // utilisee sur le site.
-      const savoirFaire = `
-      <section class="xs-savoir-faire">
-        <div class="xs-savoir-grille">
-          <div class="xs-savoir-volet">
-            <div class="xs-savoir-image"></div>
-            <h3 class="xs-savoir-titre">L’atelier</h3>
-            <p class="xs-savoir-texte">Portugal, quelques mains, série courte.</p>
-          </div>
-          <div class="xs-savoir-volet">
-            <div class="xs-savoir-image"></div>
-            <h3 class="xs-savoir-titre">L’écrin</h3>
-            <p class="xs-savoir-texte">Un coffret, deux pièces, un cachet de cire.</p>
-          </div>
-          <div class="xs-savoir-volet">
-            <div class="xs-savoir-image"></div>
-            <h3 class="xs-savoir-titre">La gravure</h3>
-            <p class="xs-savoir-texte">Un numéro, porté à deux.</p>
-          </div>
-        </div>
-      </section>
-      `;
+      const savoirFaire = xsSavoirFaireHTML();
 
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
