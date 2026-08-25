@@ -234,7 +234,6 @@
 
         <!-- NEWSLETTER -->
         <div class="newsletter-section">
-          <span class="newsletter-label">Accès privé</span>
           <h2 class="newsletter-title">Rejoindre la liste privée</h2>
           <p class="newsletter-sub">Accès prioritaire aux nouvelles pièces<br>et aux éditions limitées.</p>
           <div class="newsletter-form">
