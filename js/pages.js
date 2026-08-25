@@ -45,8 +45,6 @@
     }
 
     function renderContact() {
-      const compoPrefill = window.__compoPrefill || '';
-      window.__compoPrefill = null;
       app.innerHTML = `
         <div class="back-arrow" onclick="navigate('home')">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -61,7 +59,7 @@
           <form class="contact-form" onsubmit="handleContact(event)">
             <input type="text" class="contact-input" placeholder="Votre nom" required/>
             <input type="email" class="contact-input" placeholder="Votre adresse email" required/>
-            <textarea class="contact-input contact-textarea" placeholder="Votre message">${compoPrefill}</textarea>
+            <textarea class="contact-input contact-textarea" placeholder="Votre message"></textarea>
             <button type="submit" class="contact-btn">Envoyer</button>
           </form>
           <p class="contact-email-alt">Ou directement par email : <a href="mailto:contact@xerxes.com">contact@xerxes.com</a></p>

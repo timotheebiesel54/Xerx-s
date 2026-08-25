@@ -1598,17 +1598,6 @@
       color: var(--encre);
       margin-bottom: 18px;
     }
-    /* Genere dans les deux etats (voir compoSlotHTML, js/edition.js), simplement rendu
-       invisible ici une fois l'emplacement rempli : visibility:hidden (jamais display:none)
-       conserve son encombrement dans le flux flex de .compo-slot, donc le haut de
-       .compo-slot-socle tombe exactement a la meme ordonnee, vide ou rempli — y compris au
-       redimensionnement, puisque c'est le clamp() de .compo-slot-name lui meme qui reserve
-       la hauteur, pas une valeur figee. Le nom reste par ailleurs affiche dans le cadre via
-       .compo-slot-index (absolute) : aucun doublon visible ni annonce en double au lecteur
-       d'ecran (visibility:hidden retire aussi l'element de l'arbre d'accessibilite). */
-    .compo-slot.is-filled .compo-slot-name {
-      visibility: hidden;
-    }
     /* Cadre — rectangle bordé, vide (fond var(--fond) + un + centré) tant qu'aucune pièce
        n'est choisie, puis rempli (fond var(--fond-2)) une fois la sélection faite. La
        bordure reste visible dans les deux états : c'est le même cadre tout du long. */
@@ -1658,15 +1647,6 @@
     }
     .compo-slot-socle--center.compo-slot-socle--with-action {
       padding-top: 44px;
-    }
-    .compo-slot-index {
-      position: absolute;
-      top: 12px;
-      left: 14px;
-      font-size: 7px;
-      letter-spacing: 0.25em;
-      color: var(--encre-2);
-      opacity: 0.5;
     }
     /* Libellé de retrait/vidage — un seul par emplacement (voir compoSlotActionHTML),
        toujours dans la bande reservee par .compo-slot-socle--with-action ci dessus. Libellés
@@ -1792,8 +1772,10 @@
       animation: none;
     }
 
-    /* Récapitulatif */
-    .compo-recap {
+    /* Résumé (une fois toutes les pièces choisies) : nombre de pièces, lien "Ajouter au
+       panier", puis un menu déroulant "Composants de l'édition" détaillant chaque
+       emplacement. Remplace l'ancien récapitulatif (citation + "Demander l'accès"). */
+    .compo-summary {
       max-width: 480px;
       margin: 0 auto;
       opacity: 0;
@@ -1801,67 +1783,115 @@
       overflow: hidden;
       transition: opacity 0.6s ease;
     }
-    .compo-recap.is-visible {
+    .compo-summary.is-visible {
       opacity: 1;
       height: auto;
       overflow: visible;
       margin-top: 88px;
     }
-    .compo-recap-divider {
+    .compo-summary-divider {
       width: 40px;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--fond-2), transparent);
       opacity: 0.55;
       margin: 0 auto 32px;
     }
-    .compo-recap-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.55;
-      margin-bottom: 14px;
-      display: block;
-    }
-    .compo-recap-title {
+    .compo-summary-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(24px, 3.2vw, 32px);
       font-weight: 300;
       letter-spacing: 0.1em;
       color: var(--encre);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
-    .compo-recap-list {
-      list-style: none;
-      margin-bottom: 36px;
+    .compo-summary-cart {
+      display: inline-block;
+      margin-bottom: 48px;
+    }
+    .compo-summary-accordion {
       text-align: left;
+      border-top: 1px solid var(--accent);
     }
-    .compo-recap-list li {
+    .compo-summary-toggle {
+      width: 100%;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 16px;
-      padding: 12px 0;
+      background: none;
+      border: none;
       border-bottom: 1px solid var(--accent);
-      font-size: 11px;
-      letter-spacing: 0.14em;
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 20px 0;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--encre);
-      opacity: 0.85;
+      cursor: pointer;
     }
-    .compo-recap-num {
+    .compo-summary-chevron {
+      width: 16px;
+      height: 16px;
+      flex: none;
+      color: var(--encre-2);
+      transition: transform 0.3s ease;
+    }
+    .compo-summary-toggle.is-open .compo-summary-chevron {
+      transform: rotate(180deg);
+    }
+    .compo-summary-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+    .compo-summary-panel.is-open {
+      max-height: 1200px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .compo-summary-chevron, .compo-summary-panel { transition: none; }
+    }
+    .compo-summary-list {
+      list-style: none;
+      padding: 8px 0 4px;
+    }
+    .compo-summary-item + .compo-summary-item {
+      margin-top: 24px;
+    }
+    .compo-summary-item-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 6px;
+    }
+    .compo-summary-item-num {
       font-size: 8px;
       letter-spacing: 0.2em;
       color: var(--encre-2);
       opacity: 0.7;
     }
-    .compo-recap-narrative {
+    .compo-summary-item-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(14px, 1.6vw, 16px);
-      font-style: italic;
-      line-height: 1.85;
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 0.05em;
       color: var(--encre);
-      opacity: 0.6;
-      margin-bottom: 36px;
     }
+    .compo-summary-item-details { list-style: none; }
+    .compo-summary-item-details li {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--encre);
+      opacity: 0.65;
+    }
+    .compo-summary-item-details li span { color: var(--encre); opacity: 0.85; }
     /* Panneau de sélection (par emplacement) */
     .compo-veil {
       position: fixed;
