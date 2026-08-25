@@ -775,15 +775,7 @@
       font-weight: 300;
       font-size: 22px;
       letter-spacing: 0.14em;
-      color: var(--bronze-lien);
-      margin: 0;
-    }
-    .xs-savoir-texte {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 13px;
-      line-height: 1.75;
-      color: var(--encre-2);
+      color: var(--encre);
       margin: 0;
     }
     /* .xs-savoir-faire est le 3e enfant direct de .collection-view.animate-in : sans cette
@@ -791,7 +783,8 @@
        page commune a toutes les vues), ce qui la laisserait invisible jusqu'a la fin du
        delai/de l'animation. Neutralise ici pour qu'elle soit opaque des le rendu, sans
        dependre du scroll ni d'aucun effet. */
-    .collection-view.animate-in > .xs-savoir-faire {
+    .collection-view.animate-in > .xs-savoir-faire,
+    .compo-view.animate-in > .xs-savoir-faire {
       opacity: 1;
       animation: none;
     }
@@ -1598,17 +1591,6 @@
       color: var(--encre);
       margin-bottom: 18px;
     }
-    /* Genere dans les deux etats (voir compoSlotHTML, js/edition.js), simplement rendu
-       invisible ici une fois l'emplacement rempli : visibility:hidden (jamais display:none)
-       conserve son encombrement dans le flux flex de .compo-slot, donc le haut de
-       .compo-slot-socle tombe exactement a la meme ordonnee, vide ou rempli — y compris au
-       redimensionnement, puisque c'est le clamp() de .compo-slot-name lui meme qui reserve
-       la hauteur, pas une valeur figee. Le nom reste par ailleurs affiche dans le cadre via
-       .compo-slot-index (absolute) : aucun doublon visible ni annonce en double au lecteur
-       d'ecran (visibility:hidden retire aussi l'element de l'arbre d'accessibilite). */
-    .compo-slot.is-filled .compo-slot-name {
-      visibility: hidden;
-    }
     /* Cadre — rectangle bordé, vide (fond var(--fond) + un + centré) tant qu'aucune pièce
        n'est choisie, puis rempli (fond var(--fond-2)) une fois la sélection faite. La
        bordure reste visible dans les deux états : c'est le même cadre tout du long. */
@@ -1658,15 +1640,6 @@
     }
     .compo-slot-socle--center.compo-slot-socle--with-action {
       padding-top: 44px;
-    }
-    .compo-slot-index {
-      position: absolute;
-      top: 12px;
-      left: 14px;
-      font-size: 7px;
-      letter-spacing: 0.25em;
-      color: var(--encre-2);
-      opacity: 0.5;
     }
     /* Libellé de retrait/vidage — un seul par emplacement (voir compoSlotActionHTML),
        toujours dans la bande reservee par .compo-slot-socle--with-action ci dessus. Libellés
@@ -1792,8 +1765,10 @@
       animation: none;
     }
 
-    /* Récapitulatif */
-    .compo-recap {
+    /* Résumé (une fois toutes les pièces choisies) : nombre de pièces, lien "Ajouter au
+       panier", puis un menu déroulant "Composants de l'édition" détaillant chaque
+       emplacement. Remplace l'ancien récapitulatif (citation + "Demander l'accès"). */
+    .compo-summary {
       max-width: 480px;
       margin: 0 auto;
       opacity: 0;
@@ -1801,66 +1776,35 @@
       overflow: hidden;
       transition: opacity 0.6s ease;
     }
-    .compo-recap.is-visible {
+    .compo-summary.is-visible {
       opacity: 1;
       height: auto;
       overflow: visible;
       margin-top: 88px;
     }
-    .compo-recap-divider {
+    .compo-summary-divider {
       width: 40px;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--fond-2), transparent);
       opacity: 0.55;
       margin: 0 auto 32px;
     }
-    .compo-recap-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.55;
-      margin-bottom: 14px;
-      display: block;
-    }
-    .compo-recap-title {
+    .compo-summary-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(24px, 3.2vw, 32px);
       font-weight: 300;
       letter-spacing: 0.1em;
       color: var(--encre);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
-    .compo-recap-list {
-      list-style: none;
-      margin-bottom: 36px;
-      text-align: left;
+    .compo-summary-cart {
+      display: inline-block;
     }
-    .compo-recap-list li {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--accent);
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      color: var(--encre);
-      opacity: 0.85;
-    }
-    .compo-recap-num {
-      font-size: 8px;
-      letter-spacing: 0.2em;
-      color: var(--encre-2);
-      opacity: 0.7;
-    }
-    .compo-recap-narrative {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(14px, 1.6vw, 16px);
-      font-style: italic;
-      line-height: 1.85;
-      color: var(--encre);
-      opacity: 0.6;
-      margin-bottom: 36px;
+    /* Plus d'air qu'entre les autres blocs de la page (100px, voir .xs-savoir-faire) : sur
+       Édition, ce bloc suit directement le lien "Ajouter au panier", pas une grille de
+       produits comme sur Bagues/Bracelets — un espacement plus large l'en détache mieux. */
+    .compo-view .xs-savoir-faire {
+      margin-top: 220px;
     }
     /* Panneau de sélection (par emplacement) */
     .compo-veil {

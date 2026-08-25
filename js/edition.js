@@ -37,7 +37,9 @@
 
           <button type="button" class="compo-add-lien" id="compo-add-lien" onclick="compoAddLienClick()">Ajouter un autre membre</button>
 
-          <div class="compo-recap" id="compo-recap"></div>
+          <div class="compo-summary" id="compo-summary"></div>
+
+          ${xsSavoirFaireHTML()}
         </div>
 
         <div class="compo-veil" id="compo-veil" onclick="compoCloseSlot()"></div>
@@ -49,7 +51,7 @@
         </div>
       `;
       compoRenderSlots();
-      compoRenderRecap();
+      compoRenderSummary();
     }
 
     const COMPO_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="var(--encre)" stroke-width="1.5" stroke-linecap="round"/></svg>';
@@ -81,10 +83,8 @@
       // socle qui n'affiche aucun libelle (emplacements 1/2 vides).
       const socleActionClass = actionHTML ? ' compo-slot-socle--with-action' : '';
       const stateClass = (opts.lone ? ' compo-slot--lone' : '') + (opts.entering ? ' compo-slot--enter' : '');
-      // Genere dans les deux etats (voir .compo-slot.is-filled .compo-slot-name, index.html) :
-      // rendu invisible mais toujours dans le flux une fois rempli, pour reserver exactement
-      // la meme hauteur qu'a l'etat vide — cette hauteur suit le clamp() du font-size, donc
-      // seul l'element reel (pas une valeur calculee a la main) reste juste a tous les viewports.
+      // Affiche dans les deux etats, vide ou rempli : le titre de l'emplacement reste toujours
+      // au dessus du cadre.
       const nameHTML = `<span class="compo-slot-name">${name}</span>`;
 
       if (filled) {
@@ -92,7 +92,6 @@
           <div class="compo-slot is-filled${stateClass}" onclick="compoOpenSlot(${i})">
             ${nameHTML}
             <div class="compo-slot-socle${socleActionClass}">
-              <span class="compo-slot-index">${name}</span>
               <div class="compo-slot-icon">${icon}</div>
               <span class="compo-slot-modele">${slot.modele}</span>
               <span class="compo-slot-matiere">${compoMatiereLabel(slot.matiere)}</span>
@@ -135,7 +134,7 @@
       compoState.slots.push({ type: null, modele: null, matiere: null });
       compoState.justAdded = compoState.slots.length - 1;
       compoRenderSlots();
-      compoRenderRecap();
+      compoRenderSummary();
     }
 
     // Clic sur "Ajouter un autre membre" (voir .compo-add-lien::after) : rétracte d'abord le
@@ -176,7 +175,7 @@
       const doRemove = () => {
         compoState.slots.splice(i, 1);
         compoRenderSlots();
-        compoRenderRecap();
+        compoRenderSummary();
       };
       if (!el || reduceMotion) { doRemove(); return; }
       el.style.transition = 'opacity 0.25s ease';
@@ -192,7 +191,7 @@
       if (!compoState) return;
       compoState.slots[i] = { type: null, modele: null, matiere: null };
       compoRenderSlots();
-      compoRenderRecap();
+      compoRenderSummary();
     }
 
     function compoOpenSlot(i) {
@@ -244,7 +243,7 @@
       compoState.slots[i] = { type: compoState.draftType, modele: compoState.draftModele, matiere: matiereKey };
       compoCloseSlot();
       compoRenderSlots();
-      compoRenderRecap();
+      compoRenderSummary();
     }
 
     function compoRenderPanel() {
@@ -312,13 +311,10 @@
       `;
     }
 
-    function compoNarrative(n) {
-      if (n <= 2) return "Hérodote racontait que les Perses ne scellaient rien seuls; un serment se prêtait à deux, jamais à un.";
-      return `Hérodote racontait que les Perses ne scellaient rien seuls; ce serment s'étend ici à ${n}, gravé d'un même geste pour chacun.`;
-    }
-
-    function compoRenderRecap() {
-      const el = document.getElementById('compo-recap');
+    // Resume, affiche une fois tous les emplacements remplis : nombre de pieces et lien
+    // "Ajouter au panier".
+    function compoRenderSummary() {
+      const el = document.getElementById('compo-summary');
       if (!el || !compoState) return;
       const slots = compoState.slots;
       const allFilled = slots.length > 0 && slots.every(s => s.matiere);
@@ -326,21 +322,20 @@
 
       const n = slots.length;
       el.innerHTML = `
-        <div class="compo-recap-divider"></div>
-        <span class="compo-recap-eyebrow">Votre édition</span>
-        <h2 class="compo-recap-title">${n} pièce${n > 1 ? 's' : ''}</h2>
-        <ul class="compo-recap-list">
-          ${slots.map((s, i) => `<li><span class="compo-recap-num">${COMPO_SLOT_NAMES[i] || String(i + 1).padStart(2, '0')}</span><span>${s.modele}, ${compoMatiereLabel(s.matiere)}</span></li>`).join('')}
-        </ul>
-        <p class="compo-recap-narrative">${compoNarrative(n)}</p>
-        <span class="xs-lien" onclick="compoRequestAccess()">Demander l'accès<span class="xs-lien-trait"></span></span>
+        <div class="compo-summary-divider"></div>
+        <h2 class="compo-summary-title">${n} pièce${n > 1 ? 's' : ''}</h2>
+        <span class="xs-lien compo-summary-cart" onclick="compoAddToCart()">Ajouter au panier<span class="xs-lien-trait"></span></span>
       `;
       el.classList.add('is-visible');
     }
 
-    function compoRequestAccess() {
+    function compoAddToCart() {
       if (!compoState) return;
-      const lines = compoState.slots.map((s, i) => `${COMPO_SLOT_NAMES[i] || (i + 1)} : ${s.modele}, ${compoMatiereLabel(s.matiere)}`).join('\n');
-      window.__compoPrefill = `Je souhaite demander l'accès à l'édition suivante :\n${lines}\n\nMerci de me recontacter.`;
-      navigate('contact');
+      const item = {
+        type: 'composition',
+        slots: compoState.slots.map(s => ({ type: s.type, modele: s.modele, matiere: s.matiere })),
+      };
+      dgPanier.push(item);
+      dgSavePanier();
+      dgPulseCompteur();
     }
