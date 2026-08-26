@@ -212,27 +212,32 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues, Bracelets et Édition : liens de nav, icône compte et icône panier passent
-       en --encre au lieu du --bronze-lien par défaut (voir .nav-groupe li / .nav-action /
-       .nav-pastille plus haut, qui s'appliquent sinon à toutes les routes hors accueil).
-       Scopé à body.view-bagues / body.view-bracelets / body.view-composition (bascule dans
-       navigate(), js/main.js) pour ne pas affecter les autres pages. */
+    /* Pages Bagues, Bracelets, Édition et la vue focus d'un duo (/duo/{id}) : liens de nav,
+       icône compte et icône panier passent en --encre au lieu du --bronze-lien par défaut
+       (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent sinon à
+       toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
+       body.view-composition / body.view-duo (bascule dans navigate(), js/main.js) pour ne pas
+       affecter les autres pages. */
     body.view-bagues .nav-groupe li,
     body.view-bracelets .nav-groupe li,
     body.view-composition .nav-groupe li,
+    body.view-duo .nav-groupe li,
     body.view-bagues .nav-action,
     body.view-bracelets .nav-action,
-    body.view-composition .nav-action {
+    body.view-composition .nav-action,
+    body.view-duo .nav-action {
       color: var(--encre);
     }
     body.view-bagues .nav-groupe li::after,
     body.view-bracelets .nav-groupe li::after,
-    body.view-composition .nav-groupe li::after {
+    body.view-composition .nav-groupe li::after,
+    body.view-duo .nav-groupe li::after {
       background: var(--encre);
     }
     body.view-bagues .nav-pastille,
     body.view-bracelets .nav-pastille,
-    body.view-composition .nav-pastille {
+    body.view-composition .nav-pastille,
+    body.view-duo .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -2286,7 +2291,8 @@
       }
     }
 
-    .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; width: 96vw; max-width: 2100px; margin: 0 auto; }
+    .dg-grid-wrap { position: relative; width: 96vw; max-width: 2100px; margin: 0 auto; }
+    .dg-grid-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; width: 100%; }
     .dg-grid-viewport.is-dragging { cursor: grabbing; }
     .dg-grid-track { display: flex; gap: 32px; width: max-content; user-select: none; will-change: transform; }
     /* Largeur calculee par dgGridApplyItemWidth (js/duo.js) a partir de la largeur mesuree du
@@ -2316,28 +2322,38 @@
       .dg-item { width: 70vw; }
     }
 
-    /* Barre de navigation de la grille : identique dans l'esprit a l'ancien carrousel horloger
-       (progression fine + flèches carrées accolées), masquée entièrement (hidden) si tous les
-       duos tiennent deja dans la largeur visible — jamais de barre ni de flèches inertes. */
-    .dg-grid-nav { display: flex; align-items: center; gap: 24px; width: 96vw; max-width: 2100px; margin: 28px auto 0; }
+    /* Barre de navigation de la grille : ne porte plus que la ligne de progression (position
+       dans le duo) ; masquée entièrement (hidden) si tous les duos tiennent deja dans la largeur
+       visible. Les flèches vivent a part, superposees au centre vertical des images (voir
+       .dg-grid-arrow ci-dessous), et sont elles aussi masquees (hidden) dans ce cas. */
+    .dg-grid-nav { width: 96vw; max-width: 2100px; margin: 28px auto 0; }
     .dg-grid-nav[hidden] { display: none; }
-    .dg-grid-progress { flex: 1 1 auto; height: 2px; background: var(--trait); position: relative; }
+    .dg-grid-progress { height: 2px; background: var(--trait); position: relative; }
     .dg-grid-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--bronze-lien); }
-    .dg-grid-arrows { display: flex; flex: 0 0 auto; }
     .dg-grid-arrow {
-      width: 48px; height: 48px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 64px; height: 64px;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(201, 169, 110, 0.25);
+      border: none;
       background: transparent;
       padding: 0;
       cursor: pointer;
-      color: var(--bronze-lien);
-      transition: border-color 0.4s ease, color 0.4s ease;
+      color: rgba(0, 0, 0, 0.75);
+      z-index: 5;
+      transition: opacity 0.4s ease;
     }
-    .dg-grid-arrow + .dg-grid-arrow { margin-left: -1px; }
-    .dg-grid-arrow svg { width: 18px; height: 18px; display: block; }
-    .dg-grid-arrow:hover:not(:disabled) { border-color: var(--bronze-lien); color: var(--bronze-lien); }
-    .dg-grid-arrow:disabled { opacity: 0.2; pointer-events: none; }
+    .dg-grid-arrow[hidden] { display: none; }
+    .dg-grid-arrow--prev { left: 8px; }
+    .dg-grid-arrow--next { right: 8px; }
+    .dg-grid-arrow svg {
+      width: 40px; height: 40px;
+      display: block;
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+    }
+    .dg-grid-arrow:hover:not(:disabled) { opacity: 0.75; }
+    .dg-grid-arrow:disabled { opacity: 0.35; pointer-events: none; }
 
     /* La page /duo/{id} (voir renderDuo, js/duo.js), rendue par le routeur comme n'importe
        quelle autre page — plus de voile, plus de conteneur fixed, plus de defilement propre :

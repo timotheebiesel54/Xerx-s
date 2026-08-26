@@ -135,6 +135,8 @@
       const nav = dgGridNav;
       if (!nav) return;
       nav.navEl.hidden = nav.maxX <= 0;
+      nav.prevBtn.hidden = nav.maxX <= 0;
+      nav.nextBtn.hidden = nav.maxX <= 0;
     }
 
     function dgGridApply(pos, animate) {
