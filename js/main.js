@@ -53,6 +53,7 @@
         document.body.classList.toggle('view-bagues', view === 'bagues');
         document.body.classList.toggle('view-bracelets', view === 'bracelets');
         document.body.classList.toggle('view-composition', view === 'composition');
+        document.body.classList.toggle('view-duo', view.startsWith('duo-'));
         updateActiveNav(view);
         render(view);
         app.classList.remove('fade-out');
@@ -202,6 +203,7 @@
     const bootView = bootDuoId ? 'duo-' + bootDuoId : 'home';
     currentView = bootView;
     document.body.classList.toggle('view-home', bootView === 'home');
+    document.body.classList.toggle('view-duo', bootView.startsWith('duo-'));
     updateActiveNav(bootView);
     render(bootView);
     xsNavScrollCheck();
