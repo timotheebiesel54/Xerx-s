@@ -207,24 +207,24 @@
             <h2 class="dg-heading-title xs-head-title">Le duo Xerxès</h2>
             <p class="dg-heading-quote">Deux pièces, portées ensemble, sous un même numéro gravé.</p>
           </div>
-          <div class="dg-grid-viewport" id="dg-grid-viewport">
-            <div class="dg-grid-track" id="dg-grid-track"></div>
+          <div class="dg-grid-wrap">
+            <div class="dg-grid-viewport" id="dg-grid-viewport">
+              <div class="dg-grid-track" id="dg-grid-track"></div>
+            </div>
+            <button type="button" class="dg-grid-arrow dg-grid-arrow--prev" id="dg-grid-prev" aria-label="Précédent" hidden>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" class="dg-grid-arrow dg-grid-arrow--next" id="dg-grid-next" aria-label="Suivant" hidden>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
           <div class="dg-grid-nav" id="dg-grid-nav" hidden>
             <div class="dg-grid-progress" id="dg-grid-progress">
               <div class="dg-grid-progress-fill" id="dg-grid-progress-fill"></div>
-            </div>
-            <div class="dg-grid-arrows">
-              <button type="button" class="dg-grid-arrow" id="dg-grid-prev" aria-label="Précédent">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-              <button type="button" class="dg-grid-arrow" id="dg-grid-next" aria-label="Suivant">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
             </div>
           </div>
         </section>
