@@ -24,6 +24,10 @@
             </div>
           </section>
 
+          <div class="maison-inline-media" aria-hidden="true">
+            <span class="maison-chapter-split-media-label">Image à venir</span>
+          </div>
+
           <section class="maison-chapter">
             <h2 class="maison-chapter-title">L'origine</h2>
             <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
