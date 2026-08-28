@@ -90,13 +90,72 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="contact-view animate-in">
-          <span class="contact-eyebrow">Nous écrire</span>
-          <h1 class="contact-title">Contact</h1>
+          <h1 class="contact-title">Nous écrire</h1>
           <p class="contact-subtitle">Une question sur une pièce, une commande,<br>ou simplement envie d\u2019en savoir plus.</p>
           <form class="contact-form" onsubmit="handleContact(event)">
-            <input type="text" class="contact-input" placeholder="Votre nom" required/>
-            <input type="email" class="contact-input" placeholder="Votre adresse email" required/>
-            <textarea class="contact-input contact-textarea" placeholder="Votre message"></textarea>
+            <select class="contact-input contact-select" required>
+              <option value="" disabled selected>Civilité *</option>
+              <option value="madame">Madame</option>
+              <option value="monsieur">Monsieur</option>
+              <option value="non-precise">Non précisé</option>
+            </select>
+
+            <div class="contact-row">
+              <input type="text" class="contact-input" placeholder="Prénom *" required/>
+              <input type="text" class="contact-input" placeholder="Nom *" required/>
+            </div>
+
+            <input type="email" class="contact-input" placeholder="Email *" required/>
+
+            <div class="contact-row contact-row--phone">
+              <select class="contact-input contact-select contact-select--indicatif" required>
+                <option value="+41">+41 Suisse</option>
+                <option value="+33">+33 France</option>
+                <option value="+32">+32 Belgique</option>
+                <option value="+352">+352 Luxembourg</option>
+                <option value="+44">+44 Royaume-Uni</option>
+                <option value="+1">+1 États-Unis / Canada</option>
+              </select>
+              <input type="tel" class="contact-input" placeholder="Numéro de téléphone *" required/>
+            </div>
+
+            <select class="contact-input contact-select" required>
+              <option value="" disabled selected>Objet de la demande *</option>
+              <option value="commande">Une commande</option>
+              <option value="piece">Une pièce Xerxès</option>
+              <option value="presse">Presse &amp; partenariats</option>
+              <option value="autre">Autre demande</option>
+            </select>
+
+            <select class="contact-input contact-select" required>
+              <option value="" disabled selected>Sujet *</option>
+              <option value="question">Question générale</option>
+              <option value="suivi">Suivi de commande</option>
+              <option value="retour">Retour / échange</option>
+              <option value="reparation">Réparation</option>
+              <option value="autre">Autre</option>
+            </select>
+
+            <div class="contact-message-wrap">
+              <div class="contact-message-head">
+                <span class="contact-message-label">Message *</span>
+                <span class="contact-counter" id="contact-counter">0 / 32.000</span>
+              </div>
+              <textarea class="contact-input contact-textarea" placeholder="Votre message" maxlength="32000" required oninput="handleContactCount(this)"></textarea>
+            </div>
+
+            <label class="contact-file">
+              <span class="contact-file-label">+ Choisir un fichier</span>
+              <span class="contact-file-hint">Taille max : 4 Mo</span>
+              <input type="file" class="contact-file-input" onchange="handleContactFile(this)"/>
+            </label>
+            <span class="contact-file-name" id="contact-file-name"></span>
+
+            <label class="contact-consent">
+              <input type="checkbox" required/>
+              <span>J’accepte que mes données soient traitées par Xerxès conformément aux dispositions de la <a onclick="navigate('confidentialite')">Politique de confidentialité</a>.</span>
+            </label>
+
             <button type="submit" class="contact-btn">Envoyer</button>
           </form>
           <p class="contact-email-alt">Ou directement par email : <a href="mailto:contact@xerxes.com">contact@xerxes.com</a></p>
@@ -357,6 +416,16 @@
     function handleContact(e) {
       e.preventDefault();
       e.target.innerHTML = '<p style="font-family:\'Cormorant Garamond\',serif; font-size:18px; font-style:italic; color:var(--accent); opacity:0.7; text-align:center; padding:20px 0;">Message envoyé. Nous vous répondrons sous 48h.</p>';
+    }
+
+    function handleContactCount(textarea) {
+      const compteur = document.getElementById('contact-counter');
+      if (compteur) compteur.textContent = textarea.value.length.toLocaleString('fr-FR') + ' / 32.000';
+    }
+
+    function handleContactFile(input) {
+      const nom = document.getElementById('contact-file-name');
+      if (nom) nom.textContent = input.files.length ? input.files[0].name : '';
     }
 
     function handleNewsletter() {

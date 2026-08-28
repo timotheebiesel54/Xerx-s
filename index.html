@@ -212,36 +212,40 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues, Bracelets, Édition, La Maison et la vue focus d'un duo (/duo/{id}) : liens
-       de nav, icône compte et icône panier passent en --encre au lieu du --bronze-lien par
+    /* Pages Bagues, Bracelets, Édition, La Maison, Contact et la vue focus d'un duo (/duo/{id}) :
+       liens de nav, icône compte et icône panier passent en --encre au lieu du --bronze-lien par
        défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent
        sinon à toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
-       body.view-composition / body.view-duo / body.view-maison (bascule dans navigate(),
-       js/main.js) pour ne pas affecter les autres pages. */
+       body.view-composition / body.view-duo / body.view-maison / body.view-contact (bascule dans
+       navigate(), js/main.js) pour ne pas affecter les autres pages. */
     body.view-bagues .nav-groupe li,
     body.view-bracelets .nav-groupe li,
     body.view-composition .nav-groupe li,
     body.view-duo .nav-groupe li,
     body.view-maison .nav-groupe li,
+    body.view-contact .nav-groupe li,
     body.view-bagues .nav-action,
     body.view-bracelets .nav-action,
     body.view-composition .nav-action,
     body.view-duo .nav-action,
-    body.view-maison .nav-action {
+    body.view-maison .nav-action,
+    body.view-contact .nav-action {
       color: var(--encre);
     }
     body.view-bagues .nav-groupe li::after,
     body.view-bracelets .nav-groupe li::after,
     body.view-composition .nav-groupe li::after,
     body.view-duo .nav-groupe li::after,
-    body.view-maison .nav-groupe li::after {
+    body.view-maison .nav-groupe li::after,
+    body.view-contact .nav-groupe li::after {
       background: var(--encre);
     }
     body.view-bagues .nav-pastille,
     body.view-bracelets .nav-pastille,
     body.view-composition .nav-pastille,
     body.view-duo .nav-pastille,
-    body.view-maison .nav-pastille {
+    body.view-maison .nav-pastille,
+    body.view-contact .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -1358,15 +1362,6 @@
       margin: 0 auto;
       text-align: center;
     }
-    .contact-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.5;
-      margin-bottom: 24px;
-      display: block;
-    }
     .contact-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(32px, 5vw, 52px);
@@ -1409,6 +1404,114 @@
     .contact-textarea {
       resize: none;
       height: 100px;
+    }
+    .contact-row {
+      display: flex;
+      gap: 24px;
+    }
+    .contact-row .contact-input { flex: 1 1 0; min-width: 0; }
+    .contact-select {
+      cursor: pointer;
+      text-align: left;
+    }
+    .contact-select:required:invalid { color: var(--encre-2); opacity: 0.45; }
+    .contact-select option { color: var(--encre); background: var(--fond); }
+    .contact-select--indicatif { flex: 0 0 150px; }
+    .contact-message-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+    .contact-message-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .contact-message-label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--encre-2);
+      opacity: 0.6;
+    }
+    .contact-counter {
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      color: var(--encre-2);
+      opacity: 0.4;
+    }
+    .contact-message-wrap .contact-textarea { width: 100%; }
+    .contact-file {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--accent);
+      padding: 16px 20px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .contact-file-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--encre);
+    }
+    .contact-file-hint {
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--encre-2);
+      opacity: 0.55;
+      white-space: nowrap;
+    }
+    .contact-file-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .contact-file-name {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--encre-2);
+      opacity: 0.6;
+      text-align: left;
+      margin-top: -8px;
+    }
+    .contact-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8.5px;
+      letter-spacing: 0.05em;
+      line-height: 1.7;
+      color: var(--encre-2);
+      opacity: 0.7;
+      cursor: pointer;
+    }
+    .contact-consent input {
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .contact-consent a {
+      color: var(--encre);
+      opacity: 0.9;
+      text-decoration: underline;
+    }
+    @media (max-width: 560px) {
+      .contact-row { flex-direction: column; gap: 16px; }
+      .contact-select--indicatif { flex: 1 1 auto; }
+      .contact-file { flex-direction: column; align-items: flex-start; gap: 6px; }
     }
     .contact-btn {
       margin-top: 8px;
