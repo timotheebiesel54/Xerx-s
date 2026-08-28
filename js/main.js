@@ -253,7 +253,10 @@
       return item.type === 'composition' ? cartPrixComposition(item) : (item.prix || 0);
     }
 
-    function renderCart() {
+    // highlightIndex : index d'un article a signaler juste apres son ajout (voir
+    // cartNotifyAdded plus bas), pour que le tiroir qui s'ouvre montre sans ambiguite
+    // ce qui vient d'entrer dans le panier plutot qu'un simple compteur discret.
+    function renderCart(highlightIndex) {
       const body = document.getElementById('cart-panel-body');
       const totalEl = document.getElementById('cart-panel-total-value');
       const checkoutBtn = document.getElementById('cart-panel-checkout');
@@ -263,6 +266,14 @@
         : dgPanier.map((item, i) => item.type === 'composition' ? cartLigneComposition(item, i) : cartLigneDuo(item, i)).join('');
       totalEl.textContent = `${dgPanier.reduce((somme, item) => somme + cartItemPrix(item), 0)} CHF`;
       if (checkoutBtn) checkoutBtn.disabled = dgPanier.length === 0;
+      if (typeof highlightIndex === 'number') {
+        const rows = body.querySelectorAll('.cart-item');
+        const row = rows[highlightIndex];
+        if (row) {
+          row.classList.add('cart-item--added');
+          row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }
     }
 
     function cartRemoveItem(i) {
@@ -271,8 +282,8 @@
       renderCart();
     }
 
-    function openCart() {
-      renderCart();
+    function openCart(highlightIndex) {
+      renderCart(highlightIndex);
       document.getElementById('cart-overlay').classList.add('open');
       document.getElementById('cart-panel').classList.add('open');
       if (typeof lenis !== 'undefined' && lenis) lenis.stop();
@@ -282,6 +293,13 @@
       document.getElementById('cart-overlay').classList.remove('open');
       document.getElementById('cart-panel').classList.remove('open');
       if (typeof lenis !== 'undefined' && lenis) lenis.start();
+    }
+
+    // Retour visuel explicite apres un clic sur "Ajouter au panier", ou qu'il se trouve
+    // (fiche duo, composition...) : ouvre le tiroir sur l'article qui vient d'etre ajoute,
+    // au lieu du seul pulse discret de la pastille (voir dgPulseCompteur, js/duo.js).
+    function cartNotifyAdded() {
+      openCart(dgPanier.length - 1);
     }
 
     // Chargement direct de /duo/{id} (rechargement de page, lien partage) : la vue s'ouvre

@@ -127,7 +127,7 @@
       font-size: 0.75rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--bronze-lien);
+      color: var(--encre);
       opacity: 0.75;
       cursor: pointer;
       white-space: nowrap;
@@ -140,7 +140,7 @@
       bottom: -6px;
       width: 0;
       height: 1px;
-      background: var(--bronze-lien);
+      background: var(--encre);
       transition: width 0.25s ease, background-color 0.4s ease;
     }
     .nav-groupe li:hover { opacity: 1; }
@@ -162,7 +162,7 @@
       padding: 0;
       margin: 0;
       line-height: 0;
-      color: var(--bronze-lien);
+      color: var(--encre);
       cursor: default;
       opacity: 0.75;
       transition: opacity 0.25s ease, color 0.4s ease;
@@ -213,43 +213,10 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues, Bracelets, Édition, La Maison, Contact et la vue focus d'un duo (/duo/{id}) :
-       liens de nav, icône compte et icône panier passent en --encre au lieu du --bronze-lien par
-       défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent
-       sinon à toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
-       body.view-composition / body.view-duo / body.view-maison / body.view-contact (bascule dans
-       navigate(), js/main.js) pour ne pas affecter les autres pages. */
-    body.view-bagues .nav-groupe li,
-    body.view-bracelets .nav-groupe li,
-    body.view-composition .nav-groupe li,
-    body.view-duo .nav-groupe li,
-    body.view-maison .nav-groupe li,
-    body.view-contact .nav-groupe li,
-    body.view-bagues .nav-action,
-    body.view-bracelets .nav-action,
-    body.view-composition .nav-action,
-    body.view-duo .nav-action,
-    body.view-maison .nav-action,
-    body.view-contact .nav-action {
-      color: var(--encre);
-    }
-    body.view-bagues .nav-groupe li::after,
-    body.view-bracelets .nav-groupe li::after,
-    body.view-composition .nav-groupe li::after,
-    body.view-duo .nav-groupe li::after,
-    body.view-maison .nav-groupe li::after,
-    body.view-contact .nav-groupe li::after {
-      background: var(--encre);
-    }
-    body.view-bagues .nav-pastille,
-    body.view-bracelets .nav-pastille,
-    body.view-composition .nav-pastille,
-    body.view-duo .nav-pastille,
-    body.view-maison .nav-pastille,
-    body.view-contact .nav-pastille {
-      background: var(--encre);
-      color: var(--ivoire-barre);
-    }
+    /* Hors accueil (vue par defaut de .nav-groupe li / .nav-action / .nav-pastille juste
+       au-dessus) : liens, icone compte et icone panier en --encre (noir) sur toutes les
+       pages sans exception, pastille panier seule en --bronze-lien (brun) — c'est deja ce
+       que fixent leurs regles de base, aucune surcharge par page n'est donc necessaire ici. */
 
     /* Logo : marges negatives calibrees sur la marge interne transparente du fichier
        logo.webp (monogramme X centre a ~32% du haut du carre source, mot Genève finissant
@@ -417,6 +384,14 @@
       padding: 28px 0;
       border-bottom: 1px solid var(--trait);
     }
+    /* Signale l'article qui vient d'etre ajoute (voir cartNotifyAdded, js/main.js) : un
+       fondu de fond qui s'estompe seul, aucun retrait de classe necessaire au prochain
+       rendu puisque renderCart() reconstruit tout le innerHTML depuis dgPanier. */
+    @keyframes cartFlash {
+      0% { background: var(--accent-clair); }
+      100% { background: transparent; }
+    }
+    .cart-item--added { animation: cartFlash 1.4s ease; }
     .cart-item-img {
       width: 96px;
       height: 96px;

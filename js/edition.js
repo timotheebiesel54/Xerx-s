@@ -338,4 +338,5 @@
       dgPanier.push(item);
       dgSavePanier();
       dgPulseCompteur();
+      if (typeof cartNotifyAdded === 'function') cartNotifyAdded();
     }
