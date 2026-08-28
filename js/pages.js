@@ -11,34 +11,71 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="maison-view animate-in">
-          <span class="maison-eyebrow">La Maison</span>
           <h1 class="maison-hero-title">Xerxès</h1>
-          <div class="maison-divider"></div>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">Le roi</h2>
-            <p class="maison-chapter-body">Xerxès régna sur le plus vaste empire que l'Antiquité ait connu; des rives de l'Indus aux côtes de la Grèce. Son nom seul convoque la démesure, l'armée innombrable, la flotte entière, le pont jeté sur la mer pour que rien ne lui résiste. On ne suivait pas Xerxès; on le servait, ou on le craignait. Ce nom porte encore, aujourd'hui, ce que peu de noms portent; la mémoire d'une puissance absolue.</p>
+          <section class="maison-chapter maison-chapter--split">
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">L'histoire</h2>
+              <p class="maison-chapter-body">Xerxès régna sur le plus vaste empire que l'Antiquité ait connu; des rives de l'Indus aux côtes de la Grèce. Son nom seul convoque la démesure, l'armée innombrable, la flotte entière, le pont jeté sur la mer pour que rien ne lui résiste. On ne suivait pas Xerxès; on le servait, ou on le craignait. Ce nom porte encore, aujourd'hui, ce que peu de noms portent; la mémoire d'une puissance absolue.</p>
+            </div>
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
           </section>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">L'origine</h2>
-            <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
+          <div class="maison-inline-media-wrap">
+            <div class="maison-inline-media">
+              <div class="maison-inline-media-caption">
+                <span class="maison-inline-media-title">L'atelier</span>
+                <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="maison-duo-wrap">
+            <h2 class="maison-duo-title">Le duo</h2>
+            <div class="maison-duo-grid">
+              <div class="maison-duo-media" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+              <div class="maison-duo-media" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+            </div>
+            <p class="maison-duo-text">Chaque pièce Xerxès existe en deux exemplaires, jamais un seul; une bague, un bracelet, un même numéro d'édition gravé sur les deux. L'une se porte ici; l'autre, ailleurs, portée par une autre personne, liée à la première par un même moment ou une même épreuve traversée ensemble. La pièce n'est pas un bijou; c'est une preuve, celle qu'on n'a pas avancé seul.</p>
+          </div>
+
+          <section class="maison-chapter maison-chapter--split maison-chapter--split-gap">
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Une édition limitée</h2>
+              <p class="maison-chapter-body">L'édition limitée n'est pas ici une rareté commerciale; c'est une appartenance. Ceux qui portent Xerxès se reconnaissent, sans un mot, à un détail que seuls les initiés savent lire. On n'achète pas une place dans ce cercle; on y est admis, par la pièce elle-même et par celui ou celle qui la porte avec vous.</p>
+            </div>
           </section>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">Le duo</h2>
-            <p class="maison-chapter-body">Chaque pièce Xerxès existe en deux exemplaires, jamais un seul; une bague, un bracelet, un même numéro d'édition gravé sur les deux. L'une se porte ici; l'autre, ailleurs, portée par une autre personne, liée à la première par un même moment ou une même épreuve traversée ensemble. La pièce n'est pas un bijou; c'est une preuve, celle qu'on n'a pas avancé seul.</p>
-          </section>
+          <div class="maison-materiaux-wrap">
+            <h2 class="maison-materiaux-title">Matériaux</h2>
+            <div class="maison-materiaux-grid">
+              <div class="maison-materiaux-media maison-materiaux-media--petit" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+              <div class="maison-materiaux-media maison-materiaux-media--grand" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+            </div>
+            <button type="button" class="xs-lien maison-materiaux-lien">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">Le cercle fermé</h2>
-            <p class="maison-chapter-body">L'édition limitée n'est pas ici une rareté commerciale; c'est une appartenance. Ceux qui portent Xerxès se reconnaissent, sans un mot, à un détail que seuls les initiés savent lire. On n'achète pas une place dans ce cercle; on y est admis, par la pièce elle-même et par celui ou celle qui la porte avec vous.</p>
-          </section>
-
-          <div class="maison-closing">
-            <div class="maison-divider maison-divider--small"></div>
-            <p class="maison-closing-text">L'accès privé demeure ouvert à ceux qui souhaitent nous rejoindre.</p>
-            <span class="maison-closing-link" onclick="navigate('home')">Rejoindre la liste privée</span>
+          <div class="newsletter-section">
+            <h2 class="newsletter-title">Rejoindre la liste privée</h2>
+            <p class="newsletter-sub">Accès prioritaire aux nouvelles pièces<br>et aux éditions limitées.</p>
+            <div class="newsletter-form">
+              <input type="email" class="newsletter-input" placeholder="votre adresse email" id="nl-input"/>
+              <button class="newsletter-submit" onclick="handleNewsletter()">Rejoindre</button>
+            </div>
+            <span class="newsletter-success" id="nl-success">Vous êtes sur la liste.</span>
           </div>
         </div>
       `;

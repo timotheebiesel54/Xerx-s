@@ -212,32 +212,36 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues, Bracelets, Édition et la vue focus d'un duo (/duo/{id}) : liens de nav,
-       icône compte et icône panier passent en --encre au lieu du --bronze-lien par défaut
-       (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent sinon à
-       toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
-       body.view-composition / body.view-duo (bascule dans navigate(), js/main.js) pour ne pas
-       affecter les autres pages. */
+    /* Pages Bagues, Bracelets, Édition, La Maison et la vue focus d'un duo (/duo/{id}) : liens
+       de nav, icône compte et icône panier passent en --encre au lieu du --bronze-lien par
+       défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent
+       sinon à toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
+       body.view-composition / body.view-duo / body.view-maison (bascule dans navigate(),
+       js/main.js) pour ne pas affecter les autres pages. */
     body.view-bagues .nav-groupe li,
     body.view-bracelets .nav-groupe li,
     body.view-composition .nav-groupe li,
     body.view-duo .nav-groupe li,
+    body.view-maison .nav-groupe li,
     body.view-bagues .nav-action,
     body.view-bracelets .nav-action,
     body.view-composition .nav-action,
-    body.view-duo .nav-action {
+    body.view-duo .nav-action,
+    body.view-maison .nav-action {
       color: var(--encre);
     }
     body.view-bagues .nav-groupe li::after,
     body.view-bracelets .nav-groupe li::after,
     body.view-composition .nav-groupe li::after,
-    body.view-duo .nav-groupe li::after {
+    body.view-duo .nav-groupe li::after,
+    body.view-maison .nav-groupe li::after {
       background: var(--encre);
     }
     body.view-bagues .nav-pastille,
     body.view-bracelets .nav-pastille,
     body.view-composition .nav-pastille,
-    body.view-duo .nav-pastille {
+    body.view-duo .nav-pastille,
+    body.view-maison .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -1482,31 +1486,14 @@
       margin: 0 auto;
       text-align: center;
     }
-    .maison-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.55;
-      margin-bottom: 20px;
-      display: block;
-    }
     .maison-hero-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(40px, 6vw, 68px);
       font-weight: 300;
       letter-spacing: 0.18em;
       color: var(--encre);
-      margin-bottom: 32px;
+      margin-bottom: 100px;
     }
-    .maison-divider {
-      width: 40px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--fond-2), transparent);
-      opacity: 0.55;
-      margin: 0 auto 80px;
-    }
-    .maison-divider--small { margin-bottom: 32px; }
     .maison-chapter {
       margin-bottom: 88px;
       text-align: left;
@@ -1529,29 +1516,211 @@
       color: var(--encre);
       opacity: 0.7;
     }
-    .maison-closing {
-      margin-top: 40px;
-      text-align: center;
+    /* Premier chapitre ("L'histoire") : sort du couloir centre de 680px (.maison-view) pour
+       s'etaler en deux colonnes plein largeur, texte + emplacement image future. Meme
+       mecanisme de pleine largeur que .xs-edition-titre (position:relative + left:50% +
+       margin-left:-50vw), avec le padding lateral de la nav-bar (48px) pour aligner les bords. */
+    .maison-chapter--split {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 90px;
     }
-    .maison-closing-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(14px, 1.6vw, 17px);
-      font-style: italic;
-      color: var(--encre);
-      opacity: 0.6;
-      margin-bottom: 24px;
+    .maison-chapter-split-text {
+      flex: 1 1 460px;
+      max-width: 560px;
     }
-    .maison-closing-link {
+    .maison-chapter-split-text .maison-chapter-title,
+    .maison-chapter-split-text .maison-chapter-body { margin: 0; }
+    .maison-chapter-split-text .maison-chapter-title { margin-bottom: 22px; }
+    .maison-chapter-split-media {
+      flex: 1 1 460px;
+      max-width: 640px;
+      aspect-ratio: 3 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    .maison-chapter-split-media-label {
       font-size: 8px;
       letter-spacing: 0.4em;
       text-transform: uppercase;
       color: var(--encre);
-      opacity: 0.6;
-      cursor: pointer;
-      transition: opacity 0.25s ease;
+      opacity: 0.35;
     }
-    .maison-closing-link:hover { opacity: 1; }
-
+    @media (max-width: 900px) {
+      .maison-chapter--split { flex-direction: column; gap: 36px; padding: 0 24px; }
+      .maison-chapter-split-text,
+      .maison-chapter-split-media { flex: none; width: 100%; max-width: 100%; }
+    }
+    /* Marge haute genereuse pour detacher un chapitre --split d'une section precedente : pas
+       sur .maison-chapter--split directement (partagee avec "L'histoire", en tete de page, qui
+       n'en a pas besoin). */
+    .maison-chapter--split-gap {
+      margin-top: 180px;
+    }
+    /* Emplacement image future entre "L'histoire" et "L'origine" : plus large que le couloir
+       centre de 680px de .maison-view. Meme mecanisme de breakout 100vw que
+       .maison-chapter--split (left:50% + width:100vw + margin-left:-50vw), mais avec un enfant
+       plafonne a 1200px plutot que deux colonnes : evite toute ambiguite de centrage liee a la
+       largeur du conteneur parent (680px), contrairement a un centrage via left:50% direct sur
+       l'element lui-meme. Marge haute genereuse pour le detacher nettement de la section
+       precedente. */
+    .maison-inline-media-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-top: 180px;
+      margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      justify-content: center;
+    }
+    .maison-inline-media {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 8 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    @media (max-width: 900px) {
+      .maison-inline-media-wrap { padding: 0 24px; }
+    }
+    .maison-inline-media-caption {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .maison-inline-media-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--encre);
+    }
+    /* Section "Le duo" : meme breakout 100vw + plafond 1200px que .maison-inline-media-wrap,
+       titre centre au-dessus de deux emplacements image cote a cote. Marge haute genereuse
+       pour la detacher nettement de l'emplacement image de L'atelier au-dessus. */
+    .maison-duo-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-top: 180px;
+      margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .maison-duo-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--encre);
+      margin: 0 0 64px;
+    }
+    .maison-duo-grid {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .maison-duo-media {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    .maison-duo-text {
+      max-width: 680px;
+      margin: 48px 0 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(15px, 1.9vw, 19px);
+      font-weight: 300;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      color: var(--encre);
+      opacity: 0.7;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .maison-duo-wrap { padding: 0 24px; }
+      .maison-duo-grid { grid-template-columns: 1fr; gap: 24px; }
+    }
+    /* Section "Matériaux" : meme mecanisme que .maison-duo-wrap (breakout 100vw, plafond
+       1200px, titre centre, marge haute genereuse pour la detacher de "Une édition limitée"
+       au-dessus), mais deux emplacements image de tailles differentes (4/3 et 7/3, colonnes en
+       4fr/7fr pour que les deux gardent la meme hauteur) plutot que deux carres identiques.
+       Lien "Découvrir" centre sous la grille. */
+    .maison-materiaux-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-top: 180px;
+      margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .maison-materiaux-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--encre);
+      margin: 0 0 64px;
+    }
+    .maison-materiaux-grid {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 4fr 7fr;
+      gap: 32px;
+    }
+    .maison-materiaux-media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    .maison-materiaux-media--petit { aspect-ratio: 4 / 3; }
+    .maison-materiaux-media--grand { aspect-ratio: 7 / 3; }
+    .maison-materiaux-lien {
+      margin-top: 48px;
+    }
+    @media (max-width: 900px) {
+      .maison-materiaux-wrap { padding: 0 24px; }
+      .maison-materiaux-grid { grid-template-columns: 1fr; gap: 24px; }
+      .maison-materiaux-media--petit,
+      .maison-materiaux-media--grand { aspect-ratio: 4 / 3; }
+    }
     /* ─── PAGE COMPOSITION (Éditions) ─── */
     /* padding-top compense l'absence de surtitre (ex .compo-eyebrow, supprimé) : espace
        jusqu'au H1 cohérent avec les pages Bagues/Bracelets (.collection-view, 120px). */
