@@ -1569,6 +1569,12 @@
       .maison-chapter-split-text,
       .maison-chapter-split-media { flex: none; width: 100%; max-width: 100%; }
     }
+    /* Marge haute genereuse pour detacher un chapitre --split d'une section precedente : pas
+       sur .maison-chapter--split directement (partagee avec "L'histoire", en tete de page, qui
+       n'en a pas besoin). */
+    .maison-chapter--split-gap {
+      margin-top: 180px;
+    }
     /* Emplacement image future entre "L'histoire" et "L'origine" : plus large que le couloir
        centre de 680px de .maison-view. Meme mecanisme de breakout 100vw que
        .maison-chapter--split (left:50% + width:100vw + margin-left:-50vw), mais avec un enfant
