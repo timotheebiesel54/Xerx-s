@@ -43,6 +43,7 @@
                 <span class="maison-chapter-split-media-label">Image à venir</span>
               </div>
             </div>
+            <p class="maison-duo-text">Chaque pièce Xerxès existe en deux exemplaires, jamais un seul; une bague, un bracelet, un même numéro d'édition gravé sur les deux. L'une se porte ici; l'autre, ailleurs, portée par une autre personne, liée à la première par un même moment ou une même épreuve traversée ensemble. La pièce n'est pas un bijou; c'est une preuve, celle qu'on n'a pas avancé seul.</p>
           </div>
 
           <section class="maison-chapter">
