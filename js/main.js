@@ -54,6 +54,7 @@
         document.body.classList.toggle('view-bracelets', view === 'bracelets');
         document.body.classList.toggle('view-composition', view === 'composition');
         document.body.classList.toggle('view-maison', view === 'maison');
+        document.body.classList.toggle('view-contact', view === 'contact');
         document.body.classList.toggle('view-duo', view.startsWith('duo-'));
         updateActiveNav(view);
         render(view);
