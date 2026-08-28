@@ -12,7 +12,6 @@
         </div>
         <div class="maison-view animate-in">
           <h1 class="maison-hero-title">Xerxès</h1>
-          <div class="maison-divider"></div>
 
           <section class="maison-chapter maison-chapter--split">
             <div class="maison-chapter-split-text">
