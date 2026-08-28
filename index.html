@@ -1569,18 +1569,37 @@
       .maison-chapter-split-text,
       .maison-chapter-split-media { flex: none; width: 100%; max-width: 100%; }
     }
-    /* Emplacement image future entre "L'histoire" et "L'origine" : reste dans le couloir
-       centre de 680px de .maison-view (pas de pleine largeur ici), ratio 3/2. Marge haute
-       genereuse pour le detacher nettement de la section precedente. */
-    .maison-inline-media {
-      aspect-ratio: 3 / 2;
+    /* Emplacement image future entre "L'histoire" et "L'origine" : plus large que le couloir
+       centre de 680px de .maison-view. Meme mecanisme de breakout 100vw que
+       .maison-chapter--split (left:50% + width:100vw + margin-left:-50vw), mais avec un enfant
+       plafonne a 1200px plutot que deux colonnes : evite toute ambiguite de centrage liee a la
+       largeur du conteneur parent (680px), contrairement a un centrage via left:50% direct sur
+       l'element lui-meme. Marge haute genereuse pour le detacher nettement de la section
+       precedente. */
+    .maison-inline-media-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
       margin-top: 180px;
       margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      justify-content: center;
+    }
+    .maison-inline-media {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 8 / 3;
       display: flex;
       align-items: center;
       justify-content: center;
       background: var(--fond-2);
       border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    @media (max-width: 900px) {
+      .maison-inline-media-wrap { padding: 0 24px; }
     }
     .maison-closing {
       margin-top: 40px;

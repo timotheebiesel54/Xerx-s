@@ -24,8 +24,10 @@
             </div>
           </section>
 
-          <div class="maison-inline-media" aria-hidden="true">
-            <span class="maison-chapter-split-media-label">Image à venir</span>
+          <div class="maison-inline-media-wrap">
+            <div class="maison-inline-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
           </div>
 
           <section class="maison-chapter">
