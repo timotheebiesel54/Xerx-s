@@ -69,10 +69,14 @@
             <button type="button" class="xs-lien maison-materiaux-lien">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
 
-          <div class="maison-closing">
-            <div class="maison-divider maison-divider--small"></div>
-            <p class="maison-closing-text">L'accès privé demeure ouvert à ceux qui souhaitent nous rejoindre.</p>
-            <span class="maison-closing-link" onclick="navigate('home')">Rejoindre la liste privée</span>
+          <div class="newsletter-section">
+            <h2 class="newsletter-title">Rejoindre la liste privée</h2>
+            <p class="newsletter-sub">Accès prioritaire aux nouvelles pièces<br>et aux éditions limitées.</p>
+            <div class="newsletter-form">
+              <input type="email" class="newsletter-input" placeholder="votre adresse email" id="nl-input"/>
+              <button class="newsletter-submit" onclick="handleNewsletter()">Rejoindre</button>
+            </div>
+            <span class="newsletter-success" id="nl-success">Vous êtes sur la liste.</span>
           </div>
         </div>
       `;
