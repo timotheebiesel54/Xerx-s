@@ -25,8 +25,11 @@
           </section>
 
           <div class="maison-inline-media-wrap">
-            <div class="maison-inline-media" aria-hidden="true">
-              <span class="maison-chapter-split-media-label">Image à venir</span>
+            <div class="maison-inline-media">
+              <div class="maison-inline-media-caption">
+                <span class="maison-inline-media-title">L'atelier</span>
+                <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+              </div>
             </div>
           </div>
 
