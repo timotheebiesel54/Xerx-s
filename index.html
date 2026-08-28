@@ -1615,6 +1615,50 @@
       letter-spacing: 0.08em;
       color: var(--encre);
     }
+    /* Section "Le duo" : meme breakout 100vw + plafond 1200px que .maison-inline-media-wrap,
+       titre centre au-dessus de deux emplacements image cote a cote. Marge haute genereuse
+       pour la detacher nettement de l'emplacement image de L'atelier au-dessus. */
+    .maison-duo-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-top: 180px;
+      margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .maison-duo-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--encre);
+      margin: 0 0 40px;
+    }
+    .maison-duo-grid {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .maison-duo-media {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    @media (max-width: 900px) {
+      .maison-duo-wrap { padding: 0 24px; }
+      .maison-duo-grid { grid-template-columns: 1fr; gap: 24px; }
+    }
     .maison-closing {
       margin-top: 40px;
       text-align: center;

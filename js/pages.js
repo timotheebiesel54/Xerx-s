@@ -33,19 +33,26 @@
             </div>
           </div>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">L'origine</h2>
-            <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
-          </section>
-
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">Le duo</h2>
-            <p class="maison-chapter-body">Chaque pièce Xerxès existe en deux exemplaires, jamais un seul; une bague, un bracelet, un même numéro d'édition gravé sur les deux. L'une se porte ici; l'autre, ailleurs, portée par une autre personne, liée à la première par un même moment ou une même épreuve traversée ensemble. La pièce n'est pas un bijou; c'est une preuve, celle qu'on n'a pas avancé seul.</p>
-          </section>
+          <div class="maison-duo-wrap">
+            <h2 class="maison-duo-title">Le duo</h2>
+            <div class="maison-duo-grid">
+              <div class="maison-duo-media" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+              <div class="maison-duo-media" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+            </div>
+          </div>
 
           <section class="maison-chapter">
             <h2 class="maison-chapter-title">Le cercle fermé</h2>
             <p class="maison-chapter-body">L'édition limitée n'est pas ici une rareté commerciale; c'est une appartenance. Ceux qui portent Xerxès se reconnaissent, sans un mot, à un détail que seuls les initiés savent lire. On n'achète pas une place dans ce cercle; on y est admis, par la pièce elle-même et par celui ou celle qui la porte avec vous.</p>
+          </section>
+
+          <section class="maison-chapter">
+            <h2 class="maison-chapter-title">L'origine</h2>
+            <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
           </section>
 
           <div class="maison-closing">
