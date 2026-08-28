@@ -1524,6 +1524,51 @@
       color: var(--encre);
       opacity: 0.7;
     }
+    /* Premier chapitre ("L'histoire") : sort du couloir centre de 680px (.maison-view) pour
+       s'etaler en deux colonnes plein largeur, texte + emplacement image future. Meme
+       mecanisme de pleine largeur que .xs-edition-titre (position:relative + left:50% +
+       margin-left:-50vw), avec le padding lateral de la nav-bar (48px) pour aligner les bords. */
+    .maison-chapter--split {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 90px;
+    }
+    .maison-chapter-split-text {
+      flex: 1 1 460px;
+      max-width: 560px;
+    }
+    .maison-chapter-split-text .maison-chapter-title,
+    .maison-chapter-split-text .maison-chapter-body { margin: 0; }
+    .maison-chapter-split-text .maison-chapter-title { margin-bottom: 22px; }
+    .maison-chapter-split-media {
+      flex: 1 1 460px;
+      max-width: 640px;
+      aspect-ratio: 3 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    .maison-chapter-split-media-label {
+      font-size: 8px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--encre);
+      opacity: 0.35;
+    }
+    @media (max-width: 900px) {
+      .maison-chapter--split { flex-direction: column; gap: 36px; padding: 0 24px; }
+      .maison-chapter-split-text,
+      .maison-chapter-split-media { flex: none; width: 100%; max-width: 100%; }
+    }
     .maison-closing {
       margin-top: 40px;
       text-align: center;

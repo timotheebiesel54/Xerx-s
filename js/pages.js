@@ -14,9 +14,14 @@
           <h1 class="maison-hero-title">Xerxès</h1>
           <div class="maison-divider"></div>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">Le roi</h2>
-            <p class="maison-chapter-body">Xerxès régna sur le plus vaste empire que l'Antiquité ait connu; des rives de l'Indus aux côtes de la Grèce. Son nom seul convoque la démesure, l'armée innombrable, la flotte entière, le pont jeté sur la mer pour que rien ne lui résiste. On ne suivait pas Xerxès; on le servait, ou on le craignait. Ce nom porte encore, aujourd'hui, ce que peu de noms portent; la mémoire d'une puissance absolue.</p>
+          <section class="maison-chapter maison-chapter--split">
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">L'histoire</h2>
+              <p class="maison-chapter-body">Xerxès régna sur le plus vaste empire que l'Antiquité ait connu; des rives de l'Indus aux côtes de la Grèce. Son nom seul convoque la démesure, l'armée innombrable, la flotte entière, le pont jeté sur la mer pour que rien ne lui résiste. On ne suivait pas Xerxès; on le servait, ou on le craignait. Ce nom porte encore, aujourd'hui, ce que peu de noms portent; la mémoire d'une puissance absolue.</p>
+            </div>
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
           </section>
 
           <section class="maison-chapter">
