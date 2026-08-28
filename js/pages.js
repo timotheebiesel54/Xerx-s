@@ -56,10 +56,18 @@
             </div>
           </section>
 
-          <section class="maison-chapter">
-            <h2 class="maison-chapter-title">L'origine</h2>
-            <p class="maison-chapter-body">Une maison de joaillerie genevoise ne choisit pas ce nom par hasard. Genève est une place d'exigence, de discrétion et de précision; la Perse antique, une place de grandeur et de faste assumés. Entre les deux, une même exigence; ne rien céder sur la matière, ne rien céder sur la forme. Le roi devient ici un principe de travail, pas un costume.</p>
-          </section>
+          <div class="maison-materiaux-wrap">
+            <h2 class="maison-materiaux-title">Matériaux</h2>
+            <div class="maison-materiaux-grid">
+              <div class="maison-materiaux-media maison-materiaux-media--petit" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+              <div class="maison-materiaux-media maison-materiaux-media--grand" aria-hidden="true">
+                <span class="maison-chapter-split-media-label">Image à venir</span>
+              </div>
+            </div>
+            <button type="button" class="xs-lien maison-materiaux-lien">Découvrir<span class="xs-lien-trait"></span></button>
+          </div>
 
           <div class="maison-closing">
             <div class="maison-divider maison-divider--small"></div>

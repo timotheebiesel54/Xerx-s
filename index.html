@@ -1677,6 +1677,58 @@
       .maison-duo-wrap { padding: 0 24px; }
       .maison-duo-grid { grid-template-columns: 1fr; gap: 24px; }
     }
+    /* Section "Matériaux" : meme mecanisme que .maison-duo-wrap (breakout 100vw, plafond
+       1200px, titre centre, marge haute genereuse pour la detacher de "Une édition limitée"
+       au-dessus), mais deux emplacements image de tailles differentes (4/3 et 7/3, colonnes en
+       4fr/7fr pour que les deux gardent la meme hauteur) plutot que deux carres identiques.
+       Lien "Découvrir" centre sous la grille. */
+    .maison-materiaux-wrap {
+      position: relative;
+      left: 50%;
+      width: 100vw;
+      margin-left: -50vw;
+      margin-top: 180px;
+      margin-bottom: 88px;
+      box-sizing: border-box;
+      padding: 0 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .maison-materiaux-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: var(--encre);
+      margin: 0 0 64px;
+    }
+    .maison-materiaux-grid {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 4fr 7fr;
+      gap: 32px;
+    }
+    .maison-materiaux-media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fond-2);
+      border: 1px solid color-mix(in srgb, var(--encre) 15%, transparent);
+    }
+    .maison-materiaux-media--petit { aspect-ratio: 4 / 3; }
+    .maison-materiaux-media--grand { aspect-ratio: 7 / 3; }
+    .maison-materiaux-lien {
+      margin-top: 48px;
+    }
+    @media (max-width: 900px) {
+      .maison-materiaux-wrap { padding: 0 24px; }
+      .maison-materiaux-grid { grid-template-columns: 1fr; gap: 24px; }
+      .maison-materiaux-media--petit,
+      .maison-materiaux-media--grand { aspect-ratio: 4 / 3; }
+    }
     .maison-closing {
       margin-top: 40px;
       text-align: center;
