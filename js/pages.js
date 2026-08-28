@@ -11,7 +11,6 @@
           <span class="back-arrow-label">Accueil</span>
         </div>
         <div class="maison-view animate-in">
-          <span class="maison-eyebrow">La Maison</span>
           <h1 class="maison-hero-title">Xerxès</h1>
           <div class="maison-divider"></div>
 

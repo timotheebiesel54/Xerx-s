@@ -212,32 +212,36 @@
       color: var(--ivoire-barre);
     }
 
-    /* Pages Bagues, Bracelets, Édition et la vue focus d'un duo (/duo/{id}) : liens de nav,
-       icône compte et icône panier passent en --encre au lieu du --bronze-lien par défaut
-       (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent sinon à
-       toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
-       body.view-composition / body.view-duo (bascule dans navigate(), js/main.js) pour ne pas
-       affecter les autres pages. */
+    /* Pages Bagues, Bracelets, Édition, La Maison et la vue focus d'un duo (/duo/{id}) : liens
+       de nav, icône compte et icône panier passent en --encre au lieu du --bronze-lien par
+       défaut (voir .nav-groupe li / .nav-action / .nav-pastille plus haut, qui s'appliquent
+       sinon à toutes les routes hors accueil). Scopé à body.view-bagues / body.view-bracelets /
+       body.view-composition / body.view-duo / body.view-maison (bascule dans navigate(),
+       js/main.js) pour ne pas affecter les autres pages. */
     body.view-bagues .nav-groupe li,
     body.view-bracelets .nav-groupe li,
     body.view-composition .nav-groupe li,
     body.view-duo .nav-groupe li,
+    body.view-maison .nav-groupe li,
     body.view-bagues .nav-action,
     body.view-bracelets .nav-action,
     body.view-composition .nav-action,
-    body.view-duo .nav-action {
+    body.view-duo .nav-action,
+    body.view-maison .nav-action {
       color: var(--encre);
     }
     body.view-bagues .nav-groupe li::after,
     body.view-bracelets .nav-groupe li::after,
     body.view-composition .nav-groupe li::after,
-    body.view-duo .nav-groupe li::after {
+    body.view-duo .nav-groupe li::after,
+    body.view-maison .nav-groupe li::after {
       background: var(--encre);
     }
     body.view-bagues .nav-pastille,
     body.view-bracelets .nav-pastille,
     body.view-composition .nav-pastille,
-    body.view-duo .nav-pastille {
+    body.view-duo .nav-pastille,
+    body.view-maison .nav-pastille {
       background: var(--encre);
       color: var(--ivoire-barre);
     }
@@ -1481,15 +1485,6 @@
       max-width: 680px;
       margin: 0 auto;
       text-align: center;
-    }
-    .maison-eyebrow {
-      font-size: 7.5px;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--encre);
-      opacity: 0.55;
-      margin-bottom: 20px;
-      display: block;
     }
     .maison-hero-title {
       font-family: 'Cormorant Garamond', serif;
