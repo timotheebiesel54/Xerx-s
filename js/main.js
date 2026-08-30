@@ -196,6 +196,110 @@
       if (!pastille) return;
       pastille.textContent = n;
       pastille.hidden = n === 0;
+      const panel = document.getElementById('cart-panel');
+      if (panel && panel.classList.contains('open')) renderCart();
+    }
+
+    // ─── PANIER : panneau lateral ───
+    // Pas de page dediee : un tiroir ancre a droite (voir .cart-panel, index.html), ouvert/
+    // ferme sur le meme modele que le menu mobile (toggleMobileMenu/closeMobileMenu plus haut).
+    // dgPanier (js/duo.js) reste la seule source de verite des articles ; ce bloc ne fait que
+    // les afficher et les retirer.
+    function cartLigneHTML(i, img, nom, detail, prix) {
+      return `
+        <div class="cart-item">
+          <div class="cart-item-img"><img src="${img}" alt="${nom}" onerror="this.onerror=null;this.src='${DG_PANEL_FALLBACK_IMG}';"></div>
+          <div class="cart-item-info">
+            <span class="cart-item-nom">${nom}</span>
+            <span class="cart-item-detail">${detail}</span>
+            <span class="cart-item-prix">${prix} CHF</span>
+          </div>
+          <button type="button" class="cart-item-remove" onclick="cartRemoveItem(${i})" aria-label="Retirer du panier">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5L19 19M19 5L5 19" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      `;
+    }
+
+    function cartDetailPiece(cat, slot) {
+      if (!cat) return '';
+      const mat = (cat.matieres || []).find((m) => m.key === slot.matiere);
+      const label = mat ? mat.label : '';
+      return slot.mesure ? `${cat.nom} — ${label}, taille ${slot.mesure}` : `${cat.nom} — ${label}`;
+    }
+
+    function cartLigneDuo(item, i) {
+      const duo = XS_DUOS.find((d) => d.id === item.duoId);
+      const catG = CATALOGUE[item.gauche.modele];
+      const catD = CATALOGUE[item.droite.modele];
+      const nom = duo ? duo.label : [catG && catG.nom, catD && catD.nom].filter(Boolean).join(' & ');
+      const img = duo ? duo.mainImg : dgProduitSrc(item.gauche.type, item.gauche.modele, item.gauche.matiere);
+      const detail = [cartDetailPiece(catG, item.gauche), cartDetailPiece(catD, item.droite)].filter(Boolean).join('<br>');
+      return cartLigneHTML(i, img, nom, detail, item.prix);
+    }
+
+    function cartPrixComposition(item) {
+      return item.slots.reduce((somme, s) => somme + dgPrixPiece(s, s.matiere), 0);
+    }
+
+    function cartLigneComposition(item, i) {
+      const detail = item.slots.map((s) => cartDetailPiece(CATALOGUE[s.modele], s)).filter(Boolean).join('<br>');
+      const premier = item.slots[0];
+      const img = premier ? dgProduitSrc(premier.type, premier.modele, premier.matiere) : DG_PANEL_FALLBACK_IMG;
+      return cartLigneHTML(i, img, `Composition, ${item.slots.length} pièce${item.slots.length > 1 ? 's' : ''}`, detail, cartPrixComposition(item));
+    }
+
+    function cartItemPrix(item) {
+      return item.type === 'composition' ? cartPrixComposition(item) : (item.prix || 0);
+    }
+
+    // highlightIndex : index d'un article a signaler juste apres son ajout (voir
+    // cartNotifyAdded plus bas), pour que le tiroir qui s'ouvre montre sans ambiguite
+    // ce qui vient d'entrer dans le panier plutot qu'un simple compteur discret.
+    function renderCart(highlightIndex) {
+      const body = document.getElementById('cart-panel-body');
+      const totalEl = document.getElementById('cart-panel-total-value');
+      const checkoutBtn = document.getElementById('cart-panel-checkout');
+      if (!body || !totalEl) return;
+      body.innerHTML = dgPanier.length === 0
+        ? '<p class="cart-panel-empty">Votre panier est vide.</p>'
+        : dgPanier.map((item, i) => item.type === 'composition' ? cartLigneComposition(item, i) : cartLigneDuo(item, i)).join('');
+      totalEl.textContent = `${dgPanier.reduce((somme, item) => somme + cartItemPrix(item), 0)} CHF`;
+      if (checkoutBtn) checkoutBtn.disabled = dgPanier.length === 0;
+      if (typeof highlightIndex === 'number') {
+        const rows = body.querySelectorAll('.cart-item');
+        const row = rows[highlightIndex];
+        if (row) {
+          row.classList.add('cart-item--added');
+          row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }
+    }
+
+    function cartRemoveItem(i) {
+      dgPanier.splice(i, 1);
+      dgSavePanier();
+      renderCart();
+    }
+
+    function openCart(highlightIndex) {
+      renderCart(highlightIndex);
+      document.getElementById('cart-overlay').classList.add('open');
+      document.getElementById('cart-panel').classList.add('open');
+      if (typeof lenis !== 'undefined' && lenis) lenis.stop();
+    }
+
+    function closeCart() {
+      document.getElementById('cart-overlay').classList.remove('open');
+      document.getElementById('cart-panel').classList.remove('open');
+      if (typeof lenis !== 'undefined' && lenis) lenis.start();
+    }
+
+    // Retour visuel explicite apres un clic sur "Ajouter au panier", ou qu'il se trouve
+    // (fiche duo, composition...) : ouvre le tiroir sur l'article qui vient d'etre ajoute,
+    // au lieu du seul pulse discret de la pastille (voir dgPulseCompteur, js/duo.js).
+    function cartNotifyAdded() {
+      openCart(dgPanier.length - 1);
     }
 
     // Chargement direct de /duo/{id} (rechargement de page, lien partage) : la vue s'ouvre
