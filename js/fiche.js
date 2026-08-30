@@ -192,17 +192,17 @@
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’atelier</h3>
-            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+            <button type="button" class="xs-lien" onclick="navigate('atelier')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">L’écrin</h3>
-            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+            <button type="button" class="xs-lien" onclick="navigate('ecrin')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
           <div class="xs-savoir-volet">
             <div class="xs-savoir-image"></div>
             <h3 class="xs-savoir-titre">Les matériaux</h3>
-            <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+            <button type="button" class="xs-lien" onclick="navigate('materiaux')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
         </div>
       </section>
