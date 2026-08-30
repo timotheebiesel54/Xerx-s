@@ -4,12 +4,6 @@
 
     function renderMaison() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="maison-view animate-in">
           <h1 class="maison-hero-title">Xerxès</h1>
 
@@ -83,12 +77,6 @@
 
     function renderContact() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="contact-view animate-in">
           <h1 class="contact-title">Nous écrire</h1>
           <p class="contact-subtitle">Une question sur une pièce, une commande,<br>ou simplement envie d\u2019en savoir plus.</p>
@@ -165,12 +153,6 @@
 
     function renderMentions() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="mentions-view animate-in">
           <h1 class="mentions-title">Mentions légales</h1>
 
@@ -199,12 +181,6 @@
 
     function renderCGV() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="mentions-view animate-in">
           <h1 class="mentions-title">Conditions générales de vente</h1>
 
@@ -286,12 +262,6 @@
 
     function renderConfidentialite() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="mentions-view animate-in">
           <h1 class="mentions-title">Politique de confidentialité</h1>
 
@@ -358,12 +328,6 @@
 
     function renderRetour() {
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="mentions-view animate-in">
           <h1 class="mentions-title">Politique de retour</h1>
 

@@ -45,12 +45,6 @@
       }).join('');
 
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('${m.genre}')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">${m.collection === 'Femme' ? 'Bagues' : 'Bracelets'}</span>
-        </div>
         <div class="fiche-view animate-in">
           <div class="fiche-grid">
 
@@ -540,12 +534,6 @@
       const savoirFaire = xsSavoirFaireHTML();
 
       app.innerHTML = `
-        <div class="back-arrow" onclick="navigate('home')">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="back-arrow-label">Accueil</span>
-        </div>
         <div class="collection-view animate-in">
           <h1 class="collection-title">${titre}</h1>
 
