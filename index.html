@@ -1413,31 +1413,6 @@
       .fiche-visuel { position: static; }
     }
 
-    /* ─── BACK ARROW ─── */
-    .back-arrow {
-      position: fixed;
-      top: 28px;
-      left: 32px;
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      opacity: 0.55;
-      transition: opacity 0.25s ease;
-      text-decoration: none;
-    }
-    .back-arrow:hover { opacity: 1; }
-    .back-arrow svg {
-      width: 18px; height: 18px;
-    }
-    .back-arrow-label {
-      font-size: 7px;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--encre);
-    }
-
     /* ─── FOOTER ─── */
     footer {
       position: relative;
@@ -1497,7 +1472,7 @@
       align-items: center;
       justify-content: center;
       padding: 120px 48px 80px;
-      max-width: 580px;
+      max-width: 720px;
       margin: 0 auto;
       text-align: center;
     }
@@ -1510,10 +1485,10 @@
       margin-bottom: 16px;
     }
     .contact-subtitle {
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.22em;
       color: var(--encre-2);
-      opacity: 0.55;
+      opacity: 0.8;
       margin-bottom: 52px;
       line-height: 1.8;
     }
@@ -1521,16 +1496,16 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 22px;
       margin-bottom: 40px;
     }
     .contact-input {
       background: transparent;
       border: none;
       border-bottom: 1px solid var(--accent);
-      padding: 14px 0;
+      padding: 18px 0;
       font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 300;
       letter-spacing: 0.18em;
       color: var(--encre);
@@ -1538,11 +1513,11 @@
       transition: border-color 0.3s;
       width: 100%;
     }
-    .contact-input::placeholder { color: var(--encre-2); opacity: 0.45; }
+    .contact-input::placeholder { color: var(--encre-2); opacity: 0.75; }
     .contact-input:focus { border-bottom-color: var(--accent); }
     .contact-textarea {
       resize: none;
-      height: 100px;
+      height: 140px;
     }
     .contact-row {
       display: flex;
@@ -1553,7 +1528,7 @@
       cursor: pointer;
       text-align: left;
     }
-    .contact-select:required:invalid { color: var(--encre-2); opacity: 0.45; }
+    .contact-select:required:invalid { color: var(--encre-2); opacity: 0.75; }
     .contact-select option { color: var(--encre); background: var(--fond); }
     .contact-select--indicatif { flex: 0 0 150px; }
     .contact-message-wrap {
@@ -1568,17 +1543,17 @@
       justify-content: space-between;
     }
     .contact-message-label {
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--encre-2);
-      opacity: 0.6;
+      opacity: 0.85;
     }
     .contact-counter {
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: 0.08em;
       color: var(--encre-2);
-      opacity: 0.4;
+      opacity: 0.65;
     }
     .contact-message-wrap .contact-textarea { width: 100%; }
     .contact-file {
@@ -1588,22 +1563,22 @@
       justify-content: space-between;
       gap: 16px;
       border: 1px solid var(--accent);
-      padding: 16px 20px;
+      padding: 20px 22px;
       cursor: pointer;
       text-align: left;
     }
     .contact-file-label {
       font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
+      font-size: 12px;
       letter-spacing: 0.15em;
       color: var(--encre);
     }
     .contact-file-hint {
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--encre-2);
-      opacity: 0.55;
+      opacity: 0.8;
       white-space: nowrap;
     }
     .contact-file-input {
@@ -1616,10 +1591,10 @@
     }
     .contact-file-name {
       display: block;
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.08em;
       color: var(--encre-2);
-      opacity: 0.6;
+      opacity: 0.85;
       text-align: left;
       margin-top: -8px;
     }
@@ -1629,11 +1604,11 @@
       gap: 10px;
       text-align: left;
       font-family: 'Montserrat', sans-serif;
-      font-size: 8.5px;
+      font-size: 10px;
       letter-spacing: 0.05em;
       line-height: 1.7;
       color: var(--encre-2);
-      opacity: 0.7;
+      opacity: 0.9;
       cursor: pointer;
     }
     .contact-consent input {
@@ -1644,7 +1619,7 @@
     }
     .contact-consent a {
       color: var(--encre);
-      opacity: 0.9;
+      opacity: 1;
       text-decoration: underline;
     }
     @media (max-width: 560px) {
@@ -1658,11 +1633,11 @@
       border: 1px solid var(--accent);
       color: var(--encre);
       font-family: 'Montserrat', sans-serif;
-      font-size: 8px;
+      font-size: 9px;
       font-weight: 400;
       letter-spacing: 0.45em;
       text-transform: uppercase;
-      padding: 16px 32px;
+      padding: 18px 40px;
       cursor: pointer;
       transition: background 0.3s, border-color 0.3s;
       align-self: center;
@@ -1672,14 +1647,14 @@
       border-color: var(--accent);
     }
     .contact-email-alt {
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: 0.28em;
       color: var(--encre-2);
-      opacity: 0.4;
+      opacity: 0.65;
     }
     .contact-email-alt a {
       color: var(--encre);
-      opacity: 0.6;
+      opacity: 0.85;
       text-decoration: none;
       transition: opacity 0.2s;
     }
@@ -2529,8 +2504,6 @@
       .collection-title { margin-bottom: 24px; }
 
       .liste-privee { padding: 32px 20px; }
-
-      .back-arrow { top: 20px; left: 18px; }
     }
 
     /* ─── HOME : sélecteur Femme / Homme + trois packshots commutés ───
@@ -2769,7 +2742,7 @@
     /* La page /duo/{id} (voir renderDuo, js/duo.js), rendue par le routeur comme n'importe
        quelle autre page — plus de voile, plus de conteneur fixed, plus de defilement propre :
        #app lui donne deja son padding-top habituel (voir body:not(.view-home) #app plus haut),
-       cette regle n'ajoute qu'un peu d'air avant le lien de retour. Regle absolue pour toute
+       cette regle n'ajoute qu'un peu d'air avant le contenu. Regle absolue pour toute
        cette page : aucune hauteur en pixels ni en pourcentage sur un bloc de contenu, aucun
        overflow hidden, aucun defilement interne — chaque bloc prend la hauteur de son contenu,
        la page s'allonge avec lui. */
@@ -2779,22 +2752,6 @@
       margin: 0 auto;
       padding-top: 40px;
     }
-
-    /* Lien de retour : reprend l'apparence de .back-arrow (meme SVG, meme transition, meme
-       label) mais defile avec la page comme n'importe quel autre element — contrairement a
-       .back-arrow, toujours fixe ailleurs sur le site, rien ici ne doit rester a l'ecran
-       pendant le defilement. */
-    .dg-focus-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      opacity: 0.55;
-      transition: opacity 0.25s ease;
-      margin-bottom: 40px;
-    }
-    .dg-focus-back:hover { opacity: 1; }
-    .dg-focus-back svg { width: 18px; height: 18px; }
 
     /* Clone volant de la transition depuis la grille d'accueil (voir dgOpen, js/duo.js) :
        insere dans <body>, hors de #app, pour survivre au re-rendu de route qui suit le clic. */
