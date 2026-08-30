@@ -101,6 +101,9 @@
       else if (view === 'confidentialite') renderConfidentialite();
       else if (view === 'retour') renderRetour();
       else if (view === 'maison') renderMaison();
+      else if (view === 'atelier') renderAtelier();
+      else if (view === 'ecrin') renderEcrin();
+      else if (view === 'materiaux') renderMateriaux();
       else if (view === 'composition') renderComposition();
     }
 

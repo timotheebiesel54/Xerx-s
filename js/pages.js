@@ -21,7 +21,7 @@
             <div class="maison-inline-media">
               <div class="maison-inline-media-caption">
                 <span class="maison-inline-media-title">L'atelier</span>
-                <button type="button" class="xs-lien">Découvrir<span class="xs-lien-trait"></span></button>
+                <button type="button" class="xs-lien" onclick="navigate('atelier')">Découvrir<span class="xs-lien-trait"></span></button>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@
                 <span class="maison-chapter-split-media-label">Image à venir</span>
               </div>
             </div>
-            <button type="button" class="xs-lien maison-materiaux-lien">Découvrir<span class="xs-lien-trait"></span></button>
+            <button type="button" class="xs-lien maison-materiaux-lien" onclick="navigate('materiaux')">Découvrir<span class="xs-lien-trait"></span></button>
           </div>
 
           <div class="newsletter-section">
@@ -71,6 +71,90 @@
             </div>
             <span class="newsletter-success" id="nl-success">Vous êtes sur la liste.</span>
           </div>
+        </div>
+      `;
+    }
+
+    function renderAtelier() {
+      app.innerHTML = `
+        <div class="maison-view animate-in">
+          <h1 class="maison-hero-title">L'atelier</h1>
+
+          <section class="maison-chapter maison-chapter--split">
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Genève, une même table</h2>
+              <p class="maison-chapter-body">Chaque pièce Xerxès naît sur une même table, à Genève, entre les mains d'un même artisan du premier trait jusqu'à la dernière polissure. Rien n'est délégué, rien n'est standardisé. Une bague met plusieurs semaines à exister avant de pouvoir être portée.</p>
+            </div>
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+          </section>
+
+          <section class="maison-chapter maison-chapter--split maison-chapter--split-gap">
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Le geste avant l'objet</h2>
+              <p class="maison-chapter-body">Une cire sculptée à la main, une fonte, un polissage patient; puis la gravure du numéro d'édition, dernier geste avant que la pièce ne quitte l'atelier. Aucune étape n'est confiée à une machine seule; chacune est reprise, vérifiée, corrigée si besoin, jusqu'à ce que la pièce mérite d'être portée.</p>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderEcrin() {
+      app.innerHTML = `
+        <div class="maison-view animate-in">
+          <h1 class="maison-hero-title">L'écrin</h1>
+
+          <section class="maison-chapter maison-chapter--split">
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Une boîte, deux pièces</h2>
+              <p class="maison-chapter-body">Chaque duo Xerxès voyage dans un même écrin avant de se séparer; une pièce pour vous, une pièce pour l'autre. L'écrin n'est pas un emballage, c'est le dernier lieu où les deux pièces existent encore ensemble, avant d'être portées séparément.</p>
+            </div>
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+          </section>
+
+          <section class="maison-chapter maison-chapter--split maison-chapter--split-gap">
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Le rituel</h2>
+              <p class="maison-chapter-body">À l'ouverture, le numéro d'édition, identique sur les deux pièces, rappelle ce qui les lie. L'écrin se referme, se garde, se transmet; il reste le témoin discret d'un moment que la pièce, elle, continue de porter au quotidien.</p>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderMateriaux() {
+      app.innerHTML = `
+        <div class="maison-view animate-in">
+          <h1 class="maison-hero-title">Matériaux</h1>
+
+          <section class="maison-chapter maison-chapter--split">
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">L'or, matière du souvenir</h2>
+              <p class="maison-chapter-body">Nos bagues sont travaillées en or 18 carats, poli miroir, brossé mat ou biseauté selon la pièce. Un métal choisi pour durer autant que ce qu'il représente, et pour vieillir sans jamais perdre son éclat.</p>
+            </div>
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+          </section>
+
+          <section class="maison-chapter maison-chapter--split maison-chapter--split-gap">
+            <div class="maison-chapter-split-media" aria-hidden="true">
+              <span class="maison-chapter-split-media-label">Image à venir</span>
+            </div>
+            <div class="maison-chapter-split-text">
+              <h2 class="maison-chapter-title">Cuir, soie et acier</h2>
+              <p class="maison-chapter-body">Nos bracelets associent cuir de veau pleine fleur, corde de soie tressée ou mailles d'acier milanais, selon la pièce, à des fermoirs en acier inoxydable ou en or vermeil. Des matières choisies pour leur tenue dans le temps autant que pour leur toucher.</p>
+            </div>
+          </section>
         </div>
       `;
     }
